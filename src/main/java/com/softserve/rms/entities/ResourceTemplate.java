@@ -3,7 +3,6 @@ package com.softserve.rms.entities;
 import javax.persistence.*;
 import java.util.List;
 
-@SuppressWarnings("ALL")
 @Entity(name = "resource_templates")
 public class ResourceTemplate {
     @Id
@@ -16,6 +15,6 @@ public class ResourceTemplate {
     private String description;
     @Column(name = "user_id")
     private Long userId;
-    @OneToMany(mappedBy = "resource_parameter")
+    @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;
 }
