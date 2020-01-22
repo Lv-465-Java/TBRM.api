@@ -13,6 +13,7 @@ public class ResourceTemplate {
     private String name;
     @Column(name = "description")
     private String description;
+    //TODO mapping on users table
     @Column(name = "user_id")
     private Long userId;
     @OneToMany(mappedBy = "resourceTemplate")
