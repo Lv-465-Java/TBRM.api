@@ -16,7 +16,7 @@ public class ResourceParameter {
     private String fieldType;
     @Column(name = "pattern")
     private String pattern;
-    private String tableName;
+    //private String tableName;
     @JoinColumn(name = "resource_id")
     @ManyToOne
     private ResourceTemplate resourceTemplate;

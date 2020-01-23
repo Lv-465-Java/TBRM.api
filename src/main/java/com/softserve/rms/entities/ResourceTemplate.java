@@ -14,8 +14,9 @@ public class ResourceTemplate {
     @Column(name = "description")
     private String description;
     //TODO mapping on users table
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;
 }
