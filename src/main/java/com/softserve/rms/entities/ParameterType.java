@@ -2,12 +2,13 @@ package com.softserve.rms.entities;
 
 public enum ParameterType {
     POINT_INT("Point", "Integer"),
+    //Field type to sequel type
     POINT_DOUBLE("Point", "Double"),
     POINT_STRING("Point", "String"),
     RANGE_DOUBLE("Range", "Double"),
     RANGE_INT("Range", "Integer"),
     AREA_DOUBLE("Area", "Double");
-//    LOCATION("...", "...");
+//    RELATIONSHIP("...", "...");
 
     private String name;
     private String type;
