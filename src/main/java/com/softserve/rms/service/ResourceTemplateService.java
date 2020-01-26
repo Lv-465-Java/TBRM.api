@@ -1,4 +1,20 @@
 package com.softserve.rms.service;
 
-public class ResourceTemplateService {
+import com.softserve.rms.entities.ResourceTemplate;
+
+import java.util.List;
+
+public interface ResourceTemplateService {
+
+    ResourceTemplate getTemplateById(Long id);
+
+    List<ResourceTemplate> getAllByUserId(Long id);
+
+    ResourceTemplate createTemplate();
+
+    ResourceTemplate updateTemplateById(Long id);
+
+    void deleteTemplateById(Long id);
+
+//    List<ResourceTemplate> searchTemplateByNameContaining();
 }
