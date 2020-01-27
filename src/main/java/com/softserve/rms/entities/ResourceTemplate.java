@@ -15,13 +15,10 @@ public class ResourceTemplate {
     private String name;
 
     private String description;
-    //TODO mapping on users table
-
-    private Long userId;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "person_id")
+    private Person person;
 
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;

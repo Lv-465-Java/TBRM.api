@@ -6,17 +6,17 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "users")
+@Entity(name = "persons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "persons")
 @EqualsAndHashCode(
       exclude = {"resource_templates"})
 @ToString(
      exclude = {"resource_templates"})
 
-public class User {
+public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,8 @@ public class User {
 //    @JoinColumn(name = "role_id")
 //    private Role role;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private List<ResourceTemplate> resource_templates = new ArrayList<>();
+    @OneToMany(mappedBy = "person", orphanRemoval = true)
+    private List<ResourceTemplate> resource_templates;
+
 
 }
