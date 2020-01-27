@@ -1,8 +1,7 @@
 package com.softserve.rms.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.softserve.rms.entities.ResourceParameter;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -14,4 +13,13 @@ public class ResourceParameterDTO {
     private String fieldType;
     private String pattern;
     private Long resourceTemplateId;
+
+    public ResourceParameterDTO(ResourceParameter resourceParameter) {
+        id = resourceParameter.getId();
+        name = resourceParameter.getName();
+        typeName = resourceParameter.getTypeName();
+        fieldType = resourceParameter.getFieldType();
+        pattern = resourceParameter.getPattern();
+        resourceTemplateId = resourceParameter.getResourceTemplate().getId();
+    }
 }

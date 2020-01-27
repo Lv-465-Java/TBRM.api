@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.dto.ResourceTemplateDTO;
+import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.ResourceTemplateRepository;
@@ -108,4 +109,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public List<ResourceTemplateDTO> searchTemplateByNameOrDescriptionContaining(String name, String description) {
         return null;
     }
+
+//    public ResourceTemplate getById(Long id) {
+//        return resourceTemplateRepository.findById(id)
+//                .orElseThrow(()-> new RuntimeException("Error"));
+//    }
 }

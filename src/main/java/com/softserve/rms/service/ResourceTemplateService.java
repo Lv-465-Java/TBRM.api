@@ -60,4 +60,6 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     List<ResourceTemplateDTO> searchTemplateByNameOrDescriptionContaining(String name, String description);
+
+
 }
