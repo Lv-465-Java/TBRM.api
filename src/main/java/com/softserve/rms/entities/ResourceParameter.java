@@ -18,10 +18,10 @@ public class ResourceParameter {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "type_name", nullable = false)
+    @Column(nullable = false)
     private String typeName;
 
-    @Column(name = "field_type", nullable = false)
+    @Column(nullable = false)
     private String fieldType;
 
     private String pattern;
