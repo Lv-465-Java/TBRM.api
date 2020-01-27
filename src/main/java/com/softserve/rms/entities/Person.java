@@ -45,7 +45,8 @@ public class Person {
 //    private Role role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)
-    private List<ResourceTemplate> resource_templates;
+    private List<ResourceTemplate> resourceTemplates;
+
 
 
 }
