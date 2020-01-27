@@ -13,7 +13,10 @@ import java.util.Set;
 @AllArgsConstructor
 public class ResourceTemplate {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "resource_templates_id_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "resource_templates_id_seq", sequenceName = "resource_templates_id_seq",
+            allocationSize = 1)
+    @Column(unique = true, nullable = false)
     private Long id;
 
     @Column(nullable = false)
