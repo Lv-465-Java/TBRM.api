@@ -1,13 +1,21 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.constant.ErrorMessage;
+import com.softserve.rms.constant.ValidationConstants;
+import com.softserve.rms.dto.PersonDto;
 import com.softserve.rms.entities.Person;
+import com.softserve.rms.exception.EmailExistException;
+import com.softserve.rms.exception.EmptyFieldException;
+import com.softserve.rms.exception.PasswordsDoNotMatchesException;
 import com.softserve.rms.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Service
 public class PersonValidationService {
@@ -15,6 +23,24 @@ public class PersonValidationService {
     private PersonRepository personRepository;
     private Matcher matcher;
     private Pattern pattern;
+
+    public String validate(PersonDto person) {
+      if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
+            throw new PasswordsDoNotMatchesException(ErrorMessage.PASSWORD_NOT_MATCHES);
+        }else if (!validateName(person.getFirstName())){
+            return ValidationConstants.INVALID_FIRSTNAME;
+        } else if (!validateName(person.getLastName())){
+            return ValidationConstants.INVALID_LASTNAME;
+        } else if (!validateEmail(person.getEmail())){
+            return ValidationConstants.INVALID_EMAIL;
+        } else if(emailExist(person.getEmail())) {
+            throw new EmailExistException(ErrorMessage.USER_WITH_EMAIL_EXIST);
+        }else if (!validatePhoneNumber(person.getPhone())){
+            return ValidationConstants.INVALID_PHONE;
+        }else if ( !validatePassword(person.getPassword())) {
+            return ValidationConstants.INVALID_PASSWORD;
+        } else return null;
+    }
 
 
 
