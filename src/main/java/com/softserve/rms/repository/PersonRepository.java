@@ -4,6 +4,8 @@ import com.softserve.rms.entities.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
     /**
@@ -13,4 +15,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
      * @return Person saved}
      */
     Person save(Person person);
+
+    List<Person> findByEmail(String email);
 }
