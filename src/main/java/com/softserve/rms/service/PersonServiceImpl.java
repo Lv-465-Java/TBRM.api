@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PersonServiceImpl implements PersonService {
+    private final PersonRepository personRepository;
+    
     @Autowired
-    private PersonRepository personRepository;
+    public PersonServiceImpl(PersonRepository personRepository) {
+        this.personRepository=personRepository;
+    }
     //@Autowired
 //    private PasswordEncoder passwordEncoder;
 

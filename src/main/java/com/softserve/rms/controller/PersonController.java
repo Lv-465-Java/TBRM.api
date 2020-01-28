@@ -17,11 +17,15 @@ import javax.validation.Valid;
 
 @RestController
 public class PersonController {
-    @Autowired
     private PersonService personService;
+    private PersonValidationService validateService;
 
     @Autowired
-    private PersonValidationService validateService;
+    public PersonController(PersonService personService,
+                            PersonValidationService validateService){
+        this.personService=personService;
+        this.validateService=validateService;
+    }
 
     @PostMapping("/registration")
     public ResponseEntity createPerson(@Valid @RequestBody PersonDto personDto) {

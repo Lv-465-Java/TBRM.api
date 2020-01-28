@@ -22,10 +22,14 @@ import java.util.stream.Stream;
 
 @Service
 public class PersonValidationService {
-    @Autowired
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
     private Matcher matcher;
     private Pattern pattern;
+
+    @Autowired
+    public PersonValidationService(PersonRepository personRepository){
+        this.personRepository=personRepository;
+    }
 
     public boolean validate(PersonDto person) {
         Map<String, String> map = new HashMap<>();
