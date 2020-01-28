@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 public class PersonServiceImpl implements PersonService {
     @Autowired
     private PersonRepository personRepository;
+    //@Autowired
+//    private PasswordEncoder passwordEncoder;
 
     private Person convertDtoToPerson(PersonDto personDto){
         return Person.builder().
