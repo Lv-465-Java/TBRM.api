@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "persons")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
