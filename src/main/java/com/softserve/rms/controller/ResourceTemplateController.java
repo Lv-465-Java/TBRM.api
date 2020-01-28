@@ -48,7 +48,7 @@ public class ResourceTemplateController {
     }
 
     @DeleteMapping("/resource-template/{id}")
-    public ResponseEntity deleteTemplateById(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteTemplateById(@PathVariable Long id) {
         LOG.info("Deleting Resource Template by ID");
         resourceTemplateService.deleteTemplateById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
