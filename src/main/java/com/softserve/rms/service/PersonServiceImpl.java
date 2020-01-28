@@ -7,11 +7,14 @@ import com.softserve.rms.exception.NotSavedException;
 import com.softserve.rms.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
+
 
 @Service
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
-    
+    private ModelMapper modelMapper = new ModelMapper();
+
     @Autowired
     public PersonServiceImpl(PersonRepository personRepository) {
         this.personRepository=personRepository;
@@ -19,19 +22,10 @@ public class PersonServiceImpl implements PersonService {
     //@Autowired
 //    private PasswordEncoder passwordEncoder;
 
-    private Person convertDtoToPerson(PersonDto personDto){
-        return Person.builder().
-                firstName(personDto.getFirstName()).
-                lastName(personDto.getLastName()).
-                email(personDto.getEmail()).
-                phone(personDto.getPhone()).
-                //password(passwordEncoder.encode(personDto.getPassword())).
-                        password(personDto.getPassword()).
-                        build();
-    }
 
-    public boolean save(PersonDto person) {
-        if(personRepository.save(convertDtoToPerson(person))==null){
+    public boolean save(PersonDto personDto) {
+        //personDto.setPassword(passwordEncoder.encode(personDto.getPassword()));
+        if(personRepository.save(modelMapper.map(personDto,Person.class))==null){
             new NotSavedException(ErrorMessage.USER_NOT_SAVED);
             return false;
         } else
