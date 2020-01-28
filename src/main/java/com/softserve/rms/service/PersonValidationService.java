@@ -6,12 +6,15 @@ import com.softserve.rms.dto.PersonDto;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exception.EmailExistException;
 import com.softserve.rms.exception.EmptyFieldException;
+import com.softserve.rms.exception.InvalidUserRegistrationDataException;
 import com.softserve.rms.exception.PasswordsDoNotMatchesException;
 import com.softserve.rms.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,22 +27,34 @@ public class PersonValidationService {
     private Matcher matcher;
     private Pattern pattern;
 
-    public String validate(PersonDto person) {
-      if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
-            throw new PasswordsDoNotMatchesException(ErrorMessage.PASSWORD_NOT_MATCHES);
-        }else if (!validateName(person.getFirstName())){
-            return ValidationConstants.INVALID_FIRSTNAME;
-        } else if (!validateName(person.getLastName())){
-            return ValidationConstants.INVALID_LASTNAME;
-        } else if (!validateEmail(person.getEmail())){
-            return ValidationConstants.INVALID_EMAIL;
-        } else if(emailExist(person.getEmail())) {
-            throw new EmailExistException(ErrorMessage.USER_WITH_EMAIL_EXIST);
-        }else if (!validatePhoneNumber(person.getPhone())){
-            return ValidationConstants.INVALID_PHONE;
-        }else if ( !validatePassword(person.getPassword())) {
-            return ValidationConstants.INVALID_PASSWORD;
-        } else return null;
+    public boolean validate(PersonDto person) {
+        Map<String, String> map = new HashMap<>();
+        if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
+            map.put("passwordsDoNotMatches",ErrorMessage.PASSWORD_NOT_MATCHES);
+        }
+      if (!validateName(person.getFirstName())){
+            map.put("invalidFirstname",ValidationConstants.INVALID_FIRSTNAME);
+        }
+      if (!validateName(person.getLastName())){
+            map.put("invalidLastname" ,ValidationConstants.INVALID_LASTNAME);
+        }
+      if (!validateEmail(person.getEmail())){
+            map.put("invalidEmail", ValidationConstants.INVALID_EMAIL);
+        }
+      if(emailExist(person.getEmail())) {
+            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
+        }
+      if (!validatePhoneNumber(person.getPhone())){
+            map.put("invalidPhone", ValidationConstants.INVALID_PHONE);
+        }
+      if ( !validatePassword(person.getPassword())) {
+            map.put("invalidPassword", ValidationConstants.INVALID_PASSWORD);
+        }
+        if (map.isEmpty()) {
+            return true;
+        } else {
+            throw new InvalidUserRegistrationDataException(map);
+        }
     }
 
 
