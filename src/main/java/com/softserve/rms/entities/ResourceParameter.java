@@ -14,7 +14,6 @@ public class ResourceParameter {
 
     private String name;
 
-    @Column(name = "table_name")
     private String typeName;
     @Column(name = "field_type")
     private String fieldType;
