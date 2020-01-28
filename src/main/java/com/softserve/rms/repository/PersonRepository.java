@@ -16,5 +16,11 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
      */
     Person save(Person person);
 
+    /**
+     * Find Person by email.
+     *
+     * @param email person email.
+     * @return Person
+     */
     List<Person> findByEmail(String email);
 }
