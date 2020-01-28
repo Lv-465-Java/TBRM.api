@@ -40,4 +40,8 @@ public class PersonValidationService {
         matcher = pattern.matcher(password);
         return matcher.matches();
     }
+
+    private boolean validateName(String name ) {
+        return name.matches( "^([A-Za-z]+((-|')[A-Za-z]+)*){2,}$" );
+    }
 }
