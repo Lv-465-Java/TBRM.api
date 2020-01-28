@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ResourceTemplateController {
@@ -23,34 +24,41 @@ public class ResourceTemplateController {
     }
 
     @PostMapping("/resource-template")
-    public ResponseEntity<ResourceTemplateDTO> createTemplate(@RequestBody ResourceTemplateDTO templateDTO) {
+    public ResponseEntity<ResourceTemplateDTO> create(@RequestBody ResourceTemplateDTO templateDTO) {
         LOG.info("Creating a new Resource Template");
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.createTemplate(templateDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.create(templateDTO));
     }
 
     @GetMapping("/resource-template/{id}")
-    public ResponseEntity<ResourceTemplateDTO> getTemplateById(@PathVariable Long id) {
+    public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
         LOG.info("Getting Resource Template by ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getTemplateById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getById(id));
     }
 
     @GetMapping("/resource-templates/{userId}")
-    public ResponseEntity<List<ResourceTemplateDTO>> getTemplatesByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
         LOG.info("Getting all Resource Templates by User ID");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
     }
 
     @PutMapping("/resource-template/{id}")
-    public ResponseEntity<ResourceTemplateDTO> updateTemplateById
+    public ResponseEntity<ResourceTemplateDTO> updateById
             (@PathVariable Long id, @RequestBody ResourceTemplateDTO templateDTO) {
         LOG.info("Updating Resource Template by ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateTemplateById(id, templateDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, templateDTO));
     }
 
     @DeleteMapping("/resource-template/{id}")
-    public ResponseEntity deleteTemplateById(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteById(@PathVariable Long id) {
         LOG.info("Deleting Resource Template by ID");
-        resourceTemplateService.deleteTemplateById(id);
+        resourceTemplateService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/search-resource-template")
+    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestBody Map<String, String> body) {
+        LOG.info("Search a Resource Template by name or description contains");
+        return ResponseEntity.status(HttpStatus.OK).body
+                (resourceTemplateService.searchByNameOrDescriptionContaining(body));
     }
 }

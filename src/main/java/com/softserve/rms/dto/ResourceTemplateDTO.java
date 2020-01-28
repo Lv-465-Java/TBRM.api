@@ -5,15 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceTemplateDTO {
     private Long id;
-    private String name;
+    private String tableName;
     private String description;
     private Long userId;
-    private Set<ResourceParameter> resourceParameters;
+    private List<ResourceParameter> resourceParameters;
 }

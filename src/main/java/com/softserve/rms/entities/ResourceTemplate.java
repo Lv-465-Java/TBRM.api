@@ -5,30 +5,34 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity(name = "resource_templates")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceTemplate {
+
     @Id
-    @GeneratedValue(generator = "resource_templates_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "resource_templates_id_seq", sequenceName = "resource_templates_id_seq",
-            allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String tableName;
+
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "creator_id")
+    private Person person;
 
     @OneToMany(mappedBy = "resourceTemplate")
-    private Set<ResourceParameter> resourceParameters;
+    private List<ResourceParameter> resourceParameters;
+
+    @OneToMany(mappedBy = "relatedResourceTemplate")
+    private List<ResourceRelation> resourceRelations;
 }
