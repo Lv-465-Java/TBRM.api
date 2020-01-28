@@ -10,7 +10,7 @@ import java.util.List;
 public interface ResourceParameterRepository extends JpaRepository<ResourceParameter, Long> {
 
     /**
-     * Method find all {@link ResourceParameter} by template id.
+     * Method finds all {@link ResourceParameter} by template id.
      *
      * @param id {@link ResourceParameter} id
      * @return list of {@link ResourceParameter}
