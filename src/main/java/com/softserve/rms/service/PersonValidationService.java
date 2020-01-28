@@ -22,4 +22,11 @@ public class PersonValidationService {
             return true;
         } else return false;
     }
+
+    private boolean validateEmail(String email) {
+        pattern = Pattern.compile(
+                "^[a-zA-Z0-9]+((\\.|_|-)?[a-zA-Z0-9])+@[a-zA-Z0-9]+\\.[a-zA-Z]{2,4}$");
+        matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
 }
