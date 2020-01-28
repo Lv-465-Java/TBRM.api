@@ -20,8 +20,8 @@ public class ResourceParameterController {
     }
 
     @PostMapping
-    public ResponseEntity<ResourceParameterDTO> createParameter(@RequestBody ResourceParameterDTO parameterDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.create(parameterDTO));
+    public ResponseEntity<ResourceParameterDTO> save(@RequestBody ResourceParameterDTO parameterDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(parameterDTO));
     }
 
     @GetMapping("/byTemplateId/{templateId}")
@@ -31,7 +31,12 @@ public class ResourceParameterController {
 
     @GetMapping("/byId/{parameterId}")
     public ResponseEntity<ResourceParameterDTO> getOne(@PathVariable Long parameterId) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getOne(parameterId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getByIdDTO(parameterId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResourceParameterDTO>> getAll() {
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getAll());
     }
 
     @PutMapping("/{parameterId}")
@@ -46,5 +51,4 @@ public class ResourceParameterController {
         resourceParameterService.delete(parameterId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
 }

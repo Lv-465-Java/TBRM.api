@@ -14,9 +14,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ResourceParameterServiceImpl implements ResourceParameterService {
@@ -28,9 +26,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         this.resourceParameterRepository = resourceParameterRepository;
     }
 
-
     @Override
-    public ResourceParameterDTO create(ResourceParameterDTO resourceParameterDTO) {
+    public ResourceParameterDTO save(ResourceParameterDTO resourceParameterDTO) {
         ResourceParameter resourceParameter = resourceParameterRepository
                 .save(modelMapper.map(resourceParameterDTO, ResourceParameter.class));
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
@@ -54,41 +51,23 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
+    @Override
+    public List<ResourceParameterDTO> getAll() {
+        return modelMapper.map(resourceParameterRepository.findAll(),
+                new TypeToken<List<ResourceParameterDTO>>() {
+                }.getType());
+    }
+
     private ResourceParameter getById(Long id) {
         return resourceParameterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Error"));
     }
 
     @Override
-    public ResourceParameterDTO getOne(Long id) {
+    public ResourceParameterDTO getByIdDTO(Long id) {
         return modelMapper.map(getById(id),
                 ResourceParameterDTO.class);
     }
-
-//    @Override
-//    public List<ResourceParameterDTO> getAllByTemplateId(Long id) {
-//        List<ResourceParameterDTO> parameters = resourceParameterRepository
-//                .findAllByResourceTemplateId(id)
-//                .stream()
-//                .map(parameter -> modelMapper.map(parameter, ResourceParameterDTO.class))
-//                .collect(Collectors.toList());
-//        if (parameters.isEmpty()) {
-//            throw new RuntimeException("Error");
-//        }
-//        return parameters;
-//    }
-//    @Override
-//    public List<ResourceParameterDTO> getAllByTemplateId(Long id) {
-//        List<ResourceParameterDTO> parameters = resourceParameterRepository
-//                .findAllByResourceTemplateId(id)
-//                .stream()
-//                .map(ResourceParameterDTO::new)
-//                .collect(Collectors.toList());
-//        if (parameters.isEmpty()) {
-//            throw new RuntimeException("Error");
-//        }
-//        return parameters;
-//    }
 
     @Override
     public List<ResourceParameterDTO> getAllByTemplateId(Long id) {
@@ -96,6 +75,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());
     }
+
 
     @Override
     public void delete(Long id) {
