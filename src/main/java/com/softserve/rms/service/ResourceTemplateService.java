@@ -2,7 +2,7 @@ package com.softserve.rms.service;
 
 import com.softserve.rms.dto.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.User;
+import com.softserve.rms.entities.Person;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ public interface ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by user id.
      *
-     * @param id of {@link User}
+     * @param id of {@link Person}
      * @return List of all {@link ResourceTemplateDTO} for user
      * @author Halyna Yatseniuk
      */

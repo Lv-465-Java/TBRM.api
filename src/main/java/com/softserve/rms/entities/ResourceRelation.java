@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Relation {
+public class ResourceRelation {
     @Id
     private Long id;
     @ManyToOne

@@ -16,7 +16,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplate> findAllByUserId(Long id);
+    List<ResourceTemplate> findAllByPersonId(Long id);
 
     /**
      * Method find list of{@link ResourceTemplate} by name or description.

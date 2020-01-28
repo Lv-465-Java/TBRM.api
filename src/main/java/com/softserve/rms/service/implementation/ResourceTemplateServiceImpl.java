@@ -3,7 +3,7 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.User;
+import com.softserve.rms.entities.Person;
 import com.softserve.rms.exceptions.NoSuchEntityException;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
@@ -65,13 +65,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by user id.
      *
-     * @param id of {@link User}
+     * @param id of {@link Person}
      * @return List of all {@link ResourceTemplateDTO} for user
      * @author Halyna Yatseniuk
      */
     @Override
     public List<ResourceTemplateDTO> getAllByUserId(Long id) {
-        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByUserId(id);
+        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByPersonId(id);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());

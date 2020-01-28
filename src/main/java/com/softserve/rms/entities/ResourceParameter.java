@@ -28,5 +28,5 @@ public class ResourceParameter {
     private ResourceTemplate resourceTemplate;
 
     @OneToMany(mappedBy = "resourceParameter")
-    private List<Relation> relationList;
+    private List<ResourceRelation> resourceRelations;
 }
