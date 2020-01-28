@@ -13,9 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "persons")
 @EqualsAndHashCode(
-      exclude = {"resource_templates"})
+      exclude = {"resourceTemplates"})
 @ToString(
-     exclude = {"resource_templates"})
+     exclude = {"resourceTemplates"})
 
 public class Person {
 
