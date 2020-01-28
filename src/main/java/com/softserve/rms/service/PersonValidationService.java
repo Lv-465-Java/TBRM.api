@@ -16,6 +16,12 @@ public class PersonValidationService {
     private Matcher matcher;
     private Pattern pattern;
 
+    private boolean passwordMatches(String password, String passwordConfirm){
+        if(password.equals(passwordConfirm)){
+            return true;
+        }else return false;
+    }
+
     public boolean emailExist(String email) {
         List<Person> people = personRepository.findByEmail(email);
         if (!people.isEmpty()){
