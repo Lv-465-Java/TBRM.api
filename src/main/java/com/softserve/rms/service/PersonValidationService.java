@@ -29,4 +29,8 @@ public class PersonValidationService {
         matcher = pattern.matcher(email);
         return matcher.matches();
     }
+
+    private boolean validatePhoneNumber(String phone) {
+        return phone.matches("^\\+[0-9]{12}$");
+    }
 }
