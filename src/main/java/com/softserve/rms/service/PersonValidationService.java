@@ -33,4 +33,11 @@ public class PersonValidationService {
     private boolean validatePhoneNumber(String phone) {
         return phone.matches("^\\+[0-9]{12}$");
     }
+
+    private boolean validatePassword(String password){
+        pattern = Pattern.compile(
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[~`!@#$*%^&(-_)/><?\"|+=:])[A-Za-z\\d~`!@#*$%^&(-_)/><?\"|+=:]{8,}$");
+        matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
 }
