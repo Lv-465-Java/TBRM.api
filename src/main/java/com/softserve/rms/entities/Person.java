@@ -38,10 +38,9 @@ public class Person {
     private String password;
 
     @Column(nullable = false)
-    private String status;
+    @Builder.Default private boolean enabled=false;
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn(name = "role_id")
 //    private Role role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)
