@@ -21,10 +21,10 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     /**
      * Method find list of{@link ResourceTemplate} by name or description.
      *
-     * @param name of {@link ResourceTemplate}
-     * @param description of {@link ResourceTemplate}
+     * @param name String
+     * @param description String
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplate> findByNameContainingOrDescriptionContaining(String name, String description);
+    List<ResourceTemplate> findByTableNameContainingOrDescriptionContaining(String name, String description);
 }

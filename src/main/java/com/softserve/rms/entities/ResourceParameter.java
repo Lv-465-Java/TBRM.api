@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name = "resource_parameters")
 @Data
@@ -16,17 +17,16 @@ public class ResourceParameter {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(name = "type_name", nullable = false)
-    private String typeName;
+    private String columnName;
 
     @Column(name = "field_type", nullable = false)
-    private String fieldType;
+    private ParameterType parameterType;
 
     private String pattern;
-//    private String tableName;
 
     @ManyToOne
     private ResourceTemplate resourceTemplate;
+
+    @OneToMany(mappedBy = "resourceParameter")
+    private List<Relation> relationList;
 }

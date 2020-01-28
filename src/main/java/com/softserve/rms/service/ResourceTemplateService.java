@@ -5,6 +5,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ResourceTemplateService {
     /**
@@ -14,7 +15,7 @@ public interface ResourceTemplateService {
      * @return new {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO createTemplate(ResourceTemplateDTO resourceTemplateDTO);
+    ResourceTemplateDTO create(ResourceTemplateDTO resourceTemplateDTO);
 
     /**
      * Method finds {@link ResourceTemplate} by id.
@@ -23,7 +24,7 @@ public interface ResourceTemplateService {
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO getTemplateById(Long id);
+    ResourceTemplateDTO getById(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by user id.
@@ -41,7 +42,7 @@ public interface ResourceTemplateService {
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO updateTemplateById(Long id, ResourceTemplateDTO resourceTemplateDTO);
+    ResourceTemplateDTO updateById(Long id, ResourceTemplateDTO resourceTemplateDTO);
 
     /**
      * Method deletes {@link ResourceTemplate} by id.
@@ -49,15 +50,14 @@ public interface ResourceTemplateService {
      * @param id of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    void deleteTemplateById(Long id);
+    void deleteById(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
      *
-     * @param name of {@link ResourceTemplateDTO}
-     * @param description of {@link ResourceTemplateDTO}
+     * @param body map containing String key and String value
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> searchTemplateByNameOrDescriptionContaining(String name, String description);
+    List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body);
 }

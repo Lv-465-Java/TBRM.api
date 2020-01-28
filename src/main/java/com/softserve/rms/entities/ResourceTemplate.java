@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity(name = "resource_templates")
 @Data
@@ -21,7 +20,7 @@ public class ResourceTemplate {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String tableName;
 
     private String description;
 
@@ -30,5 +29,8 @@ public class ResourceTemplate {
     private User user;
 
     @OneToMany(mappedBy = "resourceTemplate")
-    private Set<ResourceParameter> resourceParameters;
+    private List<ResourceParameter> resourceParameters;
+
+    @OneToMany(mappedBy = "relatedResourceTemplate")
+    private List<Relation> relationList;
 }
