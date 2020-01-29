@@ -1,7 +1,8 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.impl;
 
 import com.softserve.rms.constant.ErrorMessage;
-import com.softserve.rms.constant.ValidationConstants;
+import com.softserve.rms.constant.ValidationErrorConstants;
+import com.softserve.rms.constant.ValidationPattern;
 import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exception.InvalidUserRegistrationDataException;
@@ -46,23 +47,23 @@ public class PersonValidationService {
         if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
             map.put("passwordsDoNotMatches",ErrorMessage.PASSWORD_NOT_MATCHES);
         }
-      if (!validateName(person.getFirstName())){
-            map.put("invalidFirstname",ValidationConstants.INVALID_FIRSTNAME);
+      if (!validateByPattern(ValidationPattern.NAME_PATTERN,person.getFirstName())){
+            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
         }
-      if (!validateName(person.getLastName())){
-            map.put("invalidLastname" ,ValidationConstants.INVALID_LASTNAME);
+      if (!validateByPattern(ValidationPattern.NAME_PATTERN,person.getLastName())){
+            map.put("invalidLastName" , ValidationErrorConstants.INVALID_LASTNAME);
         }
-      if (!validateEmail(person.getEmail())){
-            map.put("invalidEmail", ValidationConstants.INVALID_EMAIL);
+      if (!validateByPattern(ValidationPattern.EMAIL_PATTERN,person.getEmail())){
+            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
         }
       if(emailExist(person.getEmail())) {
             map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
         }
-      if (!validatePhoneNumber(person.getPhone())){
-            map.put("invalidPhone", ValidationConstants.INVALID_PHONE);
+      if (!validateByPattern(ValidationPattern.PHONE_PATTERN,person.getPhone())){
+            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
         }
-      if ( !validatePassword(person.getPassword())) {
-            map.put("invalidPassword", ValidationConstants.INVALID_PASSWORD);
+      if ( !validateByPattern(ValidationPattern.PASSWORD_PATTERN,person.getPassword())) {
+            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
         }
         if (map.isEmpty()) {
             return true;
@@ -84,6 +85,18 @@ public class PersonValidationService {
                 person.getPhone(),
                 person.getPassword(),
                 person.getPasswordConfirm()).anyMatch(x -> x.trim().isEmpty());
+    }
+
+    /**
+     * Method that check if entered data match entered string pattern
+     *
+     * @param patternToCheckWith, data
+     * @author Mariia Shchur
+     */
+    private boolean validateByPattern(String patternToCheckWith,String data){
+        pattern = Pattern.compile(patternToCheckWith);
+        matcher = pattern.matcher(data);
+        return matcher.matches();
     }
 
     /**
@@ -111,49 +124,4 @@ public class PersonValidationService {
         } else return false;
     }
 
-    /**
-     * Method that validate email
-     *
-     * @param email
-     * @author Mariia Shchur
-     */
-    private boolean validateEmail(String email) {
-        pattern = Pattern.compile(
-                "^[a-zA-Z0-9]+((\\.|_|-)?[a-zA-Z0-9])+@[a-zA-Z0-9]+\\.[a-zA-Z]{2,4}$");
-        matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
-    /**
-     * Method that validate phone number
-     *
-     * @param phone
-     * @author Mariia Shchur
-     */
-    private boolean validatePhoneNumber(String phone) {
-        return phone.matches("^\\+[0-9]{12}$");
-    }
-
-    /**
-     * Method that validate password
-     *
-     * @param password
-     * @author Mariia Shchur
-     */
-    private boolean validatePassword(String password){
-        pattern = Pattern.compile(
-                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[~`!@#$*%^&(-_)/><?\"|+=:])[A-Za-z\\d~`!@#*$%^&(-_)/><?\"|+=:]{8,}$");
-        matcher = pattern.matcher(password);
-        return matcher.matches();
-    }
-
-    /**
-     * Method that validate name
-     *
-     * @param name
-     * @author Mariia Shchur
-     */
-    private boolean validateName(String name ) {
-        return name.matches( "^([A-Za-z]+((-|')[A-Za-z]+)*){2,}$" );
-    }
 }
