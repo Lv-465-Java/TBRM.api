@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "persons")
@@ -23,7 +24,7 @@ public class Person {
     @Column( nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false,unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)
