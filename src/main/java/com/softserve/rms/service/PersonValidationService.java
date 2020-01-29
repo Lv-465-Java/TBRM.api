@@ -33,6 +33,9 @@ public class PersonValidationService {
 
     public boolean validate(PersonDto person) {
         Map<String, String> map = new HashMap<>();
+        if(isEmpty(person)){
+            map.put("emptyField",ErrorMessage.EMPTY_FIELD);
+        }
         if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
             map.put("passwordsDoNotMatches",ErrorMessage.PASSWORD_NOT_MATCHES);
         }
@@ -61,7 +64,14 @@ public class PersonValidationService {
         }
     }
 
-
+    private boolean isEmpty(PersonDto person){
+        return Stream.of(person.getFirstName(),
+                person.getLastName(),
+                person.getEmail(),
+                person.getPhone(),
+                person.getPassword(),
+                person.getPasswordConfirm()).anyMatch(x -> x.trim().isEmpty());
+    }
 
     private boolean passwordMatches(String password, String passwordConfirm){
         if(password.equals(passwordConfirm)){
