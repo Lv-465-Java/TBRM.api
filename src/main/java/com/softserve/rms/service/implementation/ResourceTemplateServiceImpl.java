@@ -124,13 +124,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .collect(Collectors.toList());
     }
 
-    private ResourceTemplate findById(Long id) {
+    public ResourceTemplate findById(Long id) {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
-
-//    public ResourceTemplate getById(Long id) {
-//        return resourceTemplateRepository.findById(id)
-//                .orElseThrow(()-> new RuntimeException("Error"));
-//    }
 }

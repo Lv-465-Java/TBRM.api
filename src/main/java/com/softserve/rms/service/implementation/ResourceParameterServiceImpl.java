@@ -2,10 +2,13 @@ package com.softserve.rms.service.implementation;
 
 
 import com.softserve.rms.dto.ResourceParameterDTO;
+import com.softserve.rms.dto.ResourceRelationDTO;
 import com.softserve.rms.entities.ResourceParameter;
+import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
+import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import java.util.List;
 public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceParameterRepository resourceParameterRepository;
     private final ResourceRelationRepository resourceRelationRepository;
+    private final ResourceTemplateService resourceTemplateService;
+
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -30,8 +35,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceParameterServiceImpl(ResourceParameterRepository resourceParameterRepository, ResourceRelationRepository resourceRelationRepository) {
+    public ResourceParameterServiceImpl(ResourceParameterRepository resourceParameterRepository,
+                                        ResourceTemplateService resourceTemplateService,
+                                        ResourceRelationRepository resourceRelationRepository) {
         this.resourceParameterRepository = resourceParameterRepository;
+        this.resourceTemplateService = resourceTemplateService;
         this.resourceRelationRepository = resourceRelationRepository;
     }
 
@@ -41,10 +49,12 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO save(ResourceParameterDTO resourceParameterDTO) {
+    public ResourceParameterDTO save(ResourceParameterDTO parameterDTO) {
         ResourceParameter resourceParameter = resourceParameterRepository
-                .save(modelMapper.map(resourceParameterDTO, ResourceParameter.class));
-//        resourceRelationRepository.saveAll(resourceParameterDTO.getResourceRelations());
+                .save(getResourceParameter(null, parameterDTO));
+        if (parameterDTO.getResourceRelations() != null) {
+            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
+        }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
@@ -54,35 +64,35 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO update(Long id, ResourceParameterDTO resourceParameterDTO) {
-        ResourceParameter resourceParameter = getById(id);
-        if (!resourceParameterDTO.getColumnName().isEmpty()) {
-            resourceParameter.setColumnName(resourceParameterDTO.getColumnName());
-        }
-        resourceParameter.setParameterType(resourceParameterDTO.getParameterType());
-        if (resourceParameterDTO.getPattern().isEmpty()) {
-            resourceParameter.setPattern(resourceParameterDTO.getPattern());
+    public ResourceParameterDTO update(Long id, ResourceParameterDTO parameterDTO) {
+        ResourceParameter resourceParameter = resourceParameterRepository
+                .save(getResourceParameter(findById(id), parameterDTO));
+        if (parameterDTO.getResourceRelations() != null) {
+            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
         }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
-//    @Override
-//    public ResourceParameterDTO update(Long id, ResourceParameterDTO resourceParameterDTO) {
-//        ResourceParameter resourceParameter = getById(id);
-//        if (!resourceParameterDTO.getName().isEmpty()) {
-//            resourceParameter.setColumnName(resourceParameterDTO.getName());
-//        }
-//        if (!resourceParameterDTO.getTypeName().isEmpty()) {
-//            resourceParameter.setTypeName(resourceParameterDTO.getTypeName());
-//        }
-//        if (resourceParameterDTO.getFieldType().isEmpty()) {
-//            resourceParameter.setFieldType(resourceParameterDTO.getFieldType());
-//        }
-//        if (resourceParameterDTO.getPattern().isEmpty()) {
-//            resourceParameter.setPattern(resourceParameterDTO.getPattern());
-//        }
-//        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
-//    }
+    public void saveRelations(Long parameterId, List<ResourceRelationDTO> list) {
+        for (ResourceRelationDTO dto : list) {
+            ResourceRelation resourceRelation = new ResourceRelation();
+            resourceRelation.setResourceParameter(findById(parameterId));
+            resourceRelation.setRelatedResourceTemplate(resourceTemplateService
+                    .findById(dto.getRelatedResourceTemplateId()));
+            resourceRelationRepository.save(resourceRelation);
+        }
+    }
+
+    private ResourceParameter getResourceParameter(ResourceParameter resourceParameter, ResourceParameterDTO parameterDTO) {
+        if (resourceParameter == null) {
+            resourceParameter = new ResourceParameter();
+        }
+        resourceParameter.setColumnName(parameterDTO.getColumnName());
+        resourceParameter.setParameterType(parameterDTO.getParameterType());
+        resourceParameter.setPattern(parameterDTO.getPattern());
+        resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+        return resourceParameter;
+    }
 
     /**
      * {@inheritDoc}
@@ -103,7 +113,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @return instance of {@link ResourceParameter}
      * @author Andrii Bren
      */
-    private ResourceParameter getById(Long id) {
+    public ResourceParameter findById(Long id) {
         return resourceParameterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Error"));
     }
@@ -114,8 +124,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO getByIdDTO(Long id) {
-        return modelMapper.map(getById(id),
+    public ResourceParameterDTO findByIdDTO(Long id) {
+        return modelMapper.map(findById(id),
                 ResourceParameterDTO.class);
     }
 
@@ -141,12 +151,5 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         resourceParameterRepository.deleteById(id);
         return id;
     }
-
-//    @Override
-//    public ResourceRelationDTO saveRelation(ResourceRelationDTO resourceRelationDTO) {
-//        ResourceRelation resourceRelation = resourceRelationRepository
-//                .save(modelMapper.map(resourceRelationDTO, ResourceRelation.class));
-//        return modelMapper.map(resourceRelation, ResourceRelationDTO.class);
-//    }
 
 }

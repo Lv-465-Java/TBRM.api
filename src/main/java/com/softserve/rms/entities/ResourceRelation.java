@@ -15,10 +15,11 @@ public class ResourceRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//    @JsonIgnore
     @ManyToOne
     private ResourceParameter resourceParameter;
-//    @JsonIgnore
     @ManyToOne
     private ResourceTemplate relatedResourceTemplate;
+
+
+
 }

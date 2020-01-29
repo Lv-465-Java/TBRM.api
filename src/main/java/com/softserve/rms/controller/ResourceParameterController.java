@@ -60,7 +60,7 @@ public class ResourceParameterController {
      */
     @GetMapping("/byId/{parameterId}")
     public ResponseEntity<ResourceParameterDTO> getOne(@PathVariable Long parameterId) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getByIdDTO(parameterId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findByIdDTO(parameterId));
     }
 
     /**
