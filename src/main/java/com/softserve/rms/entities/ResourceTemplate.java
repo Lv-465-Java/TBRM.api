@@ -5,14 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name = "resource_templates")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceTemplate {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
@@ -35,4 +36,6 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
+
+
 }

@@ -1,5 +1,6 @@
 package com.softserve.rms.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,13 +21,16 @@ public class ResourceParameter {
     private String columnName;
 
     @Column(name = "field_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ParameterType parameterType;
 
     private String pattern;
 
+    @JsonIgnore
     @ManyToOne
     private ResourceTemplate resourceTemplate;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "resourceParameter")
     private List<ResourceRelation> resourceRelations;
 }

@@ -2,6 +2,7 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.ResourceTemplateDTO;
+import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exceptions.NoSuchEntityException;
@@ -70,7 +71,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAllByUserId(Long id) {
+    public List<ResourceTemplateDTO> getAllByPersonId(Long id) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByPersonId(id);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
@@ -127,4 +128,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
+
+//    public ResourceTemplate getById(Long id) {
+//        return resourceTemplateRepository.findById(id)
+//                .orElseThrow(()-> new RuntimeException("Error"));
+//    }
 }

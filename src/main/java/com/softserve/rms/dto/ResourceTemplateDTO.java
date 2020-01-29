@@ -12,8 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ResourceTemplateDTO {
     private Long id;
+    private String name;
     private String tableName;
     private String description;
-    private Long userId;
-    private List<ResourceParameter> resourceParameters;
+    private Long personId;
+    private List<ResourceParameterDTO> resourceParameters;
 }

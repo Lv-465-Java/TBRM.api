@@ -35,10 +35,10 @@ public class ResourceTemplateController {
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getById(id));
     }
 
-    @GetMapping("/resource-templates/{userId}")
-    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
-        LOG.info("Getting all Resource Templates by User ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
+    @GetMapping("/resource-templates/{personId}")
+    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long personId) {
+        LOG.info("Getting all Resource Templates by Person ID");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByPersonId(personId));
     }
 
     @PutMapping("/resource-template/{id}")
