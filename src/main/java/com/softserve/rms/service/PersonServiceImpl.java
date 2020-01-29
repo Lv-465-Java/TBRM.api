@@ -24,8 +24,9 @@ public class PersonServiceImpl implements PersonService {
 
 
     public boolean save(PersonDto personDto) {
-        //personDto.setPassword(passwordEncoder.encode(personDto.getPassword()));
-        if(personRepository.save(modelMapper.map(personDto,Person.class))==null){
+        Person person = modelMapper.map(personDto,Person.class);
+        //person.setPassword(passwordEncoder.encode(person.getPassword()));
+        if(personRepository.save(person)==null){
             new NotSavedException(ErrorMessage.USER_NOT_SAVED);
             return false;
         } else
