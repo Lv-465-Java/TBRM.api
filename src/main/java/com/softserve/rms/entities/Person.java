@@ -1,9 +1,14 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity(name = "persons")
@@ -16,7 +21,7 @@ import java.util.List;
 @ToString(
      exclude = {"resource_templates"})
 
-public class Person {
+public class Person implements Serializable, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,14 +43,45 @@ public class Person {
     private String password;
 
     @Column(nullable = false)
-    private String status;
+    private Boolean status;
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)
 //    @JoinColumn(name = "role_id")
-//    private Role role;
+    private String role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE"+getRole()));
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
