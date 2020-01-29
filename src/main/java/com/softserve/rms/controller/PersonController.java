@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,13 +29,10 @@ public class PersonController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity createPerson(@Valid @RequestBody PersonDto personDto) {
-        String error = validateService.validate(personDto);
-        if (error == null)
-        {
-            personService.save(personDto);
-            return new ResponseEntity(org.springframework.http.HttpStatus.CREATED);
-
-        } else return new ResponseEntity(error, org.springframework.http.HttpStatus.FORBIDDEN);
+    public HttpStatus createPerson(@Valid @RequestBody PersonDto personDto) {
+        validateService.validate(personDto);
+        personService.save(personDto);
+        return HttpStatus.CREATED;
     }
 }
+
