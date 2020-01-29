@@ -1,7 +1,7 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.constant.ErrorMessage;
-import com.softserve.rms.dto.PersonDto;
+import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exception.NotSavedException;
 import com.softserve.rms.repository.PersonRepository;
@@ -15,6 +15,11 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private ModelMapper modelMapper = new ModelMapper();
 
+    /**
+     * Constructor with parameters
+     *
+     * @author Mariia Shchur
+     */
     @Autowired
     public PersonServiceImpl(PersonRepository personRepository) {
         this.personRepository=personRepository;
@@ -22,9 +27,13 @@ public class PersonServiceImpl implements PersonService {
     //@Autowired
 //    private PasswordEncoder passwordEncoder;
 
-
-    public boolean save(PersonDto personDto) {
-        Person person = modelMapper.map(personDto,Person.class);
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    public boolean save(RegistrationDto registrationDto) {
+        Person person = modelMapper.map(registrationDto,Person.class);
         //person.setPassword(passwordEncoder.encode(person.getPassword()));
         if(personRepository.save(person)==null){
             new NotSavedException(ErrorMessage.USER_NOT_SAVED);
