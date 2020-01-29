@@ -23,4 +23,12 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
      * @return Person
      */
     List<Person> findByEmail(String email);
+
+    /**
+     * Method that check if person with this email already exist
+     *
+     * @param email
+     * @author Mariia Shchur
+     */
+    boolean existsPersonByEmail(String email);
 }

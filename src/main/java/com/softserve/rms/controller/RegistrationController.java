@@ -35,7 +35,7 @@ public class RegistrationController {
      *
      * @param registrationDto {@link RegistrationDto}
      * @return HttpStatus code
-     * @author Mariia Shchur:
+     * @author Mariia Shchur
      */
 
     @PostMapping("/registration")

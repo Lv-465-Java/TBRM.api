@@ -56,7 +56,7 @@ public class PersonValidationService {
         if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, person.getEmail())) {
             map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
         }
-        if (emailExist(person.getEmail())) {
+        if(personRepository.existsPersonByEmail(person.getEmail())){
             map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
         }
         if (!validateByPattern(ValidationPattern.PHONE_PATTERN, person.getPhone())) {
@@ -107,19 +107,6 @@ public class PersonValidationService {
      */
     private boolean passwordMatches(String password, String passwordConfirm) {
         if (password.equals(passwordConfirm)) {
-            return true;
-        } else return false;
-    }
-
-    /**
-     * Method that check if user with this email already exist
-     *
-     * @param email
-     * @author Mariia Shchur
-     */
-    public boolean emailExist(String email) {
-        List<Person> people = personRepository.findByEmail(email);
-        if (!people.isEmpty()) {
             return true;
         } else return false;
     }
