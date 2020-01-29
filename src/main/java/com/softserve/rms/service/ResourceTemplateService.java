@@ -15,7 +15,7 @@ public interface ResourceTemplateService {
      * @return new {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO create(ResourceTemplateDTO resourceTemplateDTO);
+    ResourceTemplateDTO save(ResourceTemplateDTO resourceTemplateDTO);
 
     /**
      * Method finds {@link ResourceTemplate} by id.
@@ -33,7 +33,7 @@ public interface ResourceTemplateService {
      * @return List of all {@link ResourceTemplateDTO} for user
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> getAllByUserId(Long id);
+    List<ResourceTemplateDTO> getAllByPersonId(Long id);
 
     /**
      * Method updates {@link ResourceTemplate} by id.

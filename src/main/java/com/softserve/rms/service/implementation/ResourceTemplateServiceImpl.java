@@ -43,14 +43,15 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO create(ResourceTemplateDTO resourceTemplateDTO) {
+    public ResourceTemplateDTO save(ResourceTemplateDTO resourceTemplateDTO) {
+        resourceTemplateDTO.setTableName(generateResourceTableName(resourceTemplateDTO.getName()));
         ResourceTemplate resourceTemplate = resourceTemplateRepository
                 .save(modelMapper.map(resourceTemplateDTO, ResourceTemplate.class));
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
     /**
-     * Method finds {@link ResourceTemplate} by id.
+     * Method finds {@link ResourceTemplate} by provided id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
@@ -63,14 +64,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds all {@link ResourceTemplate} by user id.
+     * Method finds all {@link ResourceTemplate} created by provided person id.
      *
      * @param id of {@link Person}
-     * @return List of all {@link ResourceTemplateDTO} for user
+     * @return list of {@link ResourceTemplateDTO} with appropriate person id
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAllByUserId(Long id) {
+    public List<ResourceTemplateDTO> getAllByPersonId(Long id) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByPersonId(id);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
@@ -88,7 +89,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateDTO resourceTemplateDTO) throws NoSuchEntityException {
         ResourceTemplate resourceTemplate = findById(id);
-        resourceTemplate.setTableName(resourceTemplateDTO.getTableName());
+        resourceTemplate.setName(resourceTemplateDTO.getName());
+        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -123,8 +125,27 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .collect(Collectors.toList());
     }
 
-    private ResourceTemplate findById(Long id) {
+    /**
+     * Method finds  {@link ResourceTemplate} by provided id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplate}
+     * @throws NoSuchEntityException if the resource template with provided id is not found
+     * @author Halyna Yatseniuk
+     */
+    private ResourceTemplate findById(Long id) throws NoSuchEntityException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+    }
+
+    /**
+     * Method generates String for {@link ResourceTemplate} table name field.
+     *
+     * @param name of {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplateDTO}
+     * @author Halyna Yatseniuk
+     */
+    private String generateResourceTableName(String name) {
+        return name.toLowerCase().replaceAll("[-!$%^&*()_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
     }
 }
