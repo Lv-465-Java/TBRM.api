@@ -9,6 +9,7 @@ import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.validator.RangeIntegerPatternGenerator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceTemplateService resourceTemplateService;
 
     private ModelMapper modelMapper = new ModelMapper();
+    private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
 
     /**
      * Constructor with parameters
@@ -89,10 +91,13 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
         resourceParameter.setColumnName(parameterDTO.getColumnName());
         resourceParameter.setParameterType(parameterDTO.getParameterType());
-        resourceParameter.setPattern(parameterDTO.getPattern());
+        resourceParameter.setPattern(patternGenerator.generateRangeIntegerRegex(parameterDTO.getPattern()));
+//        resourceParameter.setPattern(parameterDTO.getPattern());
         resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
         return resourceParameter;
     }
+
+
 
     /**
      * {@inheritDoc}
