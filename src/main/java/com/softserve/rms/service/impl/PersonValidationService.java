@@ -29,8 +29,8 @@ public class PersonValidationService {
      * @author Mariia Shchur
      */
     @Autowired
-    public PersonValidationService(PersonRepository personRepository){
-        this.personRepository=personRepository;
+    public PersonValidationService(PersonRepository personRepository) {
+        this.personRepository = personRepository;
     }
 
     /**
@@ -41,28 +41,28 @@ public class PersonValidationService {
      */
     public boolean validate(RegistrationDto person) {
         Map<String, String> map = new HashMap<>();
-        if(isBlank(person)){
-            map.put("emptyField",ErrorMessage.EMPTY_FIELD);
+        if (isBlank(person)) {
+            map.put("emptyField", ErrorMessage.EMPTY_FIELD);
         }
-        if(!passwordMatches(person.getPassword(),person.getPasswordConfirm())){
-            map.put("passwordsDoNotMatches",ErrorMessage.PASSWORD_NOT_MATCHES);
+        if (!passwordMatches(person.getPassword(), person.getPasswordConfirm())) {
+            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
         }
-      if (!validateByPattern(ValidationPattern.NAME_PATTERN,person.getFirstName())){
+        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getFirstName())) {
             map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
         }
-      if (!validateByPattern(ValidationPattern.NAME_PATTERN,person.getLastName())){
-            map.put("invalidLastName" , ValidationErrorConstants.INVALID_LASTNAME);
+        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getLastName())) {
+            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
         }
-      if (!validateByPattern(ValidationPattern.EMAIL_PATTERN,person.getEmail())){
+        if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, person.getEmail())) {
             map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
         }
-      if(emailExist(person.getEmail())) {
+        if (emailExist(person.getEmail())) {
             map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
         }
-      if (!validateByPattern(ValidationPattern.PHONE_PATTERN,person.getPhone())){
+        if (!validateByPattern(ValidationPattern.PHONE_PATTERN, person.getPhone())) {
             map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
         }
-      if ( !validateByPattern(ValidationPattern.PASSWORD_PATTERN,person.getPassword())) {
+        if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, person.getPassword())) {
             map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
         }
         if (map.isEmpty()) {
@@ -78,7 +78,7 @@ public class PersonValidationService {
      * @param person value of {@link RegistrationDto}
      * @author Mariia Shchur
      */
-    private boolean isBlank(RegistrationDto person){
+    private boolean isBlank(RegistrationDto person) {
         return Stream.of(person.getFirstName(),
                 person.getLastName(),
                 person.getEmail(),
@@ -93,7 +93,7 @@ public class PersonValidationService {
      * @param patternToCheckWith, data
      * @author Mariia Shchur
      */
-    private boolean validateByPattern(String patternToCheckWith,String data){
+    private boolean validateByPattern(String patternToCheckWith, String data) {
         pattern = Pattern.compile(patternToCheckWith);
         matcher = pattern.matcher(data);
         return matcher.matches();
@@ -105,10 +105,10 @@ public class PersonValidationService {
      * @param password, passwordConfirm
      * @author Mariia Shchur
      */
-    private boolean passwordMatches(String password, String passwordConfirm){
-        if(password.equals(passwordConfirm)){
+    private boolean passwordMatches(String password, String passwordConfirm) {
+        if (password.equals(passwordConfirm)) {
             return true;
-        }else return false;
+        } else return false;
     }
 
     /**
@@ -119,7 +119,7 @@ public class PersonValidationService {
      */
     public boolean emailExist(String email) {
         List<Person> people = personRepository.findByEmail(email);
-        if (!people.isEmpty()){
+        if (!people.isEmpty()) {
             return true;
         } else return false;
     }

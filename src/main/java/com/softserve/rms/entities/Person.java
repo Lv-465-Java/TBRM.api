@@ -3,7 +3,6 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "persons")
@@ -13,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "persons")
 @EqualsAndHashCode(
-      exclude = {"resourceTemplates"})
+        exclude = {"resourceTemplates"})
 @ToString(
-     exclude = {"resourceTemplates"})
+        exclude = {"resourceTemplates"})
 
 public class Person {
 
@@ -26,10 +25,10 @@ public class Person {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column( nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false,unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -39,9 +38,10 @@ public class Person {
     private String password;
 
     @Column(nullable = false)
-    @Builder.Default private boolean enabled=false;
+    @Builder.Default
+    private boolean enabled = false;
 //TODO mapping on roles table
-//    @ManyToOne (fetch = FetchType.LAZY)
+//    @ManyToOne (fetch = FetchType.EAGER)
 //    private Role role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)

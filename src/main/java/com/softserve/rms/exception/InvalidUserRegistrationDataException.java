@@ -3,6 +3,7 @@ package com.softserve.rms.exception;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
 import java.util.Map;
 
 /**
@@ -13,10 +14,10 @@ import java.util.Map;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class InvalidUserRegistrationDataException extends RuntimeException {
 
-    public InvalidUserRegistrationDataException(String message)
-    {
+    public InvalidUserRegistrationDataException(String message) {
         super(message);
     }
+
     /**
      * Constructor for InvalidUserRegistrationDataException.
      *
