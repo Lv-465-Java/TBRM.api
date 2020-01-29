@@ -77,7 +77,7 @@ public class ResourceParameterController {
     /**
      * Controller which updates {@link ResourceParameter}.
      *
-     * @param parameterId {@link ResourceParameter} id
+     * @param parameterId  {@link ResourceParameter} id
      * @param parameterDTO {@link ResourceParameterDTO}
      * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
      * @author Andrii Bren

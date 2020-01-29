@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
-@Entity(name = "users")
+@Entity(name = "persons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,8 +34,8 @@ public class User {
     @Column(nullable = false)
     private String status;
 
-    @OneToMany(mappedBy = "user")
-    private Set<ResourceTemplate> resourceTemplate;
+    @OneToMany(mappedBy = "person")
+    private List<ResourceTemplate> resourceTemplate;
 
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)

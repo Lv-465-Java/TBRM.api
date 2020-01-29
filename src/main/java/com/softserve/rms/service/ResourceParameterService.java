@@ -3,6 +3,8 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.ResourceParameterDTO;
 
 import java.util.List;
+
+
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 
@@ -61,6 +63,7 @@ public interface ResourceParameterService {
      * @author Andrii Bren
      */
     Long delete(Long id);
+
 
 
 
