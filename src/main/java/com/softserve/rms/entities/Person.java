@@ -10,12 +10,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "persons")
 @EqualsAndHashCode(
       exclude = {"resource_templates"})
 @ToString(
      exclude = {"resource_templates"})
-
 public class Person {
 
     @Id
@@ -38,7 +36,7 @@ public class Person {
     private String password;
 
     @Column(nullable = false)
-    private String status;
+    private boolean enabled;
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)
 //    @JoinColumn(name = "role_id")
