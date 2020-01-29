@@ -3,6 +3,9 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
+import com.softserve.rms.exceptions.NoSuchEntityException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +32,6 @@ public interface ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by person id.
      *
-     * @param id of {@link Person}
-     * @return List of all {@link ResourceTemplateDTO} for user
      * @param id of {@link Person}
      * @return List of all {@link ResourceTemplateDTO} for person
      * @author Halyna Yatseniuk
@@ -62,4 +63,26 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body);
+
+    /**
+     * Method finds  {@link ResourceTemplate} by provided id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplate}
+     * @throws NoSuchEntityException if the resource template with provided id is not found
+     * @author Halyna Yatseniuk
+     */
+
+    ResourceTemplate findById(Long id);
+
+    /**
+     * Method makes {@link ResourceTemplate} be published.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @throws ResourceTemplateIsPublishedException if resource template has been published already
+     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
+    Boolean publishResourceTemplate(Long id);
 }

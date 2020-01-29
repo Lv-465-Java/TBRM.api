@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceRelationDTO {
-    private Long id;
+//    private Long id;
     private Long relatedResourceTemplateId;
-    private Long resourceParameterId;
+//    private Long resourceParameterId;
 }

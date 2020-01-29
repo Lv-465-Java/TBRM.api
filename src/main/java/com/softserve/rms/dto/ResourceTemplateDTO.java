@@ -16,5 +16,6 @@ public class ResourceTemplateDTO {
     private String tableName;
     private String description;
     private Long personId;
+    private Boolean isPublished;
     private List<ResourceParameter> resourceParameters;
 }

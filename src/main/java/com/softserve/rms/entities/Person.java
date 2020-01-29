@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -34,6 +35,7 @@ public class Person {
     @Column(nullable = false)
     private String status;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "person")
     private List<ResourceTemplate> resourceTemplate;
 

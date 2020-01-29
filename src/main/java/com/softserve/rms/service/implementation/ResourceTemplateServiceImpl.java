@@ -5,6 +5,8 @@ import com.softserve.rms.dto.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exceptions.NoSuchEntityException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
@@ -45,6 +47,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO save(ResourceTemplateDTO resourceTemplateDTO) {
         resourceTemplateDTO.setTableName(generateResourceTableName(resourceTemplateDTO.getName()));
+        resourceTemplateDTO.setIsPublished(false);
         ResourceTemplate resourceTemplate = resourceTemplateRepository
                 .save(modelMapper.map(resourceTemplateDTO, ResourceTemplate.class));
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -127,16 +130,71 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds  {@link ResourceTemplate} by provided id.
+     * Method finds {@link ResourceTemplate} by provided id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
      * @throws NoSuchEntityException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    private ResourceTemplate findById(Long id) throws NoSuchEntityException {
+    public ResourceTemplate findById(Long id) throws NoSuchEntityException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+    }
+
+    /**
+     * Method makes {@link ResourceTemplate} be published.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @throws ResourceTemplateIsPublishedException if resource template has been published already
+     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
+    @Override
+    public Boolean publishResourceTemplate(Long id)
+            throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
+        ResourceTemplate resourceTemplate = findById(id);
+        if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
+            resourceTemplate.setIsPublished(true);
+            resourceTemplateRepository.save(resourceTemplate);
+            //create new table method;
+            return findById(id).getIsPublished();
+        }
+        return false;
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} is not published.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @return boolean true if {@link ResourceTemplateDTO} is not published
+     * @throws ResourceTemplateIsPublishedException if resource template has been already published
+     * @author Halyna Yatseniuk
+     */
+    private Boolean verifyIfResourceTemplateIsNotPublished(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateIsPublishedException {
+        if (resourceTemplate.getIsPublished()) {
+            throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISH.getMessage());
+        }
+        return true;
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} has attached parameters.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @return boolean true if {@link ResourceTemplateDTO} has attached parameters
+     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
+    private Boolean verifyIfResourceTemplateHasParameters(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateParameterListIsEmpty {
+        if (resourceTemplate.getResourceParameters().isEmpty()) {
+            throw new ResourceTemplateParameterListIsEmpty
+                    (ErrorMessage.RESOURCE_TEMPLATE_DO_NOT_HAVE_ANY_PARAMETERS.getMessage());
+        }
+        return true;
     }
 
     /**

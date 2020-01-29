@@ -108,4 +108,10 @@ public class ResourceTemplateController {
         return ResponseEntity.status(HttpStatus.OK).body
                 (resourceTemplateService.searchByNameOrDescriptionContaining(body));
     }
+
+    @PostMapping("/publish-resource-template/{id}")
+    public ResponseEntity<Object> publishResourceTemplate(@PathVariable Long id) {
+        LOG.info("Publish a Resource Template");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
+    }
 }

@@ -2,16 +2,21 @@ package com.softserve.rms.service.implementation;
 
 
 import com.softserve.rms.dto.ResourceParameterDTO;
+import com.softserve.rms.dto.ResourceRelationDTO;
 import com.softserve.rms.entities.ResourceParameter;
+import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
+import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of {@link ResourceParameterService}
@@ -22,6 +27,7 @@ import java.util.List;
 public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceParameterRepository resourceParameterRepository;
     private final ResourceRelationRepository resourceRelationRepository;
+    private final ResourceTemplateService resourceTemplateService;
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -30,9 +36,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceParameterServiceImpl(ResourceParameterRepository resourceParameterRepository, ResourceRelationRepository resourceRelationRepository) {
+    public ResourceParameterServiceImpl(ResourceParameterRepository resourceParameterRepository,
+        ResourceRelationRepository resourceRelationRepository, ResourceTemplateService resourceTemplateService) {
         this.resourceParameterRepository = resourceParameterRepository;
         this.resourceRelationRepository = resourceRelationRepository;
+        this.resourceTemplateService = resourceTemplateService;
     }
 
     /**
@@ -44,9 +52,21 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     public ResourceParameterDTO save(ResourceParameterDTO resourceParameterDTO) {
         ResourceParameter resourceParameter = resourceParameterRepository
                 .save(modelMapper.map(resourceParameterDTO, ResourceParameter.class));
-//        resourceRelationRepository.saveAll(resourceParameterDTO.getResourceRelations());
+//        List<ResourceRelation> resourceRelations = setNewRow(resourceParameterDTO.getId(), resourceParameterDTO.getResourceRelations());
+//        resourceRelationRepository.saveAll(resourceRelations);
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
+
+//    public List<ResourceRelation> setNewRow(Long parameterId, List<ResourceRelationDTO> list) {
+//        List<ResourceRelation> resourceRelations = new ArrayList<>();
+//        for (ResourceRelationDTO dto : list) {
+//            ResourceRelation resourceRelation = new ResourceRelation();
+//            resourceRelation.setResourceParameter(getById(parameterId));
+//            resourceRelation.setRelatedResourceTemplate(resourceTemplateService.findById(dto.getRelatedResourceTemplateId()));
+//            resourceRelations.add(resourceRelation);
+//        }
+//        return resourceRelations;
+//    }
 
     /**
      * {@inheritDoc}
