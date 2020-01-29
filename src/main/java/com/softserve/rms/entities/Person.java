@@ -3,19 +3,14 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "persons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "persons")
-@EqualsAndHashCode(
-      exclude = {"resource_templates"})
-@ToString(
-     exclude = {"resource_templates"})
-
+@EqualsAndHashCode(exclude = {"resourceTemplates"})
+@ToString(exclude = {"resourceTemplates"})
 public class Person {
 
     @Id
@@ -28,7 +23,7 @@ public class Person {
     @Column( nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false,unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -38,14 +33,12 @@ public class Person {
     private String password;
 
     @Column(nullable = false)
-    private String status;
-//TODO mapping on roles table
-//    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn(name = "role_id")
-//    private Role role;
+    private boolean enabled;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
-
-
 }
