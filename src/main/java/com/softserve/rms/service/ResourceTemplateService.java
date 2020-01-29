@@ -27,10 +27,12 @@ public interface ResourceTemplateService {
     ResourceTemplateDTO getById(Long id);
 
     /**
-     * Method finds all {@link ResourceTemplate} by user id.
+     * Method finds all {@link ResourceTemplate} by person id.
      *
      * @param id of {@link Person}
      * @return List of all {@link ResourceTemplateDTO} for user
+     * @param id of {@link Person}
+     * @return List of all {@link ResourceTemplateDTO} for person
      * @author Halyna Yatseniuk
      */
     List<ResourceTemplateDTO> getAllByPersonId(Long id);

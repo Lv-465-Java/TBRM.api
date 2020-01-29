@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceTemplate {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
@@ -35,4 +34,6 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
+
+
 }
