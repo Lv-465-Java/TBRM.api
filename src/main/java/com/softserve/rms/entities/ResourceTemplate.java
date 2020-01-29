@@ -34,6 +34,4 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
-
-
 }

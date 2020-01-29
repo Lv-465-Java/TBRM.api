@@ -25,7 +25,6 @@ public class ResourceParameter {
     private ParameterType parameterType;
 
     private String pattern;
-//    private String tableName;
 
     @JsonIgnore
     @ManyToOne

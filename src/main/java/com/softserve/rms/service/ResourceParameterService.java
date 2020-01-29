@@ -31,7 +31,7 @@ public interface ResourceParameterService {
     /**
      * Method updates {@link ResourceParameter}.
      *
-     * @param id {@link ResourceParameterDTO} id
+     * @param id                   {@link ResourceParameterDTO} id
      * @param resourceParameterDTO {@link ResourceParameterDTO}
      * @return updated instance of {@link ResourceParameterDTO}
      * @author Andrii Bren
@@ -63,8 +63,4 @@ public interface ResourceParameterService {
      * @author Andrii Bren
      */
     Long delete(Long id);
-
-
-
-
 }

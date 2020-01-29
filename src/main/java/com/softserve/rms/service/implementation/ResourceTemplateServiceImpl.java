@@ -8,7 +8,6 @@ import com.softserve.rms.exceptions.NoSuchEntityException;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -104,8 +103,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public void deleteById(Long id) {
+    public boolean deleteById(Long id) {
         resourceTemplateRepository.deleteById(id);
+        return !resourceTemplateRepository.findById(id).isPresent();
     }
 
     /**

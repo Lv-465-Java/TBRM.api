@@ -52,7 +52,7 @@ public interface ResourceTemplateService {
      * @param id of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    void deleteById(Long id);
+    boolean deleteById(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
