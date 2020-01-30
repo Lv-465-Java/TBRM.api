@@ -4,6 +4,7 @@ import com.softserve.rms.constant.ErrorMessage;
 import com.softserve.rms.constant.ValidationErrorConstants;
 import com.softserve.rms.constant.ValidationPattern;
 import com.softserve.rms.dto.RegistrationDto;
+import com.softserve.rms.dto.UserEditDto;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exception.InvalidUserRegistrationDataException;
 import com.softserve.rms.repository.PersonRepository;
@@ -40,31 +41,35 @@ public class PersonValidationService {
      * @author Mariia Shchur
      */
     public boolean validate(RegistrationDto person) {
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = passwordDataValidation(person.getPassword(),
+                person.getPasswordConfirm());
+        map.putAll(basicDataValidation(person.getFirstName(),
+                person.getLastName(),person.getEmail(),person.getPhone()));
         if (isBlank(person)) {
             map.put("emptyField", ErrorMessage.EMPTY_FIELD);
         }
-        if (!passwordMatches(person.getPassword(), person.getPasswordConfirm())) {
-            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
-        }
-        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getFirstName())) {
-            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
-        }
-        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getLastName())) {
-            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
-        }
-        if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, person.getEmail())) {
-            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
-        }
-        if(personRepository.existsPersonByEmail(person.getEmail())){
-            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
-        }
-        if (!validateByPattern(ValidationPattern.PHONE_PATTERN, person.getPhone())) {
-            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
-        }
-        if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, person.getPassword())) {
-            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
-        }
+
+//        if (!passwordMatches(person.getPassword(), person.getPasswordConfirm())) {
+//            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
+//        }
+//        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getFirstName())) {
+//            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
+//        }
+//        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getLastName())) {
+//            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
+//        }
+//        if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, person.getEmail())) {
+//            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
+//        }
+//        if(personRepository.existsPersonByEmail(person.getEmail())){
+//            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
+//        }
+//        if (!validateByPattern(ValidationPattern.PHONE_PATTERN, person.getPhone())) {
+//            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
+//        }
+//        if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, person.getPassword())) {
+//            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
+//        }
         if (map.isEmpty()) {
             return true;
         } else {
@@ -72,6 +77,48 @@ public class PersonValidationService {
         }
     }
 
+    public boolean validateUpdateData(UserEditDto user){
+        Map<String,String> map = basicDataValidation(user.getFirstName(),user.getLastName(),
+                user.getEmail(),user.getPhone());
+        if (map.isEmpty()) {
+            return true;
+        } else {
+            throw new InvalidUserRegistrationDataException(map);
+        }
+    }
+
+    public Map<String,String> basicDataValidation(String firstName,
+                                                  String lastName,
+                                                  String email,String phone ){
+        Map<String, String> map = new HashMap<>();
+        if (!validateByPattern(ValidationPattern.NAME_PATTERN, firstName)) {
+            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
+        }
+        if (!validateByPattern(ValidationPattern.NAME_PATTERN, lastName)) {
+            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
+        }
+        if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, email)) {
+            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
+        }
+        if(personRepository.existsPersonByEmail(email)){
+            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
+        }
+        if (!validateByPattern(ValidationPattern.PHONE_PATTERN, phone)) {
+            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
+        }
+        return map;
+    }
+
+    public Map<String,String> passwordDataValidation(String password, String passwordConfirm){
+        Map<String, String> map = new HashMap<>();
+        if (!passwordMatches(password, passwordConfirm)) {
+            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
+        }
+        if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, password)) {
+            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
+        }
+        return map;
+    }
     /**
      * Method that check if any field in RegistrationDto is blank.
      *
