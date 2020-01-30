@@ -59,9 +59,9 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public void update(UserEditDto userEditDto, String currentUserEmail){
-//       Person person = Optional.of(personRepository.findByEmail(currentUserEmail))
-//               .orElseThrow(()->new WrongEmailException
-//                       (ErrorMessage.USER_NOT_FOUND_BY_EMAIL+ currentUserEmail));
+//       Optional<Person> person = Optional.of(personRepository.findByEmail(currentUserEmail))
+//               .orElseThrow(() -> new WrongEmailException
+//                       (ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail)));
         Person person=personRepository.findByEmail(currentUserEmail);
         if(person==null){
             throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL+ currentUserEmail);

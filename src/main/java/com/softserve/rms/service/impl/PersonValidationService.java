@@ -45,31 +45,6 @@ public class PersonValidationService {
                 person.getPasswordConfirm());
         map.putAll(basicDataValidation(person.getFirstName(),
                 person.getLastName(),person.getEmail(),person.getPhone()));
-        if (isBlank(person)) {
-            map.put("emptyField", ErrorMessage.EMPTY_FIELD);
-        }
-
-//        if (!passwordMatches(person.getPassword(), person.getPasswordConfirm())) {
-//            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
-//        }
-//        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getFirstName())) {
-//            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
-//        }
-//        if (!validateByPattern(ValidationPattern.NAME_PATTERN, person.getLastName())) {
-//            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
-//        }
-//        if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, person.getEmail())) {
-//            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
-//        }
-//        if(personRepository.existsPersonByEmail(person.getEmail())){
-//            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
-//        }
-//        if (!validateByPattern(ValidationPattern.PHONE_PATTERN, person.getPhone())) {
-//            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
-//        }
-//        if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, person.getPassword())) {
-//            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
-//        }
         if (map.isEmpty()) {
             return true;
         } else {
@@ -91,6 +66,9 @@ public class PersonValidationService {
                                                   String lastName,
                                                   String email,String phone ){
         Map<String, String> map = new HashMap<>();
+        if (isBlank(firstName,lastName,email,phone)) {
+            map.put("emptyField", ErrorMessage.EMPTY_FIELD);
+        }
         if (!validateByPattern(ValidationPattern.NAME_PATTERN, firstName)) {
             map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
         }
@@ -120,18 +98,13 @@ public class PersonValidationService {
         return map;
     }
     /**
-     * Method that check if any field in RegistrationDto is blank.
+     * Method that check if any field in entered in parameters is blank.
      *
-     * @param person value of {@link RegistrationDto}
+     * @param data
      * @author Mariia Shchur
      */
-    private boolean isBlank(RegistrationDto person) {
-        return Stream.of(person.getFirstName(),
-                person.getLastName(),
-                person.getEmail(),
-                person.getPhone(),
-                person.getPassword(),
-                person.getPasswordConfirm()).anyMatch(x -> x.trim().isEmpty());
+    private boolean isBlank(String... data) {
+        return Stream.of(data).anyMatch(x -> x.trim().isEmpty());
     }
 
     /**
