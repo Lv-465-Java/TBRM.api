@@ -1,6 +1,7 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.dto.RegistrationDto;
+import com.softserve.rms.dto.UserEditDto;
 import com.softserve.rms.entities.Person;
 import org.springframework.stereotype.Service;
 
@@ -14,5 +15,7 @@ public interface PersonService {
      * @author Mariia Shchur
      */
     boolean save(RegistrationDto person);
+
+    void update(UserEditDto userEditDto, String email);
 
 }
