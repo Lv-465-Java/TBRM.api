@@ -31,6 +31,6 @@ public class ResourceParameter {
     private ResourceTemplate resourceTemplate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "resourceParameter")
+    @OneToMany(mappedBy = "resourceParameter", cascade = CascadeType.REMOVE)
     private List<ResourceRelation> resourceRelations;
 }

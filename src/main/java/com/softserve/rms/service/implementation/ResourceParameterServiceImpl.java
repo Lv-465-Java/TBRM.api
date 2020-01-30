@@ -91,9 +91,12 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
         resourceParameter.setColumnName(parameterDTO.getColumnName());
         resourceParameter.setParameterType(parameterDTO.getParameterType());
-        resourceParameter.setPattern(patternGenerator.generateRangeIntegerRegex(parameterDTO.getPattern()));
-//        resourceParameter.setPattern(parameterDTO.getPattern());
-        resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+        if (parameterDTO.getPattern() != null) {
+            resourceParameter.setPattern(patternGenerator.generateRangeIntegerRegex(parameterDTO.getPattern()));
+        }
+        if (parameterDTO.getResourceTemplateId() != null) {
+            resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+        }
         return resourceParameter;
     }
 

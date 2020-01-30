@@ -96,8 +96,8 @@ public class ResourceParameterController {
      * @return {@link ResponseEntity} with generic type {@link Object}
      * @author Andrii Bren
      */
-    @DeleteMapping("/{parameterId")
-    public ResponseEntity<Object> delete(@PathVariable Long parameterId) {
+    @DeleteMapping
+    public ResponseEntity<Object> delete(Long parameterId) {
         resourceParameterService.delete(parameterId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
