@@ -15,7 +15,7 @@ public class ResourceParameter {
     private String name;
 
     private String typeName;
-    @Column(name = "field_type")
+
     private String fieldType;
 
     private String pattern;

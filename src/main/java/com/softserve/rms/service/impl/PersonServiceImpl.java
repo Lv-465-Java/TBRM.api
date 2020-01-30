@@ -14,11 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-
 @Service
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
@@ -59,25 +54,31 @@ public class PersonServiceImpl implements PersonService {
      */
     @Override
     @Transactional
-    public void update(UserEditDto userEditDto, String currentUserEmail){
+    public void update(UserEditDto userEditDto, String currentUserEmail) {
 //       Optional<Person> person = Optional.of(personRepository.findByEmail(currentUserEmail))
 //               .orElseThrow(() -> new WrongEmailException
 //                       (ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail)));
-        Person person=personRepository.findByEmail(currentUserEmail);
-        if(person==null){
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL+ currentUserEmail);
+        Person person = personRepository.findByEmail(currentUserEmail);
+        if (person == null) {
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail);
         }
-       person.setFirstName(userEditDto.getFirstName());
-       person.setLastName(userEditDto.getLastName());
-       person.setEmail(userEditDto.getEmail());
-       person.setPhone(userEditDto.getPhone());
-       personRepository.save(person);
+        person.setFirstName(userEditDto.getFirstName());
+        person.setLastName(userEditDto.getLastName());
+        person.setEmail(userEditDto.getEmail());
+        person.setPhone(userEditDto.getPhone());
+        personRepository.save(person);
     }
 
-    public void editPassword(PasswordEditDto passwordEditDto,String currentUserEmail){
-        Person person=personRepository.findByEmail(currentUserEmail);
-        if(person==null){
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL+ currentUserEmail);
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
+        Person person = personRepository.findByEmail(currentUserEmail);
+        if (person == null) {
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail);
         }
         //person.setPassword(passwordEncoder.encode(person.getPassword()));
         person.setPassword(passwordEditDto.getPassword());

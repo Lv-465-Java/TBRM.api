@@ -32,10 +32,10 @@ public class RegistrationController {
     }
 
     /**
-     * The method which save {@link Person}.
+     * Method which save {@link Person}.
      *
      * @param registrationDto {@link RegistrationDto}
-     * @return HttpStatus code
+     * @return ResponseEntity
      * @author Mariia Shchur
      */
 

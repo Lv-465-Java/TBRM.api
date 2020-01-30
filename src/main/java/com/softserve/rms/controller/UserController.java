@@ -49,6 +49,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * Update user's password.
+     *
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
     @PatchMapping
     public ResponseEntity updatePassword(@Valid @RequestBody PasswordEditDto passwordEditDto, String principal) {
         //@ApiIgnore @AuthenticationPrincipal Principal principal) {)

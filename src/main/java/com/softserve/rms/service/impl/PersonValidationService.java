@@ -6,14 +6,12 @@ import com.softserve.rms.constant.ValidationPattern;
 import com.softserve.rms.dto.PasswordEditDto;
 import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.dto.UserEditDto;
-import com.softserve.rms.entities.Person;
-import com.softserve.rms.exception.InvalidUserRegistrationDataException;
+import com.softserve.rms.exception.InvalidUserDataException;
 import com.softserve.rms.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +33,9 @@ public class PersonValidationService {
         this.personRepository = personRepository;
     }
 
+    //TODO leave three almost similar methods or only one with spaghetti code
+    //TODO or create abstract dto class with validate method
+
     /**
      * Method that check if all field in RegistrationDto are valid
      *
@@ -49,30 +50,74 @@ public class PersonValidationService {
         if (map.isEmpty()) {
             return true;
         } else {
-            throw new InvalidUserRegistrationDataException(map);
+            throw new InvalidUserDataException(map);
         }
     }
 
+    /**
+     * Method that check if all field in UserEditDto are valid
+     *
+     * @param user value of {@link UserEditDto}
+     * @author Mariia Shchur
+     */
     public boolean validateUpdateData(UserEditDto user){
         Map<String,String> map = basicDataValidation(user.getFirstName(),user.getLastName(),
                 user.getEmail(),user.getPhone());
         if (map.isEmpty()) {
             return true;
         } else {
-            throw new InvalidUserRegistrationDataException(map);
+            throw new InvalidUserDataException(map);
         }
     }
 
+    /**
+     * Method that check if all field in PasswordEditDto are valid
+     *
+     * @param passwordEditDto value of {@link PasswordEditDto}
+     * @author Mariia Shchur
+     */
     public boolean validatePassword(PasswordEditDto passwordEditDto){
         Map<String, String> map = passwordDataValidation(passwordEditDto.getPassword(),
                 passwordEditDto.getPasswordConfirm());
         if (map.isEmpty()) {
             return true;
         } else {
-            throw new InvalidUserRegistrationDataException(map);
+            throw new InvalidUserDataException(map);
         }
     }
 
+//    public boolean generalValidate(Object o){
+//        Map<String, String> map=new HashMap<>();
+//        if (o instanceof PasswordEditDto){
+//            PasswordEditDto p=(PasswordEditDto)o;
+//            map.putAll(passwordDataValidation(p.getPassword(),
+//                    p.getPasswordConfirm()));
+//        }
+//        if (o instanceof UserEditDto ){
+//            UserEditDto p=(UserEditDto)o;
+//            map.putAll(basicDataValidation(p.getFirstName(),p.getLastName(),
+//                    p.getEmail(),p.getPhone()));
+//        }
+//        if (o instanceof RegistrationDto){
+//            RegistrationDto p=(RegistrationDto)o;
+//            map.putAll(basicDataValidation(p.getFirstName(),p.getLastName(),
+//                    p.getEmail(),p.getPhone()));
+//            map.putAll(passwordDataValidation(p.getPassword(),
+//                    p.getPasswordConfirm()));
+//        }
+//        if (map.isEmpty()) {
+//            return true;
+//        } else {
+//            throw new InvalidUserRegistrationDataException(map);
+//        }
+//    }
+
+    /**
+     * Method that validate user's data
+     *
+     * @param firstName,lastName,email,phone
+     * @author Mariia Shchur
+     */
     public Map<String,String> basicDataValidation(String firstName,
                                                   String lastName,
                                                   String email,String phone ){
@@ -90,7 +135,7 @@ public class PersonValidationService {
             map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
         }
         if(personRepository.existsPersonByEmail(email)){
-            map.put("emailExist", ErrorMessage.USER_WITH_EMAIL_EXIST);
+            map.put("emailExists", ErrorMessage.USER_WITH_EMAIL_EXISTS);
         }
         if (!validateByPattern(ValidationPattern.PHONE_PATTERN, phone)) {
             map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
@@ -98,10 +143,16 @@ public class PersonValidationService {
         return map;
     }
 
+    /**
+     * Method that validate password
+     *
+     * @param password, passwordConfirm
+     * @author Mariia Shchur
+     */
     public Map<String,String> passwordDataValidation(String password, String passwordConfirm){
         Map<String, String> map = new HashMap<>();
         if (!passwordMatches(password, passwordConfirm)) {
-            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORD_NOT_MATCHES);
+            map.put("passwordsDoNotMatches", ErrorMessage.PASSWORDS_NOT_MATCHES);
         }
         if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, password)) {
             map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
@@ -109,7 +160,7 @@ public class PersonValidationService {
         return map;
     }
     /**
-     * Method that check if any field in entered in parameters is blank.
+     * Method that check if any entered field is blank.
      *
      * @param data
      * @author Mariia Shchur

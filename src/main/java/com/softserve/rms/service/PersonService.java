@@ -20,10 +20,17 @@ public interface PersonService {
     /**
      * Method update {@link Person}.
      *
-     * @param userEditDto {@link UserEditDto},email
+     * @param userEditDto {@link UserEditDto},currentUserEmail
      * @author Mariia Shchur
      */
-    void update(UserEditDto userEditDto, String email);
+    void update(UserEditDto userEditDto, String currentUserEmail);
+
+    /**
+     * Method update user's password.
+     *
+     * @param passwordEditDto {@link PasswordEditDto},cecurrentUserEmail
+     * @author Mariia Shchur
+     */
     void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail);
 
 }
