@@ -5,7 +5,7 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.NoSuchEntityException;
+import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.PersonRepository;
@@ -67,11 +67,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchEntityException if the resource template is not found
+     * @throws NoSuchResourceTemplateException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO getById(Long id) throws NoSuchEntityException {
+    public ResourceTemplateDTO getById(Long id) throws NoSuchResourceTemplateException {
         return modelMapper.map(findById(id), ResourceTemplateDTO.class);
     }
 
@@ -95,12 +95,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchEntityException if the resource template is not found
+     * @throws NoSuchResourceTemplateException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
-            throws NoSuchEntityException {
+            throws NoSuchResourceTemplateException {
         ResourceTemplate resourceTemplate = findById(id);
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
         resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
@@ -113,12 +113,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * Method deletes {@link ResourceTemplate} by id.
      *
      * @param id of {@link ResourceTemplateDTO}
+     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
-    public boolean deleteById(Long id) {
+    public Boolean deleteById(Long id) throws NoSuchResourceTemplateException {
+        findById(id);
         resourceTemplateRepository.deleteById(id);
-        return !resourceTemplateRepository.findById(id).isPresent();
+        return true;
     }
 
     /**
@@ -144,12 +146,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
-     * @throws NoSuchEntityException if the resource template with provided id is not found
+     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findById(Long id) throws NoSuchEntityException {
+    public ResourceTemplate findById(Long id) throws NoSuchResourceTemplateException {
         return resourceTemplateRepository.findById(id)
-                .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+                .orElseThrow(() -> new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
     /**
@@ -184,7 +186,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private Boolean verifyIfResourceTemplateIsNotPublished(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException {
         if (resourceTemplate.getIsPublished()) {
-            throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISH.getMessage());
+            throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
         }
         return true;
     }
