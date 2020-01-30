@@ -45,7 +45,7 @@ public interface ResourceParameterService {
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> getAll();
+    List<ResourceParameterDTO> findAll();
 
     /**
      * Method finds all {@link ResourceParameter} by {@link ResourceTemplate} id.
@@ -54,7 +54,7 @@ public interface ResourceParameterService {
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> getAllByTemplateId(Long id);
+    List<ResourceParameterDTO> findAllByTemplateId(Long id);
 
     /**
      * Method deletes {@link ResourceParameter} by id.

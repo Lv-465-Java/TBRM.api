@@ -1,11 +1,14 @@
 package com.softserve.rms.service.implementation;
 
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
+import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotDeletedException;
+import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotFoundException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
@@ -104,7 +107,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceParameterDTO> getAll() {
+    public List<ResourceParameterDTO> findAll() {
         return modelMapper.map(resourceParameterRepository.findAll(),
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());
@@ -119,7 +122,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     public ResourceParameter findById(Long id) {
         return resourceParameterRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Error"));
+                .orElseThrow(() -> new ResourceParameterNotFoundException(
+                        ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_FOUND_BY_ID.getMessage() + id));
     }
 
     /**
@@ -139,8 +143,12 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceParameterDTO> getAllByTemplateId(Long id) {
-        return modelMapper.map(resourceParameterRepository.findAllByResourceTemplateId(id),
+    public List<ResourceParameterDTO> findAllByTemplateId(Long id) {
+        List<ResourceParameter> parameterList = resourceParameterRepository
+                .findAllByResourceTemplateId(id)
+                .orElseThrow(() -> new ResourceParameterNotFoundException(
+                        ErrorMessage.RESOURCE_TEMPLATE_HAS_NOT_ANY_PARAMETERS.getMessage() + id));
+        return modelMapper.map(parameterList,
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());
     }
@@ -152,6 +160,10 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     public Long delete(Long id) {
+        if (!(resourceParameterRepository.findById(id).isPresent())) {
+            throw new ResourceParameterNotDeletedException(
+                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_DELETE_BY_ID.getMessage() + id);
+        }
         resourceParameterRepository.deleteById(id);
         return id;
     }

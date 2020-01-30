@@ -41,7 +41,7 @@ public class ResourceParameterController {
     }
 
     /**
-     * Controller which gets {@link ResourceParameter} by {@link ResourceTemplate} id.
+     * Controller which finds {@link ResourceParameter} by {@link ResourceTemplate} id.
      *
      * @param templateId {@link ResourceTemplate} id
      * @return {@link ResponseEntity} with generic type list of {@link ResourceParameterDTO}
@@ -49,11 +49,11 @@ public class ResourceParameterController {
      */
     @GetMapping("/byTemplateId/{templateId}")
     public ResponseEntity<List<ResourceParameterDTO>> getParametersByTemplateId(@PathVariable Long templateId) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getAllByTemplateId(templateId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
     }
 
     /**
-     * Controller which gets {@link ResourceParameter} by id.
+     * Controller which finds {@link ResourceParameter} by id.
      *
      * @param parameterId {@link ResourceParameter} id
      * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
@@ -65,14 +65,14 @@ public class ResourceParameterController {
     }
 
     /**
-     * Controller which gets all {@link ResourceParameter}.
+     * Controller which finds all {@link ResourceParameter}.
      *
      * @return {@link ResponseEntity} with generic type list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
     @GetMapping
     public ResponseEntity<List<ResourceParameterDTO>> getAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getAll());
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAll());
     }
 
     /**
