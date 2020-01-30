@@ -3,6 +3,7 @@ package com.softserve.rms.service.impl;
 import com.softserve.rms.constant.ErrorMessage;
 import com.softserve.rms.constant.ValidationErrorConstants;
 import com.softserve.rms.constant.ValidationPattern;
+import com.softserve.rms.dto.PasswordEditDto;
 import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.dto.UserEditDto;
 import com.softserve.rms.entities.Person;
@@ -55,6 +56,16 @@ public class PersonValidationService {
     public boolean validateUpdateData(UserEditDto user){
         Map<String,String> map = basicDataValidation(user.getFirstName(),user.getLastName(),
                 user.getEmail(),user.getPhone());
+        if (map.isEmpty()) {
+            return true;
+        } else {
+            throw new InvalidUserRegistrationDataException(map);
+        }
+    }
+
+    public boolean validatePassword(PasswordEditDto passwordEditDto){
+        Map<String, String> map = passwordDataValidation(passwordEditDto.getPassword(),
+                passwordEditDto.getPasswordConfirm());
         if (map.isEmpty()) {
             return true;
         } else {

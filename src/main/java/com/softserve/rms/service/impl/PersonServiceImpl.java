@@ -1,6 +1,7 @@
 package com.softserve.rms.service.impl;
 
 import com.softserve.rms.constant.ErrorMessage;
+import com.softserve.rms.dto.PasswordEditDto;
 import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.dto.UserEditDto;
 import com.softserve.rms.entities.Person;
@@ -71,5 +72,15 @@ public class PersonServiceImpl implements PersonService {
        person.setEmail(userEditDto.getEmail());
        person.setPhone(userEditDto.getPhone());
        personRepository.save(person);
+    }
+
+    public void editPassword(PasswordEditDto passwordEditDto,String currentUserEmail){
+        Person person=personRepository.findByEmail(currentUserEmail);
+        if(person==null){
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL+ currentUserEmail);
+        }
+        //person.setPassword(passwordEncoder.encode(person.getPassword()));
+        person.setPassword(passwordEditDto.getPassword());
+        personRepository.save(person);
     }
 }

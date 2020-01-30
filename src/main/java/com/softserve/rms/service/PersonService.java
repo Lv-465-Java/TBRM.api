@@ -1,5 +1,6 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.PasswordEditDto;
 import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.dto.UserEditDto;
 import com.softserve.rms.entities.Person;
@@ -23,5 +24,6 @@ public interface PersonService {
      * @author Mariia Shchur
      */
     void update(UserEditDto userEditDto, String email);
+    void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail);
 
 }
