@@ -16,6 +16,12 @@ public interface PersonService {
      */
     boolean save(RegistrationDto person);
 
+    /**
+     * Method update {@link Person}.
+     *
+     * @param userEditDto {@link UserEditDto},email
+     * @author Mariia Shchur
+     */
     void update(UserEditDto userEditDto, String email);
 
 }

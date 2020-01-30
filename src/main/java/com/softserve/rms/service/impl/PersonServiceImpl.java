@@ -51,8 +51,13 @@ public class PersonServiceImpl implements PersonService {
             return true;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
     @Override
-    //@Transactional
+    @Transactional
     public void update(UserEditDto userEditDto, String currentUserEmail){
 //       Person person = Optional.of(personRepository.findByEmail(currentUserEmail))
 //               .orElseThrow(()->new WrongEmailException
