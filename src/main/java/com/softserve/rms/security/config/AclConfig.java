@@ -1,6 +1,6 @@
 package com.softserve.rms.security.config;
 
-import com.softserve.rms.constant.AclQueries;
+import com.softserve.rms.constants.AclQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
@@ -19,17 +19,28 @@ import org.springframework.security.acls.model.PermissionGrantingStrategy;
 
 import javax.sql.DataSource;
 
+/**
+ * Configuration for ACL security
+ *
+ * @author Marian Dutchyn
+ */
 @Configuration
 @EnableAutoConfiguration
 public class AclConfig {
 
     private final DataSource dataSource;
 
+    /**
+     * Constructor
+     */
     @Autowired
     public AclConfig(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Bean {@link MutableAclService} provides CRUD operations on ACLs in the tables.
+     */
     @Bean
     public MutableAclService aclService() {
         JdbcMutableAclService jdbcMutableAclService =
@@ -44,11 +55,20 @@ public class AclConfig {
         return jdbcMutableAclService;
     }
 
+    /**
+     * Bean {@link EhCacheManagerFactoryBean} is responsible for managing the
+     * cache
+     */
     @Bean
     public EhCacheManagerFactoryBean aclCacheManager() {
         return new EhCacheManagerFactoryBean();
     }
 
+    /**
+     *  Bean {@link EhCacheFactoryBean} specifies the
+     * net.sf.ehcache.CacheManager instance that is responsible for managing the
+     * cache
+     */
     @Bean
     public EhCacheFactoryBean aclEhCacheFactoryBean() {
         EhCacheFactoryBean ehCacheFactoryBean = new EhCacheFactoryBean();
@@ -57,6 +77,9 @@ public class AclConfig {
         return ehCacheFactoryBean;
     }
 
+    /**
+     * Bean {@link EhCacheBasedAclCache} that uses for caching ACLs
+     */
     @Bean
     public EhCacheBasedAclCache aclCache() {
         return new EhCacheBasedAclCache(
@@ -66,16 +89,28 @@ public class AclConfig {
         );
     }
 
+    /**
+     * Bean {@link PermissionGrantingStrategy} is responsible for granting or denying access to secure objects
+     * depending on the permissions assigned to SIDs
+     */
     @Bean
     public PermissionGrantingStrategy permissionGrantingStrategy() {
         return new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger());
     }
 
+    /**
+     * Bean {@link AclAuthorizationStrategy} represents the strategy to
+     * determine if a SID has the permissions to perform administrative actions on the
+     * ACL entries of a domain object instance
+     */
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy() {
         return new AclAuthorizationStrategyImpl(() -> "ROLE_MANAGER");
     }
 
+    /**
+     * Bean{@link LookupStrategy} is responsible for looking up ACL information
+     */
     @Bean
     public LookupStrategy lookupStrategy() {
         return new BasicLookupStrategy(dataSource,
@@ -84,7 +119,10 @@ public class AclConfig {
                 new ConsoleAuditLogger());
     }
 
-
+    /**
+     * Bean {@link MethodSecurityExpressionHandler} is used by Spring Security to evaluate security
+     * expressions
+     */
     @Bean
     public MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
