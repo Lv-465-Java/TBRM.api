@@ -7,6 +7,7 @@ import com.softserve.rms.service.PersonService;
 import com.softserve.rms.service.impl.PersonValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,10 +40,10 @@ public class RegistrationController {
      */
 
     @PostMapping("/registration")
-    public HttpStatus createPerson(@Valid @RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity createPerson(@Valid @RequestBody RegistrationDto registrationDto) {
         validateService.validate(registrationDto);
         personService.save(registrationDto);
-        return HttpStatus.CREATED;
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
 
