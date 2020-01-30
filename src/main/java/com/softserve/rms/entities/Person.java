@@ -10,10 +10,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(
-      exclude = {"resource_templates"})
-@ToString(
-     exclude = {"resource_templates"})
+@EqualsAndHashCode(exclude = {"resourceTemplates"})
+@ToString(exclude = {"resourceTemplates"})
 public class Person {
 
     @Id
@@ -37,13 +35,11 @@ public class Person {
 
     @Column(nullable = false)
     private boolean enabled;
-//TODO mapping on roles table
-//    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn(name = "role_id")
-//    private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToMany(mappedBy = "person", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
-
-
 }
