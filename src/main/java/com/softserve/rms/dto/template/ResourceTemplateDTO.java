@@ -1,4 +1,4 @@
-package com.softserve.rms.dto;
+package com.softserve.rms.dto.template;
 
 import com.softserve.rms.entities.ResourceParameter;
 import lombok.AllArgsConstructor;
@@ -16,5 +16,6 @@ public class ResourceTemplateDTO {
     private String tableName;
     private String description;
     private Long personId;
-    private List<ResourceParameterDTO> resourceParameters;
+    private Boolean isPublished;
+    private List<ResourceParameter> resourceParameters;
 }
