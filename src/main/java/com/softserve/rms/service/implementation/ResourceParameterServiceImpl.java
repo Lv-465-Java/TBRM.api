@@ -1,8 +1,9 @@
 package com.softserve.rms.service.implementation;
 
 
-import com.softserve.rms.dto.ResourceParameterDTO;
-import com.softserve.rms.dto.ResourceRelationDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.repository.ResourceParameterRepository;
@@ -51,12 +52,17 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO save(ResourceParameterDTO parameterDTO) {
-        ResourceParameter resourceParameter = resourceParameterRepository
-                .save(getResourceParameter(null, parameterDTO));
-        if (parameterDTO.getResourceRelations() != null) {
-            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
-        }
+    public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO) {
+        ResourceParameter resourceParameter = new ResourceParameter();
+        resourceParameter.setName(parameterDTO.getName());
+        resourceParameter.setColumnName(resourceTemplateService.
+                generateNameToDatabaseNamingConvention(parameterDTO.getName()));
+        resourceParameter.setParameterType(parameterDTO.getParameterType());
+        resourceParameter.setPattern(parameterDTO.getPattern());
+        resourceParameter.setResourceTemplate(
+                resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+        resourceParameterRepository.save(resourceParameter);
+        resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
@@ -66,41 +72,31 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO update(Long id, ResourceParameterDTO parameterDTO) {
-        ResourceParameter resourceParameter = resourceParameterRepository
-                .save(getResourceParameter(findById(id), parameterDTO));
-        if (parameterDTO.getResourceRelations() != null) {
-            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
-        }
+    public ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterDTO) {
+        ResourceParameter resourceParameter = findById(id);
+        resourceParameter.setColumnName(resourceTemplateService.
+                generateNameToDatabaseNamingConvention(parameterDTO.getName()));
+        resourceParameter.setParameterType(parameterDTO.getParameterType());
+        resourceParameter.setPattern(parameterDTO.getPattern());
+        resourceParameterRepository.save(resourceParameter);
+        resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
-    public void saveRelations(Long parameterId, List<ResourceRelationDTO> list) {
-        for (ResourceRelationDTO dto : list) {
-            ResourceRelation resourceRelation = new ResourceRelation();
-            resourceRelation.setResourceParameter(findById(parameterId));
-            resourceRelation.setRelatedResourceTemplate(resourceTemplateService
-                    .findById(dto.getRelatedResourceTemplateId()));
-            resourceRelationRepository.save(resourceRelation);
-        }
+    /**
+     * Method saves {@link ResourceRelation}.
+     *
+     * @param parameterId {@link ResourceParameter} id
+     * @param relationDTO {@link ResourceRelationDTO}
+     * @return instance of {@link ResourceRelation}
+     */
+    private ResourceRelation saveRelation(Long parameterId, ResourceRelationDTO relationDTO) {
+        ResourceRelation resourceRelation = new ResourceRelation();
+        resourceRelation.setResourceParameter(findById(parameterId));
+        resourceRelation.setRelatedResourceTemplate(resourceTemplateService
+                .findById(relationDTO.getRelatedResourceTemplateId()));
+        return resourceRelationRepository.save(resourceRelation);
     }
-
-    private ResourceParameter getResourceParameter(ResourceParameter resourceParameter, ResourceParameterDTO parameterDTO) {
-        if (resourceParameter == null) {
-            resourceParameter = new ResourceParameter();
-        }
-        resourceParameter.setColumnName(parameterDTO.getColumnName());
-        resourceParameter.setParameterType(parameterDTO.getParameterType());
-        if (parameterDTO.getPattern() != null) {
-            resourceParameter.setPattern(patternGenerator.generateRangeIntegerRegex(parameterDTO.getPattern()));
-        }
-        if (parameterDTO.getResourceTemplateId() != null) {
-            resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
-        }
-        return resourceParameter;
-    }
-
-
 
     /**
      * {@inheritDoc}

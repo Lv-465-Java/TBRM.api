@@ -14,7 +14,9 @@ public class ResourceRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+//    @ManyToOne
+//    private ResourceParameter resourceParameter;
+    @OneToOne
     private ResourceParameter resourceParameter;
     @ManyToOne
     private ResourceTemplate relatedResourceTemplate;

@@ -86,4 +86,6 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     Boolean publishResourceTemplate(Long id);
+
+    String generateNameToDatabaseNamingConvention(String name);
 }

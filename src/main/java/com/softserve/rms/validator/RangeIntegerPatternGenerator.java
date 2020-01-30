@@ -130,12 +130,12 @@ public class RangeIntegerPatternGenerator {
      */
     private String toRegex(String start, String end) {
         StringBuilder result = new StringBuilder();
-        for (int pos = 0; pos < start.length(); pos++) {
-            if (start.charAt(pos) == end.charAt(pos)) {
-                result.append(start.charAt(pos));
+        for (int position = 0; position < start.length(); position++) {
+            if (start.charAt(position) == end.charAt(position)) {
+                result.append(start.charAt(position));
             } else {
-                result.append('[').append(start.charAt(pos)).append('-')
-                        .append(end.charAt(pos)).append(']');
+                result.append('[').append(start.charAt(position)).append('-')
+                        .append(end.charAt(position)).append(']');
             }
         }
         return result.toString();

@@ -54,7 +54,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(generateNameToDatabaseNamingConvention(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setPerson(modelMapper.map(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()),
                 Person.class));
         resourceTemplate.setIsPublished(false);
@@ -103,7 +103,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throws NoSuchEntityException {
         ResourceTemplate resourceTemplate = findById(id);
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(generateNameToDatabaseNamingConvention(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -213,7 +213,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    private String generateResourceTableName(String name) {
+    public String generateNameToDatabaseNamingConvention(String name) {
         return name.toLowerCase().replaceAll("[-!$%^&*()_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
     }
 }

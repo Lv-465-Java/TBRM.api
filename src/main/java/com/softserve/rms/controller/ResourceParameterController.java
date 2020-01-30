@@ -1,6 +1,7 @@
 package com.softserve.rms.controller;
 
-import com.softserve.rms.dto.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.service.ResourceParameterService;
@@ -35,7 +36,7 @@ public class ResourceParameterController {
      * @author Andrii Bren
      */
     @PostMapping
-    public ResponseEntity<ResourceParameterDTO> save(@RequestBody ResourceParameterDTO parameterDTO) {
+    public ResponseEntity<ResourceParameterDTO> save(@RequestBody ResourceParameterSaveDTO parameterDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(parameterDTO));
     }
 
@@ -84,7 +85,7 @@ public class ResourceParameterController {
      */
     @PutMapping("/{parameterId}")
     public ResponseEntity<ResourceParameterDTO> update(@PathVariable Long parameterId,
-                                                       @RequestBody ResourceParameterDTO parameterDTO) {
+                                                       @RequestBody ResourceParameterSaveDTO parameterDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(resourceParameterService.update(parameterId, parameterDTO));
     }
