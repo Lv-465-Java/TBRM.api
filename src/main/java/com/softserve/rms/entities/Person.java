@@ -39,9 +39,6 @@ public class Person {
     @OneToMany(mappedBy = "person")
     private List<ResourceTemplate> resourceTemplate;
 
-    public Person(int i, String name, String lastname, String email, String phone, String password, String active) {
-    }
-
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)
 //    @JoinColumn(name = "role_id")

@@ -26,7 +26,7 @@ public interface ResourceParameterService {
      * @return instance of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    ResourceParameterDTO getByIdDTO(Long id);
+    ResourceParameterDTO findByIdDTO(Long id);
 
     /**
      * Method updates {@link ResourceParameter}.
