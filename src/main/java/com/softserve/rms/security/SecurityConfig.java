@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * @author Kravets Maryana
+ */
 @Configuration
 @EnableWebSecurity
 //@EnableSwagger2
@@ -47,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * method configure patterns to define protected/unprotected API endpoints
-     * @param http
+     * @param http {@link HttpSecurity}
      * @throws Exception
      */
     @Override

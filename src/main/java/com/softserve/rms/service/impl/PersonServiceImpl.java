@@ -2,14 +2,12 @@ package com.softserve.rms.service.impl;
 
 import com.softserve.rms.dto.PersonDto;
 import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.Role;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 @Service
-public class PersonServiceImpl implements PersonService, Message, UserDetailsService {
+public class PersonServiceImpl implements PersonService, Message{//, UserDetailsService {
 
     private final PersonRepository personRepository;
 
@@ -33,8 +31,8 @@ public class PersonServiceImpl implements PersonService, Message, UserDetailsSer
         person.setEmail(personDto.getEmail());
         person.setPassword(passwordEncoder().encode(personDto.getPassword()));
         person.setPhone(personDto.getPhone());
-        person.setRole("GUEST");
-        person.setStatus(Boolean.TRUE);
+        person.setRole(new Role(1L,"GUEST"));
+       // person.setStatus(Boolean.TRUE);
         person.setId(new Random().nextLong());
         return personRepository.save(person);
     }
@@ -51,17 +49,17 @@ public class PersonServiceImpl implements PersonService, Message, UserDetailsSer
                 .orElseThrow(()->new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        Person person =personRepository.findByEmail(s)
-                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION,s)));
-        return new org.springframework.security.core.userdetails.User(person.getEmail(), person.getPassword(), person.isEnabled(),
-                true, true, true, person.getAuthorities());
-    }
+//    @Override
+//    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+//        Person person =personRepository.findByEmail(s)
+//                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION,s)));
+//        return new org.springframework.security.core.userdetails.User(person.getEmail(), person.getPassword(), person.isEnabled(),
+//                true, true, true, person.getAuthorities());
+//    }
 
     /**
      * BCrypt encoder
-     * @return
+     * @return PasswordEncoder
      */
     //@Bean
     public PasswordEncoder passwordEncoder() {

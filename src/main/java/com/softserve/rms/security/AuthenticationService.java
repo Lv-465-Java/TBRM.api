@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ *
+ * @author Kravets Maryana
+ */
 @Component
 public class AuthenticationService implements Message {
 
@@ -19,12 +23,24 @@ public class AuthenticationService implements Message {
     private TokenManagementService tokenManagementService;
     private PersonServiceImpl personService;
 
+    /**
+     * constructor
+     * @param tokenManagementService {@link TokenManagementService}
+     * @param personService {@link PersonServiceImpl}
+     */
     public AuthenticationService(@Autowired TokenManagementService tokenManagementService,
                                  @Autowired PersonServiceImpl personService){
         this.tokenManagementService=tokenManagementService;
         this.personService=personService;
     }
 
+    /**
+     * authentication user. Method verify user credential. If user is in DB than gererate access and refresh token, if no thrown
+     * BadCredentialException exception
+     * @param loginPerson {@link LoginPerson}
+     * @return JwtDto
+     * @throws BadCredentialException
+     */
     public JwtDto loginUser(LoginPerson loginPerson){
         LOGGER.info("user login info - {}", loginPerson);
 

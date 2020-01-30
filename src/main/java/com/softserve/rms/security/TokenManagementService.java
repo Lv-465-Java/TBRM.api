@@ -8,6 +8,7 @@ import com.softserve.rms.exceptions.RefreshTokenException;
 import com.softserve.rms.service.impl.PersonServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
+
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * Class with manage with token
+ * @author Kravets Maryana
+ */
 @Component
 public class TokenManagementService implements Message {
 
@@ -37,16 +42,23 @@ public class TokenManagementService implements Message {
     private String expireTimeRefreshToken;
 
     private PersonServiceImpl personService;
+    private UserPrincipalDetailsService userPrincipalDetailsService;
 
-    public TokenManagementService(@Autowired PersonServiceImpl personService){
+    /**
+     * constructor
+     * @param personService {@link PersonServiceImpl}
+     */
+    public TokenManagementService(@Autowired PersonServiceImpl personService,
+                                  @Autowired UserPrincipalDetailsService userPrincipalDetailsService){
         this.personService=personService;
+        this.userPrincipalDetailsService=userPrincipalDetailsService;
     }
 
     /**
      * Generates a JWT access and refresh tokens containing userId as claim. These properties are taken from the specified
-     *  User object. Access token validity is 1 min, refresh token validity 60 days.
-     * @param jwtClaimsDto
-     * @return
+     *  User object. Access token validity is 2 min, refresh token validity 60 days.
+     * @param jwtClaimsDto {@link JwtClaimsDto} - it is userId
+     * @return JwtDto - it is access and refresh tokens
      */
     public JwtDto generateTokenPair(JwtClaimsDto jwtClaimsDto) {
 
@@ -78,7 +90,7 @@ public class TokenManagementService implements Message {
 
     /**
      * Refresh access and refresh tokens, using refresh token
-     * @param jwtDto
+     * @param jwtDto {@link JwtDto}
      * @return JwtDto
      */
 
@@ -90,15 +102,26 @@ public class TokenManagementService implements Message {
             tokenMap.remove(jwtDto.getRefreshToken());
             tokenMap.put(newPairOfToken.getRefreshToken(), new Pair<>(idToTokenPair.getKey(),newPairOfToken.getAccessToken()));
             return newPairOfToken;
-        } else {
+
+//            try {
+//            JwtDto jwtDto1 = generateTokenPair(new JwtClaimsDto(parseJwtToken(jwtDto.getRefreshToken()).getUserId()));
+//            return jwtDto1;
+//
+        } else {//catch (JwtException e){
             throw new RefreshTokenException(REFRESH_TOKEN_EXCEPTION);
         }
     }
 
+    /**
+     * Method that provide authentication.
+     *
+     * @param token {@link String} - jwt access token.
+     * @return {@link Authentication} if user successfully authenticated.
+     */
     public Authentication getAuthentication(String token) {
         JwtClaimsDto jwtClaimsDto=parseJwtToken(token);
         String email=personService.getById(jwtClaimsDto.getUserId()).getEmail();
-        UserDetails userDetails = personService.loadUserByUsername(email);
+        UserDetails userDetails = userPrincipalDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails,
                 "", userDetails.getAuthorities());
     }
@@ -107,13 +130,18 @@ public class TokenManagementService implements Message {
     /**
      * Tries to parse specified String as a JWT access token. If successful, returns User_id.
      *  If unsuccessful (token is invalid or not containing all required user properties), simply returns exception.
-     * @param  accessToken accesstoken
-     * @return userId
+     * @param  accessToken {@link String} - jwt access token.
+     * @return JwtClaimsDto - it is userId
+     * @throws BadCredentialsException
+     * @throws JwtExpiredTokenException
+     * @throws io.jsonwebtoken.ExpiredJwtException - if the token expired.
+     * @throws UnsupportedJwtException  if the argument does not represent an Claims JWS
+     * @throws io.jsonwebtoken.MalformedJwtException if the string is not a valid JWS
+     * @throws io.jsonwebtoken.SignatureException if the JWS signature validation fails
      */
 
     public JwtClaimsDto parseJwtToken(String accessToken){
         try {
-            //decode jwt
             Jws<Claims> claims = Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(accessToken);
 
             LinkedHashMap userClaims = ((LinkedHashMap) claims.getBody().get("userClaims"));
@@ -131,22 +159,19 @@ public class TokenManagementService implements Message {
     }
 
     /**
-     * Method verify whether the token has expired or not
-     * @param token
+     * Method verify whether the token has expired or not.
+     * @param token {@link String}
      * @return boolean
      */
 
     public boolean validateToken(String token) {
+        boolean isValid=false;
         try{
-            Claims body = Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token).getBody();
-            if (body.getExpiration().before(new Date())){
-                return false;
-            } else {
-                return true;
-            }
+            Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
+                isValid=true;
         }catch(JwtException | IllegalArgumentException e){
-            LOGGER.info("dont good data");
-            throw new JwtExpiredTokenException("dont good data");
+            LOGGER.info("Jwt token expired!");
         }
+        return isValid;
     }
 }

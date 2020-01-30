@@ -2,7 +2,6 @@ package com.softserve.rms.security;
 
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.exceptions.JwtAuthenticationException;
-import com.softserve.rms.exceptions.JwtExpiredTokenException;
 import com.softserve.rms.exceptions.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,7 @@ import java.util.Objects;
 /**
  * Filters incoming requests and installs a Spring Security principal if a header corresponding to a valid user is
  * found.
+ * @author Kravets Maryana
  */
 public class JwtAuthorizationFilter extends OncePerRequestFilter implements Message {
 
@@ -30,10 +30,22 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
     private String AUTHORIZATION_HEADER="Authorization";
     private String REFRESH_HEADER="RefreshToken";
 
+    /**
+     * constructor
+     * @param tokenManagementService
+     */
     public JwtAuthorizationFilter(@Autowired TokenManagementService tokenManagementService) {
         this.tokenManagementService = tokenManagementService;
     }
 
+    /**
+     * Checks if request has tokens in header, if those tokens still valid, and set
+     * authentication for spring.
+     *
+     * @param request this is servlet that take request
+     * @param response this is response servlet
+     * @param filterChain this is filter of chain
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -45,16 +57,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
                 if(tokenManagementService.validateToken(accessToken)){
                     Authentication authentication =
                             tokenManagementService.getAuthentication(accessToken);
+                    LOGGER.info("User successfully authenticate - {}", authentication.getPrincipal());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {
                     if(tokenManagementService.validateToken(refreshToken)){
                         JwtDto jwtDto=tokenManagementService.refreshTokens(new JwtDto(accessToken,refreshToken));
+                        LOGGER.info("token refreshed successfully");
 
-                        response.setHeader("Authorization",AUTH_HEADER_PREFIX +jwtDto.getAccessToken());
-                        response.setHeader("RefreshToken", jwtDto.getRefreshToken());
+                        response.setHeader(AUTHORIZATION_HEADER,AUTH_HEADER_PREFIX +jwtDto.getAccessToken());
+                        response.setHeader(REFRESH_HEADER, jwtDto.getRefreshToken());
                     } else {
-                        LOGGER.info("JWT Token is eeeexpired");
-                        throw new JwtExpiredTokenException(JWT_EXPIRE_TOKEN_EXCEPTION);
+                        LOGGER.info("JWT Tokens are expired. Please login");
+                        //throw new JwtExpiredTokenException(JWT_EXPIRE_TOKEN_EXCEPTION);
                     }
                 }
 
@@ -67,6 +81,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
         filterChain.doFilter(request,response);
     }
 
+    /**
+     * Method that get access token from {@link HttpServletRequest}.
+     *
+     * @param request this is your request.
+     * @return {@link String} of token or null.
+     */
     private String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (Objects.nonNull(bearerToken) && bearerToken.startsWith(AUTH_HEADER_PREFIX)) {
@@ -76,6 +96,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
     }
 
 
+    /**
+     * Method that get refresh token from {@link HttpServletRequest}.
+     *
+     * @param request this is your request.
+     * @return {@link String} of token or null.
+     */
     private String resolveRefreshToken(HttpServletRequest request) {
         String refreshToken = request.getHeader(REFRESH_HEADER);
         if (Objects.nonNull(refreshToken)) {
