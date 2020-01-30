@@ -35,7 +35,7 @@ public class ResourceTemplate {
     @ToString.Exclude
     private Person person;
 
-    @OneToMany(mappedBy = "resourceTemplate")
+    @OneToMany(mappedBy = "resourceTemplate", cascade=CascadeType.REMOVE)
     private List<ResourceParameter> resourceParameters;
 
     @OneToMany(mappedBy = "relatedResourceTemplate")

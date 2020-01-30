@@ -21,7 +21,7 @@ public class ResourceParameter {
     private String columnName;
 
     @Column(name = "field_type", nullable = false)
-//    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private ParameterType parameterType;
 
     private String pattern;

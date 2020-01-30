@@ -109,8 +109,15 @@ public class ResourceTemplateController {
                 (resourceTemplateService.searchByNameOrDescriptionContaining(body));
     }
 
+    /**
+     * The controller which publishes {@link ResourceTemplateDTO} by id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @author Halyna Yatseniuk
+     */
     @PostMapping("/publish-resource-template/{id}")
-    public ResponseEntity<Object> publishResourceTemplate(@PathVariable Long id) {
+    public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id) {
         LOG.info("Publish a Resource Template");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
     }
