@@ -1,6 +1,7 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exceptions.NoSuchEntityException;
@@ -12,13 +13,13 @@ import java.util.Map;
 
 public interface ResourceTemplateService {
     /**
-     * Method creates {@link ResourceTemplate}.
+     * Method creates {@link ResourceTemplateSaveDTO}.
      *
-     * @param resourceTemplateDTO {@link ResourceTemplateDTO}
+     * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
      * @return new {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO save(ResourceTemplateDTO resourceTemplateDTO);
+    ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO);
 
     /**
      * Method finds {@link ResourceTemplate} by id.
@@ -45,7 +46,7 @@ public interface ResourceTemplateService {
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO updateById(Long id, ResourceTemplateDTO resourceTemplateDTO);
+    ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO);
 
     /**
      * Method deletes {@link ResourceTemplate} by id.

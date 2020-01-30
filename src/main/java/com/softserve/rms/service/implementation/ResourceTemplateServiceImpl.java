@@ -1,12 +1,14 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.exceptions.NoSuchEntityException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
+import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
+    private final PersonRepository personRepository;
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -33,23 +37,29 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository) {
+    public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
+                                       PersonRepository personRepository) {
         this.resourceTemplateRepository = resourceTemplateRepository;
+        this.personRepository = personRepository;
     }
 
     /**
      * Method creates {@link ResourceTemplate}.
      *
-     * @param resourceTemplateDTO {@link ResourceTemplateDTO}
+     * @param resourceTemplateSaveDTO {@link ResourceTemplateDTO}
      * @return new {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO save(ResourceTemplateDTO resourceTemplateDTO) {
-        resourceTemplateDTO.setTableName(generateResourceTableName(resourceTemplateDTO.getName()));
-        resourceTemplateDTO.setIsPublished(false);
-        ResourceTemplate resourceTemplate = resourceTemplateRepository
-                .save(modelMapper.map(resourceTemplateDTO, ResourceTemplate.class));
+    public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO) {
+        ResourceTemplate resourceTemplate = new ResourceTemplate();
+        resourceTemplate.setName(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setPerson(modelMapper.map(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()),
+                Person.class));
+        resourceTemplate.setIsPublished(false);
+        resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
@@ -90,11 +100,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO updateById(Long id, ResourceTemplateDTO resourceTemplateDTO) throws NoSuchEntityException {
+    public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
+            throws NoSuchEntityException {
         ResourceTemplate resourceTemplate = findById(id);
-        resourceTemplate.setName(resourceTemplateDTO.getName());
-        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateDTO.getName()));
-        resourceTemplate.setDescription(resourceTemplateDTO.getDescription());
+        resourceTemplate.setName(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
@@ -158,10 +169,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
-            //create new table method;
-            return findById(id).getIsPublished();
         }
-        return false;
+        //create new table method;
+        return findById(id).getIsPublished();
     }
 
     /**

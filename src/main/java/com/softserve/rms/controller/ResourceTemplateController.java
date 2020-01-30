@@ -1,6 +1,7 @@
 package com.softserve.rms.controller;
 
-import com.softserve.rms.dto.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.Person;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.slf4j.Logger;
@@ -29,14 +30,14 @@ public class ResourceTemplateController {
     }
 
     /**
-     * The controller which saves a new {@link ResourceTemplateDTO}.
+     * The controller which saves a new {@link ResourceTemplateSaveDTO}.
      *
      * @param templateDTO ResourceTemplateDTO
-     * @return {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplateSaveDTO}
      * @author Halyna Yatseniuk
      */
     @PostMapping("/resource-template")
-    public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateDTO templateDTO) {
+    public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateSaveDTO templateDTO) {
         LOG.info("Creating a new Resource Template");
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.save(templateDTO));
     }
@@ -76,7 +77,7 @@ public class ResourceTemplateController {
      */
     @PutMapping("/resource-template/{id}")
     public ResponseEntity<ResourceTemplateDTO> updateById
-    (@PathVariable Long id, @RequestBody ResourceTemplateDTO templateDTO) {
+    (@PathVariable Long id, @RequestBody ResourceTemplateSaveDTO templateDTO) {
         LOG.info("Updating Resource Template by ID");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, templateDTO));
     }
