@@ -1,6 +1,6 @@
 package com.softserve.rms.security.config;
 
-import com.softserve.rms.constant.AclQueries;
+import com.softserve.rms.constants.AclQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;

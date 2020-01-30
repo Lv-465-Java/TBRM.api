@@ -1,4 +1,4 @@
-package com.softserve.rms.constant;
+package com.softserve.rms.constants;
 
 public class AclQueries {
 
