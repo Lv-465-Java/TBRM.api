@@ -15,5 +15,4 @@ public class ResourceParameterDTO {
     private String pattern;
     private Long resourceTemplateId;
     private List<ResourceRelationDTO> resourceRelations;
-
 }

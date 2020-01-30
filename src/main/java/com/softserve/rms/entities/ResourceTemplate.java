@@ -1,25 +1,26 @@
 package com.softserve.rms.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity(name = "resource_templates")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+//@EqualsAndHashCode(
+//        exclude = {"person"})
+//@ToString(
+//        exclude = {"person"})
 public class ResourceTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -27,15 +28,16 @@ public class ResourceTemplate {
 
     private String description;
 
+    private Boolean isPublished;
+
     @ManyToOne
     @JoinColumn(name = "creator_id")
+    @ToString.Exclude
     private Person person;
 
-    @OneToMany(mappedBy = "resourceTemplate")
+    @OneToMany(mappedBy = "resourceTemplate", cascade=CascadeType.REMOVE)
     private List<ResourceParameter> resourceParameters;
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
-
-
 }
