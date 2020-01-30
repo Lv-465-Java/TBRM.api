@@ -1,5 +1,4 @@
 package com.softserve.rms.entities;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +30,6 @@ public class ResourceParameter {
     private ResourceTemplate resourceTemplate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "resourceParameter")
+    @OneToMany(mappedBy = "resourceParameter", cascade = CascadeType.REMOVE)
     private List<ResourceRelation> resourceRelations;
 }

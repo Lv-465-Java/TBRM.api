@@ -21,4 +21,7 @@ public class ResourceRelation {
 //    @JsonIgnore
     @ManyToOne
     private ResourceTemplate relatedResourceTemplate;
+
+
+
 }

@@ -60,4 +60,6 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body);
+
+    ResourceTemplate findById(Long id);
 }
