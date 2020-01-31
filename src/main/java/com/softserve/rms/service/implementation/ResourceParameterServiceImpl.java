@@ -5,11 +5,14 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotDeletedException;
 import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotFoundException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
@@ -131,9 +134,24 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private ResourceRelation saveRelation(Long parameterId, ResourceRelationDTO relationDTO) {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
-        resourceRelation.setRelatedResourceTemplate(resourceTemplateService
-                .findById(relationDTO.getRelatedResourceTemplateId()));
+        resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
+                .findById(relationDTO.getRelatedResourceTemplateId())));
         return resourceRelationRepository.save(resourceRelation);
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} has been published.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @return {@link ResourceTemplateDTO} if provided resource template hasn't been published yet
+     * @throws ResourceTemplateIsPublishedException if resource template has been already published
+     * @author Halyna Yatseniuk
+     */
+    private ResourceTemplate verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate) {
+        if (resourceTemplate.getIsPublished()) {
+            throw new RuntimeException(ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
+        }
+        return resourceTemplate;
     }
 
     /**

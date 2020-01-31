@@ -67,7 +67,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
-    public String verifyIfResourceTemplateNameIsUnique(String name) {
+    //TODO
+
+    public String verifyIfResourceTemplateNameIsUnique(String name) throws NameIsNotUniqueException {
         if (resourceTemplateRepository.findByName(name).isPresent()) {
             throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
         }
@@ -205,6 +207,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
         }
         return true;
+    }
+
+    private Boolean getResourceTemplatePublishedValue(ResourceTemplate resourceTemplate) {
+        return resourceTemplate.getIsPublished();
     }
 
     /**
