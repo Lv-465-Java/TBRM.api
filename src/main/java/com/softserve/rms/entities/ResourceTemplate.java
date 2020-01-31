@@ -1,5 +1,6 @@
 package com.softserve.rms.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -17,9 +18,19 @@ public class ResourceTemplate {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "person_id")
-    private Person person;
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;
+
+    public ResourceTemplate() {
+    }
+
+    public ResourceTemplate(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
 }

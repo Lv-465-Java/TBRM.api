@@ -6,6 +6,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * JPA Configuration
+ *
+ * @author Marian Dutchyn
+ */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "com.softserve.rms.repository")
