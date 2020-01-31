@@ -85,8 +85,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO getById(Long id) throws NoSuchResourceTemplateException {
-        return modelMapper.map(findById(id), ResourceTemplateDTO.class);
+    public ResourceTemplateDTO findDTOById(Long id) throws NoSuchResourceTemplateException {
+        return modelMapper.map(findEntityById(id), ResourceTemplateDTO.class);
     }
 
     /**
@@ -115,7 +115,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
             throws NoSuchResourceTemplateException {
-        ResourceTemplate resourceTemplate = findById(id);
+        ResourceTemplate resourceTemplate = findEntityById(id);
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
@@ -166,7 +166,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findById(Long id) throws NoSuchResourceTemplateException {
+    public ResourceTemplate findEntityById(Long id) throws NoSuchResourceTemplateException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
@@ -183,14 +183,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public Boolean publishResourceTemplate(Long id)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
-        ResourceTemplate resourceTemplate = findById(id);
+        ResourceTemplate resourceTemplate = findEntityById(id);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
         //TODO
         //create new table method;
-        return findById(id).getIsPublished();
+        return findEntityById(id).getIsPublished();
     }
 
     /**

@@ -74,7 +74,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
         resourceParameter.setResourceTemplate(
-                resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+                resourceTemplateService.findEntityById(parameterDTO.getResourceTemplateId()));
 
         resourceParameterRepository.save(resourceParameter);
 
@@ -135,7 +135,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
         resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
-                .findById(relationDTO.getRelatedResourceTemplateId())));
+                .findEntityById(relationDTO.getRelatedResourceTemplateId())));
         return resourceRelationRepository.save(resourceRelation);
     }
 
@@ -148,7 +148,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Halyna Yatseniuk
      */
     private ResourceTemplate verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate) {
-        if (resourceTemplate.getIsPublished()) {
+        if (!resourceTemplate.getIsPublished()) {
             throw new RuntimeException(ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
         }
         return resourceTemplate;
