@@ -1,4 +1,4 @@
-package com.softserve.rms.dto;
+package com.softserve.rms.dto.resourceparameter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceRelationDTO {
-    private Long id;
     private Long relatedResourceTemplateId;
 }

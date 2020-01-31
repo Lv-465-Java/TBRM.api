@@ -1,10 +1,11 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 
 import java.util.List;
 
 
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 
@@ -13,11 +14,11 @@ public interface ResourceParameterService {
     /**
      * Method saves {@link ResourceParameter}.
      *
-     * @param resourceParameterDTO {@link ResourceParameterDTO}
+     * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return instance of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    ResourceParameterDTO save(ResourceParameterDTO resourceParameterDTO);
+    ResourceParameterDTO save(ResourceParameterSaveDTO parameterSaveDTO);
 
     /**
      * Method finds one {@link ResourceParameter} by id.
@@ -31,12 +32,12 @@ public interface ResourceParameterService {
     /**
      * Method updates {@link ResourceParameter}.
      *
-     * @param id                   {@link ResourceParameterDTO} id
-     * @param resourceParameterDTO {@link ResourceParameterDTO}
+     * @param id               {@link ResourceParameterDTO} id
+     * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return updated instance of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    ResourceParameterDTO update(Long id, ResourceParameterDTO resourceParameterDTO);
+    ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterSaveDTO);
 
     /**
      * Method finds all {@link ResourceParameter}.
@@ -44,7 +45,7 @@ public interface ResourceParameterService {
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> getAll();
+    List<ResourceParameterDTO> findAll();
 
     /**
      * Method finds all {@link ResourceParameter} by {@link ResourceTemplate} id.
@@ -53,7 +54,7 @@ public interface ResourceParameterService {
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> getAllByTemplateId(Long id);
+    List<ResourceParameterDTO> findAllByTemplateId(Long id);
 
     /**
      * Method deletes {@link ResourceParameter} by id.
@@ -62,5 +63,5 @@ public interface ResourceParameterService {
      * @return id of deleted {@link ResourceParameter}
      * @author Andrii Bren
      */
-    Long delete(Long id);
+    void delete(Long id);
 }
