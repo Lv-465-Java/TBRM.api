@@ -15,6 +15,7 @@ import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.validator.RangeIntegerPatternGenerator;
+import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceParameterRepository resourceParameterRepository;
     private final ResourceRelationRepository resourceRelationRepository;
     private final ResourceTemplateService resourceTemplateService;
+    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
 
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
@@ -62,8 +64,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO) {
         ResourceParameter resourceParameter = new ResourceParameter();
         resourceParameter.setName(parameterDTO.getName());
-        resourceParameter.setColumnName(resourceTemplateService.
-                generateNameToDatabaseNamingConvention(parameterDTO.getName()));
+        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
@@ -83,7 +84,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * Method matches pattern to {@link ParameterType}.
      *
-     * @param type {@link ParameterType}
+     * @param type    {@link ParameterType}
      * @param pattern regex pattern
      * @return String regex
      * @author Andrii Bren
@@ -107,8 +108,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     @Transactional
     public ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterDTO) {
         ResourceParameter resourceParameter = findById(id);
-        resourceParameter.setColumnName(resourceTemplateService.
-                generateNameToDatabaseNamingConvention(parameterDTO.getName()));
+        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(

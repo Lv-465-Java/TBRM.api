@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ResourceTemplateRepository extends JpaRepository<ResourceTemplate, Long> {
@@ -21,10 +22,12 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     /**
      * Method find list of{@link ResourceTemplate} by name or description.
      *
-     * @param name String
+     * @param name        String
      * @param description String
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplate> findByTableNameContainingOrDescriptionContaining(String name, String description);
+    List<ResourceTemplate> findByTableNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
+
+    Optional<ResourceTemplate> findByName(String name);
 }

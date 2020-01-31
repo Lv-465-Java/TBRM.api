@@ -90,9 +90,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @DeleteMapping("/resource-template/{id}")
-    public ResponseEntity<Boolean> deleteById(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteById(@PathVariable Long id) {
         LOG.info("Deleting Resource Template by ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.deleteById(id));
+        resourceTemplateService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**

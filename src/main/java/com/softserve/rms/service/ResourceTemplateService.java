@@ -4,7 +4,7 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.NoSuchEntityException;
+import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 
@@ -54,7 +54,7 @@ public interface ResourceTemplateService {
      * @param id of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    boolean deleteById(Long id);
+    void deleteById(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
@@ -70,7 +70,7 @@ public interface ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
-     * @throws NoSuchEntityException if the resource template with provided id is not found
+     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
 
@@ -86,6 +86,4 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     Boolean publishResourceTemplate(Long id);
-
-    String generateNameToDatabaseNamingConvention(String name);
 }
