@@ -63,5 +63,5 @@ public interface ResourceParameterService {
      * @return id of deleted {@link ResourceParameter}
      * @author Andrii Bren
      */
-    Long delete(Long id);
+    void delete(Long id);
 }

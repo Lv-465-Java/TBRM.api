@@ -5,6 +5,7 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotDeletedException;
@@ -17,7 +18,9 @@ import com.softserve.rms.validator.RangeIntegerPatternGenerator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -55,18 +58,44 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
+    @Transactional
     public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO) {
         ResourceParameter resourceParameter = new ResourceParameter();
         resourceParameter.setName(parameterDTO.getName());
         resourceParameter.setColumnName(resourceTemplateService.
                 generateNameToDatabaseNamingConvention(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
-        resourceParameter.setPattern(parameterDTO.getPattern());
+        if (parameterDTO.getPattern() != null) {
+            resourceParameter.setPattern(getMatchedPatternToParameterType(
+                    parameterDTO.getParameterType(), parameterDTO.getPattern()));
+        }
         resourceParameter.setResourceTemplate(
                 resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+
         resourceParameterRepository.save(resourceParameter);
-        resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+
+        if (parameterDTO.getResourceRelationDTO() != null) {
+            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+        }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
+    }
+
+    /**
+     * Method matches pattern to {@link ParameterType}.
+     *
+     * @param type {@link ParameterType}
+     * @param pattern regex pattern
+     * @return String regex
+     * @author Andrii Bren
+     */
+    private String getMatchedPatternToParameterType(ParameterType type, String pattern) {
+        if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
+            return patternGenerator.generateRangeIntegerRegex(pattern);
+        } else if (type == ParameterType.AREA_DOUBLE) {
+            return "pattern for coordinates";
+        }
+        //ToDo
+        return "pattern for double";
     }
 
     /**
@@ -75,14 +104,20 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
+    @Transactional
     public ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterDTO) {
         ResourceParameter resourceParameter = findById(id);
         resourceParameter.setColumnName(resourceTemplateService.
                 generateNameToDatabaseNamingConvention(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
-        resourceParameter.setPattern(parameterDTO.getPattern());
-        resourceParameterRepository.save(resourceParameter);
-        resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+        if (parameterDTO.getPattern() != null) {
+            resourceParameter.setPattern(getMatchedPatternToParameterType(
+                    parameterDTO.getParameterType(), parameterDTO.getPattern()));
+        }
+        if (parameterDTO.getResourceRelationDTO() != null) {
+            resourceParameterRepository.save(resourceParameter);
+            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+        }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
@@ -159,13 +194,14 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public Long delete(Long id) {
-        if (!(resourceParameterRepository.findById(id).isPresent())) {
+    @Transactional
+    public void delete(Long id) {
+        try {
+            resourceParameterRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
             throw new ResourceParameterNotDeletedException(
                     ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_DELETE_BY_ID.getMessage() + id);
         }
-        resourceParameterRepository.deleteById(id);
-        return id;
     }
 
 }
