@@ -5,15 +5,19 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.NoSuchEntityException;
+import com.softserve.rms.exceptions.resourseTemplate.NameIsNotUniqueException;
+import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
     private final PersonRepository personRepository;
+    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -52,9 +57,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO) {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
-        resourceTemplate.setName(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateNameToDatabaseNamingConvention(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setPerson(modelMapper.map(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()),
                 Person.class));
         resourceTemplate.setIsPublished(false);
@@ -62,16 +67,23 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
+    public String verifyIfResourceTemplateNameIsUnique(String name) {
+        if (resourceTemplateRepository.findByName(name).isPresent()) {
+            throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
+    }
+
     /**
      * Method finds {@link ResourceTemplate} by provided id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchEntityException if the resource template is not found
+     * @throws NoSuchResourceTemplateException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO getById(Long id) throws NoSuchEntityException {
+    public ResourceTemplateDTO getById(Long id) throws NoSuchResourceTemplateException {
         return modelMapper.map(findById(id), ResourceTemplateDTO.class);
     }
 
@@ -95,15 +107,15 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchEntityException if the resource template is not found
+     * @throws NoSuchResourceTemplateException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
-            throws NoSuchEntityException {
+            throws NoSuchResourceTemplateException {
         ResourceTemplate resourceTemplate = findById(id);
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateNameToDatabaseNamingConvention(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -113,12 +125,17 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * Method deletes {@link ResourceTemplate} by id.
      *
      * @param id of {@link ResourceTemplateDTO}
+     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
-    public boolean deleteById(Long id) {
-        resourceTemplateRepository.deleteById(id);
-        return !resourceTemplateRepository.findById(id).isPresent();
+    @Transactional
+    public void deleteById(Long id) throws NoSuchResourceTemplateException {
+        try {
+            resourceTemplateRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
+        }
     }
 
     /**
@@ -133,7 +150,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         String name = body.get("name");
         String description = body.get("description");
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository
-                .findByTableNameContainingOrDescriptionContaining(name, description);
+                .findByTableNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(name, description.toLowerCase());
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());
@@ -144,12 +161,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
-     * @throws NoSuchEntityException if the resource template with provided id is not found
+     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findById(Long id) throws NoSuchEntityException {
+    public ResourceTemplate findById(Long id) throws NoSuchResourceTemplateException {
         return resourceTemplateRepository.findById(id)
-                .orElseThrow(() -> new NoSuchEntityException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+                .orElseThrow(() -> new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
     /**
@@ -169,6 +186,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
+        //TODO
         //create new table method;
         return findById(id).getIsPublished();
     }
@@ -204,16 +222,5 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                     (ErrorMessage.RESOURCE_TEMPLATE_DO_NOT_HAVE_ANY_PARAMETERS.getMessage());
         }
         return true;
-    }
-
-    /**
-     * Method generates String for {@link ResourceTemplate} table name field.
-     *
-     * @param name of {@link ResourceTemplateDTO}
-     * @return {@link ResourceTemplateDTO}
-     * @author Halyna Yatseniuk
-     */
-    public String generateNameToDatabaseNamingConvention(String name) {
-        return name.toLowerCase().replaceAll("[-!$%^&*()_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
     }
 }
