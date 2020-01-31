@@ -14,10 +14,10 @@ public interface ResourceParameterRepository extends JpaRepository<ResourceParam
      * Method finds all {@link ResourceParameter} by template id.
      *
      * @param id {@link ResourceParameter} id
-     * @return list of Optional {@link ResourceParameter}
+     * @return list of  {@link ResourceParameter}
      * @author Andrii Bren
      */
-    Optional<List<ResourceParameter>> findAllByResourceTemplateId(Long id);
+    List<ResourceParameter> findAllByResourceTemplateId(Long id);
 
     Optional<ResourceParameter> findByName(String name);
 }
