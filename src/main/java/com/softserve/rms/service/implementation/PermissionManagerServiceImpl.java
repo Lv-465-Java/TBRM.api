@@ -6,10 +6,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
 
+@Service
 public class PermissionManagerServiceImpl implements PermissionManagerService {
     private MutableAclService mutableAclService;
 

@@ -1,4 +1,4 @@
-create table acl_sid
+create table if not exists acl_sid
 (
     id        bigserial    not null primary key,
     principal boolean      not null,
@@ -6,14 +6,14 @@ create table acl_sid
     constraint unique_uk_1 unique (sid, principal)
 );
 
-create table acl_class
+create table if not exists acl_class
 (
     id    bigserial    not null primary key,
     class varchar(100) not null,
     constraint unique_uk_2 unique (class)
 );
 
-create table acl_object_identity
+create table if not exists acl_object_identity
 (
     id                 bigserial primary key,
     object_id_class    bigint      not null,
@@ -28,7 +28,7 @@ create table acl_object_identity
 );
 
 
-create table acl_entry
+create table if not exists acl_entry
 (
     id                  bigserial primary key,
     acl_object_identity bigint  not null,
@@ -42,3 +42,38 @@ create table acl_entry
     constraint foreign_fk_4 foreign key (acl_object_identity) references acl_object_identity (id),
     constraint foreign_fk_5 foreign key (sid) references acl_sid (id)
 );
+
+create table if not exists roles
+(
+    id   bigint       not null primary key,
+    name varchar(100) not null,
+    constraint unique_uk_5 unique (name)
+);
+
+BEGIN;
+INSERT INTO public.roles (id, name)
+SELECT role.id, role.name
+FROM (
+         SELECT 1            as id,
+                'ROLE_ADMIN' as name
+         UNION
+         SELECT 2              as id,
+                'ROLE_MANAGER' as name
+         UNION
+         SELECT 3               as id,
+                'ROLE_REGISTER' as name
+         UNION
+         SELECT 4           as id,
+                'ROLE_USER' as name
+         UNION
+         SELECT 5            as id,
+                'ROLE_GUEST' as name
+     ) as role
+WHERE (SELECT COUNT(*) FROM roles) <= 0;
+COMMIT;
+END;
+
+
+INSERT INTO public.acl_sid(id, principal, sid)
+SELECT 1, false, 'MANAGER'
+WHERE NOT EXISTS(SELECT * FROM acl_sid);
