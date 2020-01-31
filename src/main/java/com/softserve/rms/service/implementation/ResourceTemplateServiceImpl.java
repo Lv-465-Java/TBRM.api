@@ -67,15 +67,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
-    //TODO
-
-    public String verifyIfResourceTemplateNameIsUnique(String name) throws NameIsNotUniqueException {
-        if (resourceTemplateRepository.findByName(name).isPresent()) {
-            throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
-        }
-        return name;
-    }
-
     /**
      * Method finds {@link ResourceTemplate} by provided id.
      *
@@ -172,6 +163,21 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
+     * Method verifies if {@link ResourceTemplate} name is unique.
+     *
+     * @param name of {@link ResourceTemplateDTO}
+     * @return string of {@link ResourceTemplateDTO} name if it's unique
+     * @throws NameIsNotUniqueException if the resource template name is not unique
+     * @author Halyna Yatseniuk
+     */
+    public String verifyIfResourceTemplateNameIsUnique(String name) throws NameIsNotUniqueException {
+        if (resourceTemplateRepository.findByName(name).isPresent()) {
+            throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
+    }
+
+    /**
      * Method makes {@link ResourceTemplate} be published.
      *
      * @param id of {@link ResourceTemplateDTO}
@@ -193,6 +199,16 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return findEntityById(id).getIsPublished();
     }
 
+    public Boolean unPublishResourceTemplate(Long id) {
+        ResourceTemplate resourceTemplate = findEntityById(id);
+        resourceTemplate.setIsPublished(false);
+        resourceTemplateRepository.save(resourceTemplate);
+        //TODO
+        //Verify if table has at least one resource entity
+        return findEntityById(id).getIsPublished();
+    }
+
+
     /**
      * Method verifies if {@link ResourceTemplate} is not published.
      *
@@ -207,10 +223,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
         }
         return true;
-    }
-
-    private Boolean getResourceTemplatePublishedValue(ResourceTemplate resourceTemplate) {
-        return resourceTemplate.getIsPublished();
     }
 
     /**
