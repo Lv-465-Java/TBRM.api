@@ -1,7 +1,6 @@
 package com.softserve.rms.service.implementation;
 
 
-import com.softserve.rms.constants.AppConstant;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
@@ -16,8 +15,8 @@ import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
-import com.softserve.rms.validator.RangeIntegerPatternGenerator;
-import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
+import com.softserve.rms.util.RangeIntegerPatternGenerator;
+import com.softserve.rms.util.Validator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceParameterRepository resourceParameterRepository;
     private final ResourceRelationRepository resourceRelationRepository;
     private final ResourceTemplateService resourceTemplateService;
-    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
+    private Validator validator = new Validator();
 
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
@@ -97,7 +96,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
             return patternGenerator.generateRangeIntegerRegex(pattern);
         } else if (type == ParameterType.AREA_DOUBLE) {
-            return AppConstant.COORDINATES_PATTERN;
+            return Validator.COORDINATES_PATTERN;
         } else if (type == ParameterType.POINT_STRING) {
             //TODO
             return "pattern for string";

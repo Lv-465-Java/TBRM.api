@@ -12,7 +12,7 @@ import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterLi
 import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
-import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
+import com.softserve.rms.util.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
     private final PersonRepository personRepository;
-    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
+    private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
