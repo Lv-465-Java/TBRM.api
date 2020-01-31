@@ -13,8 +13,10 @@ import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -117,10 +119,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public Boolean deleteById(Long id) throws NoSuchResourceTemplateException {
-        findById(id);
-        resourceTemplateRepository.deleteById(id);
-        return true;
+    public void deleteById(Long id) throws NoSuchResourceTemplateException {
+        try {
+            resourceTemplateRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
+        }
     }
 
     /**
@@ -135,7 +139,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         String name = body.get("name");
         String description = body.get("description");
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository
-                .findByTableNameContainingOrDescriptionContaining(name, description);
+                .findByTableNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(name, description.toLowerCase());
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());

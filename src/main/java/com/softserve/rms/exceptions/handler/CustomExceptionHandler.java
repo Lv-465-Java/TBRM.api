@@ -16,6 +16,20 @@ import java.util.Map;
 @RestControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
+//    /**
+//     * Method which handles {@link RuntimeException} exception.
+//     *
+//     * @param exception  {@link RuntimeException}
+//     * @param webRequest {@link WebRequest}
+//     * @return ResponseEntity which contains an error message
+//     * @author Halyna Yatseniuk
+//     */
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<Object> handleRuntimeException
+//    (RuntimeException exception, WebRequest webRequest) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+//    }
+
     /**
      * Method which handles {@link NoSuchResourceTemplateException} exception.
      *
