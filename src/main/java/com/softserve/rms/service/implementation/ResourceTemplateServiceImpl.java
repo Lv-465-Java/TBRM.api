@@ -5,12 +5,14 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
+import com.softserve.rms.exceptions.resourseTemplate.NameIsNotUniqueException;
 import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
     private final PersonRepository personRepository;
+    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -54,14 +57,21 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO) {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
-        resourceTemplate.setName(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setPerson(modelMapper.map(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()),
                 Person.class));
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
+    }
+
+    public String verifyIfResourceTemplateNameIsUnique(String name) {
+        if (resourceTemplateRepository.findByName(name).isPresent()) {
+            throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
     }
 
     /**
@@ -105,7 +115,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throws NoSuchResourceTemplateException {
         ResourceTemplate resourceTemplate = findById(id);
         resourceTemplate.setName(resourceTemplateSaveDTO.getName());
-        resourceTemplate.setTableName(generateResourceTableName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -176,6 +186,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
+        //TODO
         //create new table method;
         return findById(id).getIsPublished();
     }
@@ -211,16 +222,5 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                     (ErrorMessage.RESOURCE_TEMPLATE_DO_NOT_HAVE_ANY_PARAMETERS.getMessage());
         }
         return true;
-    }
-
-    /**
-     * Method generates String for {@link ResourceTemplate} table name field.
-     *
-     * @param name of {@link ResourceTemplateDTO}
-     * @return {@link ResourceTemplateDTO}
-     * @author Halyna Yatseniuk
-     */
-    private String generateResourceTableName(String name) {
-        return name.toLowerCase().replaceAll("[-!$%^&*()_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
     }
 }

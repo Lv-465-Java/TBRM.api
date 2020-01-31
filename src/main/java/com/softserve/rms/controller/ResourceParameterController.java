@@ -1,6 +1,7 @@
 package com.softserve.rms.controller;
 
-import com.softserve.rms.dto.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.service.ResourceParameterService;
@@ -35,12 +36,12 @@ public class ResourceParameterController {
      * @author Andrii Bren
      */
     @PostMapping
-    public ResponseEntity<ResourceParameterDTO> save(@RequestBody ResourceParameterDTO parameterDTO) {
+    public ResponseEntity<ResourceParameterDTO> save(@RequestBody ResourceParameterSaveDTO parameterDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(parameterDTO));
     }
 
     /**
-     * Controller which gets {@link ResourceParameter} by {@link ResourceTemplate} id.
+     * Controller which finds {@link ResourceParameter} by {@link ResourceTemplate} id.
      *
      * @param templateId {@link ResourceTemplate} id
      * @return {@link ResponseEntity} with generic type list of {@link ResourceParameterDTO}
@@ -48,11 +49,11 @@ public class ResourceParameterController {
      */
     @GetMapping("/byTemplateId/{templateId}")
     public ResponseEntity<List<ResourceParameterDTO>> getParametersByTemplateId(@PathVariable Long templateId) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getAllByTemplateId(templateId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
     }
 
     /**
-     * Controller which gets {@link ResourceParameter} by id.
+     * Controller which finds {@link ResourceParameter} by id.
      *
      * @param parameterId {@link ResourceParameter} id
      * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
@@ -64,14 +65,14 @@ public class ResourceParameterController {
     }
 
     /**
-     * Controller which gets all {@link ResourceParameter}.
+     * Controller which finds all {@link ResourceParameter}.
      *
      * @return {@link ResponseEntity} with generic type list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
     @GetMapping
     public ResponseEntity<List<ResourceParameterDTO>> getAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.getAll());
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAll());
     }
 
     /**
@@ -84,7 +85,7 @@ public class ResourceParameterController {
      */
     @PutMapping("/{parameterId}")
     public ResponseEntity<ResourceParameterDTO> update(@PathVariable Long parameterId,
-                                                       @RequestBody ResourceParameterDTO parameterDTO) {
+                                                       @RequestBody ResourceParameterSaveDTO parameterDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(resourceParameterService.update(parameterId, parameterDTO));
     }

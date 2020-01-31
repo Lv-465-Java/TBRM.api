@@ -1,19 +1,27 @@
 package com.softserve.rms.service.implementation;
 
 
-import com.softserve.rms.dto.ResourceParameterDTO;
-import com.softserve.rms.dto.ResourceRelationDTO;
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
+import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotDeletedException;
+import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotFoundException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.validator.RangeIntegerPatternGenerator;
+import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +35,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceParameterRepository resourceParameterRepository;
     private final ResourceRelationRepository resourceRelationRepository;
     private final ResourceTemplateService resourceTemplateService;
+    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
 
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
@@ -51,56 +60,44 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO save(ResourceParameterDTO parameterDTO) {
-        ResourceParameter resourceParameter = resourceParameterRepository
-                .save(getResourceParameter(null, parameterDTO));
-        if (parameterDTO.getResourceRelations() != null) {
-            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
-        }
-        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @author Andrii Bren
-     */
-    @Override
-    public ResourceParameterDTO update(Long id, ResourceParameterDTO parameterDTO) {
-        ResourceParameter resourceParameter = resourceParameterRepository
-                .save(getResourceParameter(findById(id), parameterDTO));
-        if (parameterDTO.getResourceRelations() != null) {
-            saveRelations(resourceParameter.getId(), parameterDTO.getResourceRelations());
-        }
-        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
-    }
-
-    public void saveRelations(Long parameterId, List<ResourceRelationDTO> list) {
-        for (ResourceRelationDTO dto : list) {
-            ResourceRelation resourceRelation = new ResourceRelation();
-            resourceRelation.setResourceParameter(findById(parameterId));
-            resourceRelation.setRelatedResourceTemplate(resourceTemplateService
-                    .findById(dto.getRelatedResourceTemplateId()));
-            resourceRelationRepository.save(resourceRelation);
-        }
-    }
-
-    private ResourceParameter getResourceParameter(ResourceParameter resourceParameter, ResourceParameterDTO parameterDTO) {
-        if (resourceParameter == null) {
-            resourceParameter = new ResourceParameter();
-        }
-        resourceParameter.setColumnName(parameterDTO.getColumnName());
+    @Transactional
+    public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO) {
+        ResourceParameter resourceParameter = new ResourceParameter();
+        resourceParameter.setName(parameterDTO.getName());
+        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
-            resourceParameter.setPattern(patternGenerator.generateRangeIntegerRegex(parameterDTO.getPattern()));
+            resourceParameter.setPattern(getMatchedPatternToParameterType(
+                    parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
-        if (parameterDTO.getResourceTemplateId() != null) {
-            resourceParameter.setResourceTemplate(resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+        resourceParameter.setResourceTemplate(
+                resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+
+        resourceParameterRepository.save(resourceParameter);
+
+        if (parameterDTO.getResourceRelationDTO() != null) {
+            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         }
-        return resourceParameter;
+        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
-
+    /**
+     * Method matches pattern to {@link ParameterType}.
+     *
+     * @param type    {@link ParameterType}
+     * @param pattern regex pattern
+     * @return String regex
+     * @author Andrii Bren
+     */
+    private String getMatchedPatternToParameterType(ParameterType type, String pattern) {
+        if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
+            return patternGenerator.generateRangeIntegerRegex(pattern);
+        } else if (type == ParameterType.AREA_DOUBLE) {
+            return "pattern for coordinates";
+        }
+        //ToDo
+        return "pattern for double";
+    }
 
     /**
      * {@inheritDoc}
@@ -108,7 +105,44 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceParameterDTO> getAll() {
+    @Transactional
+    public ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterDTO) {
+        ResourceParameter resourceParameter = findById(id);
+        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
+        resourceParameter.setParameterType(parameterDTO.getParameterType());
+        if (parameterDTO.getPattern() != null) {
+            resourceParameter.setPattern(getMatchedPatternToParameterType(
+                    parameterDTO.getParameterType(), parameterDTO.getPattern()));
+        }
+        if (parameterDTO.getResourceRelationDTO() != null) {
+            resourceParameterRepository.save(resourceParameter);
+            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+        }
+        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
+    }
+
+    /**
+     * Method saves {@link ResourceRelation}.
+     *
+     * @param parameterId {@link ResourceParameter} id
+     * @param relationDTO {@link ResourceRelationDTO}
+     * @return instance of {@link ResourceRelation}
+     */
+    private ResourceRelation saveRelation(Long parameterId, ResourceRelationDTO relationDTO) {
+        ResourceRelation resourceRelation = new ResourceRelation();
+        resourceRelation.setResourceParameter(findById(parameterId));
+        resourceRelation.setRelatedResourceTemplate(resourceTemplateService
+                .findById(relationDTO.getRelatedResourceTemplateId()));
+        return resourceRelationRepository.save(resourceRelation);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public List<ResourceParameterDTO> findAll() {
         return modelMapper.map(resourceParameterRepository.findAll(),
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());
@@ -123,7 +157,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     public ResourceParameter findById(Long id) {
         return resourceParameterRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Error"));
+                .orElseThrow(() -> new ResourceParameterNotFoundException(
+                        ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_FOUND_BY_ID.getMessage() + id));
     }
 
     /**
@@ -143,8 +178,12 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceParameterDTO> getAllByTemplateId(Long id) {
-        return modelMapper.map(resourceParameterRepository.findAllByResourceTemplateId(id),
+    public List<ResourceParameterDTO> findAllByTemplateId(Long id) {
+        List<ResourceParameter> parameterList = resourceParameterRepository
+                .findAllByResourceTemplateId(id)
+                .orElseThrow(() -> new ResourceParameterNotFoundException(
+                        ErrorMessage.RESOURCE_TEMPLATE_HAS_NOT_ANY_PARAMETERS.getMessage() + id));
+        return modelMapper.map(parameterList,
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());
     }
@@ -155,9 +194,14 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public Long delete(Long id) {
-        resourceParameterRepository.deleteById(id);
-        return id;
+    @Transactional
+    public void delete(Long id) {
+        try {
+            resourceParameterRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ResourceParameterNotDeletedException(
+                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_DELETE_BY_ID.getMessage() + id);
+        }
     }
 
 }
