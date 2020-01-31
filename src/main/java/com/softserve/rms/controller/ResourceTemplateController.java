@@ -52,7 +52,7 @@ public class ResourceTemplateController {
     @GetMapping("/resource-template/{id}")
     public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
         LOG.info("Getting Resource Template by ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findDTOById(id));
     }
 
     /**
