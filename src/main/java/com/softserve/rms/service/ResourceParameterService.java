@@ -60,7 +60,6 @@ public interface ResourceParameterService {
      * Method deletes {@link ResourceParameter} by id.
      *
      * @param id {@link ResourceParameter} id
-     * @return id of deleted {@link ResourceParameter}
      * @author Andrii Bren
      */
     void delete(Long id);

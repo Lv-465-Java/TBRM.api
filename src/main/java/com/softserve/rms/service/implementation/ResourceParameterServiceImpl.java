@@ -8,6 +8,7 @@ import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
+import com.softserve.rms.exceptions.resourceparameter.ResourceParameterInvalidNameException;
 import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotDeletedException;
 import com.softserve.rms.exceptions.resourceparameter.ResourceParameterNotFoundException;
 import com.softserve.rms.repository.ResourceParameterRepository;
@@ -61,7 +62,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     @Transactional
     public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO) {
         ResourceParameter resourceParameter = new ResourceParameter();
-        resourceParameter.setName(parameterDTO.getName());
+        resourceParameter.setName(getValidName(parameterDTO.getName()));
         resourceParameter.setColumnName(resourceTemplateService.
                 generateNameToDatabaseNamingConvention(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
@@ -92,10 +93,25 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
             return patternGenerator.generateRangeIntegerRegex(pattern);
         } else if (type == ParameterType.AREA_DOUBLE) {
+            //TODO
             return "pattern for coordinates";
         }
-        //ToDo
+        //TODO
         return "pattern for double";
+    }
+
+    /**
+     * Method checks whether parameter name is valid.
+     *
+     * @param parameterName String {@link ResourceParameter} name
+     * @return String validName
+     */
+    private String getValidName(String parameterName) {
+        if (resourceParameterRepository.findByName(parameterName).isPresent()) {
+            throw new ResourceParameterInvalidNameException(
+                    ErrorMessage.RESOURCE_PARAMETER_IS_ALREADY_EXISTED.getMessage() + parameterName);
+        }
+        return parameterName;
     }
 
     /**
@@ -158,7 +174,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     public ResourceParameter findById(Long id) {
         return resourceParameterRepository.findById(id)
                 .orElseThrow(() -> new ResourceParameterNotFoundException(
-                        ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_FOUND_BY_ID.getMessage() + id));
+                        ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_FOUND_BY_ID.getMessage() + id));
     }
 
     /**
@@ -200,7 +216,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             resourceParameterRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
             throw new ResourceParameterNotDeletedException(
-                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_DELETE_BY_ID.getMessage() + id);
+                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_DELETE_BY_ID.getMessage() + id);
         }
     }
 

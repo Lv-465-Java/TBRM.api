@@ -18,4 +18,6 @@ public interface ResourceParameterRepository extends JpaRepository<ResourceParam
      * @author Andrii Bren
      */
     Optional<List<ResourceParameter>> findAllByResourceTemplateId(Long id);
+
+    Optional<ResourceParameter> findByName(String name);
 }
