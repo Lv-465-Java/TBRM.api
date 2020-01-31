@@ -5,9 +5,11 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
@@ -74,7 +76,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
         resourceParameter.setResourceTemplate(
-                resourceTemplateService.findById(parameterDTO.getResourceTemplateId()));
+                resourceTemplateService.findEntityById(parameterDTO.getResourceTemplateId()));
 
         resourceParameterRepository.save(resourceParameter);
 
@@ -157,9 +159,24 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             throws NotFoundException {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
-        resourceRelation.setRelatedResourceTemplate(resourceTemplateService
-                .findById(relationDTO.getRelatedResourceTemplateId()));
+        resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
+                .findEntityById(relationDTO.getRelatedResourceTemplateId())));
         return resourceRelationRepository.save(resourceRelation);
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} has been published.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @return {@link ResourceTemplateDTO} if provided resource template hasn't been published yet
+     * @throws RuntimeException if resource template has been already published
+     * @author Halyna Yatseniuk
+     */
+    private ResourceTemplate verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate) {
+        if (!resourceTemplate.getIsPublished()) {
+            throw new RuntimeException(ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
+        }
+        return resourceTemplate;
     }
 
     /**
@@ -208,7 +225,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     public List<ResourceParameterDTO> findAllByTemplateId(Long id) throws NotFoundException {
         List<ResourceParameter> parameterList = resourceParameterRepository
                 .findAllByResourceTemplateId(
-                        resourceTemplateService.findById(id).getId());
+                        resourceTemplateService.findEntityById(id).getId());
         return modelMapper.map(parameterList,
                 new TypeToken<List<ResourceParameterDTO>>() {
                 }.getType());

@@ -68,13 +68,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
-    public String verifyIfResourceTemplateNameIsUnique(String name) throws NotUniqueNameException{
-        if (resourceTemplateRepository.findByName(name).isPresent()) {
-            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
-        }
-        return name;
-    }
-
     /**
      * Method finds {@link ResourceTemplate} by provided id.
      *
@@ -84,8 +77,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO getById(Long id) throws NotFoundException {
-        return modelMapper.map(findById(id), ResourceTemplateDTO.class);
+    public ResourceTemplateDTO findDTOById(Long id) throws NotFoundException {
+        return modelMapper.map(findEntityById(id), ResourceTemplateDTO.class);
     }
 
     /**
@@ -114,7 +107,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
             throws NotFoundException, NotUniqueNameException {
-        ResourceTemplate resourceTemplate = findById(id);
+        ResourceTemplate resourceTemplate = findEntityById(id);
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
@@ -165,9 +158,24 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findById(Long id) throws NotFoundException {
+    public ResourceTemplate findEntityById(Long id) throws NotFoundException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} name is unique.
+     *
+     * @param name of {@link ResourceTemplateDTO}
+     * @return string of {@link ResourceTemplateDTO} name if it's unique
+     * @throws NotUniqueNameException if the resource template name is not unique
+     * @author Halyna Yatseniuk
+     */
+    public String verifyIfResourceTemplateNameIsUnique(String name) throws NotUniqueNameException {
+        if (resourceTemplateRepository.findByName(name).isPresent()) {
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
     }
 
     /**
@@ -182,15 +190,24 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public Boolean publishResourceTemplate(Long id)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
-        ResourceTemplate resourceTemplate = findById(id);
+        ResourceTemplate resourceTemplate = findEntityById(id);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
-        //TODO
         //create new table method;
-        return findById(id).getIsPublished();
+        return findEntityById(id).getIsPublished();
     }
+
+    public Boolean unPublishResourceTemplate(Long id) {
+        ResourceTemplate resourceTemplate = findEntityById(id);
+        resourceTemplate.setIsPublished(false);
+        resourceTemplateRepository.save(resourceTemplate);
+        //TODO
+        //Verify if table has at least one resource entity
+        return findEntityById(id).getIsPublished();
+    }
+
 
     /**
      * Method verifies if {@link ResourceTemplate} is not published.
@@ -203,7 +220,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private Boolean verifyIfResourceTemplateIsNotPublished(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException {
         if (resourceTemplate.getIsPublished()) {
-            throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
+            throw new ResourceTemplateIsPublishedException
+                    (ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
         }
         return true;
     }

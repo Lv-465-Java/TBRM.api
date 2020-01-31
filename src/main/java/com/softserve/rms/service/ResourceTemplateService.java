@@ -32,7 +32,7 @@ public interface ResourceTemplateService {
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO getById(Long id);
+    ResourceTemplateDTO findDTOById(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by person id.
@@ -80,7 +80,7 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
 
-    ResourceTemplate findById(Long id);
+    ResourceTemplate findEntityById(Long id);
 
     /**
      * Method makes {@link ResourceTemplate} be published.
