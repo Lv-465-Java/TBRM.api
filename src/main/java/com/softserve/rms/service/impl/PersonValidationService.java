@@ -86,6 +86,9 @@ public class PersonValidationService {
         }
     }
 
+    //TODO trim all inserted date before validation
+    //TODO and set email in lower case
+
 //    public boolean generalValidate(Object o){
 //        Map<String, String> map=new HashMap<>();
 //        if (o instanceof PasswordEditDto){

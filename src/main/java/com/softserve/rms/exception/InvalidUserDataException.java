@@ -24,7 +24,8 @@ public class InvalidUserDataException extends RuntimeException {
      *
      * @param messages - giving map of messages.
      */
-    public InvalidUserDataException(Map<String, String> messages) {
+    public InvalidUserDataException(Map<String, String> messages)
+    {
         super(new JSONObject(messages).toString());
     }
 }
