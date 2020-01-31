@@ -24,5 +24,4 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;
-
 }
