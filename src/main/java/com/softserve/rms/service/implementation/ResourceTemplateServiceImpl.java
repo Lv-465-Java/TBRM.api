@@ -194,7 +194,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
-        //TODO
         //create new table method;
         return findEntityById(id).getIsPublished();
     }
@@ -220,7 +219,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private Boolean verifyIfResourceTemplateIsNotPublished(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException {
         if (resourceTemplate.getIsPublished()) {
-            throw new ResourceTemplateIsPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
+            throw new ResourceTemplateIsPublishedException
+                    (ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
         }
         return true;
     }
