@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "persons")
+@Entity(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,10 +36,12 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
+
+
 }
