@@ -1,4 +1,4 @@
-package com.softserve.rms.validator;
+package com.softserve.rms.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;

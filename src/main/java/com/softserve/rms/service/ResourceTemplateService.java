@@ -4,7 +4,9 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
+import com.softserve.rms.exceptions.NotDeletedException;
+import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 
@@ -17,6 +19,7 @@ public interface ResourceTemplateService {
      *
      * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
      * @return new {@link ResourceTemplateDTO}
+     * @throws NotUniqueNameException if the resource template with provided name exists
      * @author Halyna Yatseniuk
      */
     ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO);
@@ -26,6 +29,7 @@ public interface ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     ResourceTemplateDTO findDTOById(Long id);
@@ -44,6 +48,7 @@ public interface ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO);
@@ -52,6 +57,7 @@ public interface ResourceTemplateService {
      * Method deletes {@link ResourceTemplate} by id.
      *
      * @param id of {@link ResourceTemplateDTO}
+     * @throws NotDeletedException if the resource template with provided id is not deleted
      * @author Halyna Yatseniuk
      */
     void deleteById(Long id);
@@ -70,7 +76,7 @@ public interface ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
-     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
 
@@ -86,4 +92,5 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     Boolean publishResourceTemplate(Long id);
+
 }

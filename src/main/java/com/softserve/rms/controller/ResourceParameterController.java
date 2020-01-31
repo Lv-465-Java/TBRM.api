@@ -48,7 +48,7 @@ public class ResourceParameterController {
      * @author Andrii Bren
      */
     @GetMapping("/byTemplateId/{templateId}")
-    public ResponseEntity<List<ResourceParameterDTO>> getParametersByTemplateId(@PathVariable Long templateId) {
+    public ResponseEntity<List<ResourceParameterDTO>> findParametersByTemplateId(@PathVariable Long templateId) {
         return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
     }
 
@@ -60,7 +60,7 @@ public class ResourceParameterController {
      * @author Andrii Bren
      */
     @GetMapping("/byId/{parameterId}")
-    public ResponseEntity<ResourceParameterDTO> getOne(@PathVariable Long parameterId) {
+    public ResponseEntity<ResourceParameterDTO> findOne(@PathVariable Long parameterId) {
         return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findByIdDTO(parameterId));
     }
 
@@ -71,7 +71,7 @@ public class ResourceParameterController {
      * @author Andrii Bren
      */
     @GetMapping
-    public ResponseEntity<List<ResourceParameterDTO>> getAll() {
+    public ResponseEntity<List<ResourceParameterDTO>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAll());
     }
 

@@ -1,14 +1,13 @@
 package com.softserve.rms.exceptions.handler;
 
-import com.softserve.rms.exceptions.resourseTemplate.NameIsNotUniqueException;
-import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
+import com.softserve.rms.exceptions.NotDeletedException;
+import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
@@ -21,41 +20,38 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * Method which handles {@link RuntimeException} exception.
      *
      * @param exception  {@link RuntimeException}
-     * @param webRequest {@link WebRequest}
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException
-    (RuntimeException exception, WebRequest webRequest) {
+    (RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 
     /**
-     * Method which handles {@link NoSuchResourceTemplateException} exception.
+     * Method which handles {@link NotFoundException} exception.
      *
-     * @param exception  {@link NoSuchResourceTemplateException}
-     * @param webRequest {@link WebRequest}
+     * @param exception  {@link NotFoundException}
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-    @ExceptionHandler(NoSuchResourceTemplateException.class)
-    public ResponseEntity<Object> handleNoSuchResourceTemplateException
-    (NoSuchResourceTemplateException exception, WebRequest webRequest) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException
+    (NotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(generateErrorMessage(exception));
     }
 
     /**
-     * Method which handles {@link ResourceTemplateIsPublishedException} exception.
+     * Method which handles {@link NotDeletedException} exception.
      *
-     * @param exception  {@link ResourceTemplateIsPublishedException}
-     * @param webRequest {@link WebRequest}
+     * @param exception  {@link NotDeletedException}
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-    @ExceptionHandler(ResourceTemplateIsPublishedException.class)
-    public ResponseEntity<Object> handleResourceTemplateIsPublishedException
-    (ResourceTemplateIsPublishedException exception, WebRequest webRequest) {
+    @ExceptionHandler(NotDeletedException.class)
+    public ResponseEntity<Object> handleNotDeletedException
+    (NotDeletedException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 
@@ -63,27 +59,25 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * Method which handles {@link ResourceTemplateParameterListIsEmpty} exception.
      *
      * @param exception  {@link ResourceTemplateParameterListIsEmpty}
-     * @param webRequest {@link WebRequest}
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
     @ExceptionHandler(ResourceTemplateParameterListIsEmpty.class)
     public ResponseEntity<Object> handleResourceTemplateParameterListIsEmpty
-    (ResourceTemplateParameterListIsEmpty exception, WebRequest webRequest) {
+    (ResourceTemplateParameterListIsEmpty exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 
     /**
-     * Method which handles {@link NameIsNotUniqueException} exception.
+     * Method which handles {@link NotUniqueNameException} exception.
      *
-     * @param exception  {@link NameIsNotUniqueException}
-     * @param webRequest {@link WebRequest}
+     * @param exception  {@link NotUniqueNameException}
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-    @ExceptionHandler(NameIsNotUniqueException.class)
+    @ExceptionHandler(NotUniqueNameException.class)
     public ResponseEntity<Object> handleNameIsNotUniqueException
-    (NameIsNotUniqueException exception, WebRequest webRequest) {
+    (NotUniqueNameException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 

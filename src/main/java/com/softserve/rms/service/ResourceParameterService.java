@@ -8,6 +8,9 @@ import java.util.List;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
+import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotUniqueNameException;
 
 public interface ResourceParameterService {
 
@@ -16,6 +19,8 @@ public interface ResourceParameterService {
      *
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return instance of {@link ResourceParameterDTO}
+     * @throws NotUniqueNameException if the resource parameter with provided name exists
+     * @throws NotFoundException if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
     ResourceParameterDTO save(ResourceParameterSaveDTO parameterSaveDTO);
@@ -25,6 +30,7 @@ public interface ResourceParameterService {
      *
      * @param id {@link ResourceParameterDTO} id
      * @return instance of {@link ResourceParameterDTO}
+     * @throws NotFoundException if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
     ResourceParameterDTO findByIdDTO(Long id);
@@ -35,6 +41,8 @@ public interface ResourceParameterService {
      * @param id               {@link ResourceParameterDTO} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return updated instance of {@link ResourceParameterDTO}
+     * @throws NotUniqueNameException if the resource parameter with provided name exists
+     * @throws NotFoundException if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
     ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterSaveDTO);
@@ -60,7 +68,7 @@ public interface ResourceParameterService {
      * Method deletes {@link ResourceParameter} by id.
      *
      * @param id {@link ResourceParameter} id
-     * @return id of deleted {@link ResourceParameter}
+     * @throws NotDeletedException if the resource parameter with provided id is not deleted
      * @author Andrii Bren
      */
     void delete(Long id);
