@@ -1,9 +1,11 @@
-package com.softserve.rms.validator;
+package com.softserve.rms.util;
 
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 
-public class ResourceTemplateAndParameterValidator {
+public class Validator {
+
+    public static final String COORDINATES_PATTERN = "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$";
 
     /**
      * Method generates String for {@link ResourceTemplate} table name field.

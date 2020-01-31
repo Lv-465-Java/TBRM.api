@@ -5,14 +5,14 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.resourseTemplate.NameIsNotUniqueException;
-import com.softserve.rms.exceptions.resourseTemplate.NoSuchResourceTemplateException;
+import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.ResourceTemplateService;
-import com.softserve.rms.validator.ResourceTemplateAndParameterValidator;
+import com.softserve.rms.util.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
     private final PersonRepository personRepository;
-    private ResourceTemplateAndParameterValidator validator = new ResourceTemplateAndParameterValidator();
+    private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -55,7 +55,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO) {
+    public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO)
+            throws NotUniqueNameException {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
@@ -72,11 +73,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchResourceTemplateException if the resource template is not found
+     * @throws NotFoundException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO findDTOById(Long id) throws NoSuchResourceTemplateException {
+    public ResourceTemplateDTO findDTOById(Long id) throws NotFoundException {
         return modelMapper.map(findEntityById(id), ResourceTemplateDTO.class);
     }
 
@@ -100,14 +101,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NoSuchResourceTemplateException if the resource template is not found
+     * @throws NotFoundException if the resource template is not found
      * @author Halyna Yatseniuk
      */
     @Override
     public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
-            throws NoSuchResourceTemplateException {
+            throws NotFoundException, NotUniqueNameException {
         ResourceTemplate resourceTemplate = findEntityById(id);
-        resourceTemplate.setName(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplateRepository.save(resourceTemplate);
@@ -118,16 +119,16 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * Method deletes {@link ResourceTemplate} by id.
      *
      * @param id of {@link ResourceTemplateDTO}
-     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
     @Transactional
-    public void deleteById(Long id) throws NoSuchResourceTemplateException {
+    public void deleteById(Long id) throws NotFoundException {
         try {
             resourceTemplateRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
+            throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
     }
 
@@ -154,12 +155,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplate}
-     * @throws NoSuchResourceTemplateException if the resource template with provided id is not found
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findEntityById(Long id) throws NoSuchResourceTemplateException {
+    public ResourceTemplate findEntityById(Long id) throws NotFoundException {
         return resourceTemplateRepository.findById(id)
-                .orElseThrow(() -> new NoSuchResourceTemplateException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
     /**
@@ -167,12 +168,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param name of {@link ResourceTemplateDTO}
      * @return string of {@link ResourceTemplateDTO} name if it's unique
-     * @throws NameIsNotUniqueException if the resource template name is not unique
+     * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
-    public String verifyIfResourceTemplateNameIsUnique(String name) throws NameIsNotUniqueException {
+    public String verifyIfResourceTemplateNameIsUnique(String name) throws NotUniqueNameException {
         if (resourceTemplateRepository.findByName(name).isPresent()) {
-            throw new NameIsNotUniqueException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
         }
         return name;
     }
@@ -206,7 +207,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         //Verify if table has at least one resource entity
         return findEntityById(id).getIsPublished();
     }
-
 
     /**
      * Method verifies if {@link ResourceTemplate} is not published.
