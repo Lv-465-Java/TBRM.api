@@ -1,27 +1,14 @@
 package com.softserve.rms.util;
 
-import org.springframework.stereotype.Component;
+import org.springframework.security.acls.model.Permission;
 
-/**
- * This Class is used to convert string permission
- * to integer mask.
- */
-@Component
-public class PermissionMapper {
+public interface PermissionMapper {
     /**
      * Method converts string permission
-     * to integer mask.
+     * to object of type Permission.
      *
      * @param permission in string form
      * @return integer mask
      */
-    public Integer getMask(String permission) {
-        Integer mask = 0;
-        if (permission.equalsIgnoreCase("read")) {
-            mask = 1;
-        } else if (permission.equalsIgnoreCase("write")) {
-            mask = 2;
-        }
-        return mask;
-    }
+    public Permission getMask(String permission);
 }

@@ -1,7 +1,7 @@
 package com.softserve.rms.security.config;
 
 import com.softserve.rms.constants.AclQueries;
-import com.softserve.rms.util.PermissionMapper;
+import com.softserve.rms.util.PermissionMapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
@@ -133,11 +133,11 @@ public class AclConfig {
     }
 
     /**
-     * Bean {@link PermissionMapper} is used to convert String permission
+     * Bean {@link PermissionMapperImpl} is used to convert String permission
      * to integer mask.
      */
     @Bean
-    public PermissionMapper permissionMapper() {
-        return new PermissionMapper();
+    public PermissionMapperImpl permissionMapper() {
+        return new PermissionMapperImpl();
     }
 }

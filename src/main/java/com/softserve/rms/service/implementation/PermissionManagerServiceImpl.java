@@ -1,7 +1,9 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.security.DeniedAccessException;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.PermissionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,8 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
             List<AccessControlEntry> aces = acl.getEntries();
             for (AccessControlEntry entry : aces) {
-                if (entry.getSid().equals(sid) && entry.getPermission().equals(permissionMapper.getMask(permissionDto.getPermission()))) {
+                if (entry.getSid().equals(sid)
+                        && entry.getPermission().equals(permissionMapper.getMask(permissionDto.getPermission()))) {
                     acl.deleteAce(acePosition);
                     acePosition--;
                 }
@@ -96,7 +99,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             }
             mutableAclService.updateAcl(acl);
         } catch (NotFoundException | DataAccessException e) {
-
+            throw new DeniedAccessException(ErrorMessage.DENIED_ACCESS.getMessage());
         }
     }
 
@@ -107,7 +110,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         try {
             mutableAclService.deleteAcl(objectIdentity, false);
         } catch (NotFoundException | DataAccessException e) {
-
+            throw new DeniedAccessException(ErrorMessage.DENIED_ACCESS.getMessage());
         }
     }
 }
