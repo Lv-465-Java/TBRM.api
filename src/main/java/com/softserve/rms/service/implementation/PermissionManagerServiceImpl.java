@@ -3,6 +3,7 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.service.PermissionManagerService;
+import com.softserve.rms.util.PermissionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.acls.domain.BasePermission;
@@ -19,10 +20,12 @@ import java.util.List;
 public class PermissionManagerServiceImpl implements PermissionManagerService {
 
     private final MutableAclService mutableAclService;
+    private final PermissionMapper permissionMapper;
 
     @Autowired
-    public PermissionManagerServiceImpl(MutableAclService mutableAclService) {
+    public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper) {
         this.mutableAclService = mutableAclService;
+        this.permissionMapper = permissionMapper;
     }
 
     @Transactional
@@ -76,17 +79,16 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
 
     @Transactional
     @Override
-    public boolean closePermissionForCertainUser(Long resourceId, String sidName, Permission permission) {
+    public void closePermissionForCertainUser(PermissionDto permissionDto) {
         MutableAcl acl;
-        boolean closed = true;
-        PrincipalSid sid = new PrincipalSid(sidName);
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, resourceId);
+        PrincipalSid sid = new PrincipalSid(permissionDto.getRecipient());
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, permissionDto.getResTempId());
         int acePosition = 0;
         try {
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
             List<AccessControlEntry> aces = acl.getEntries();
             for (AccessControlEntry entry : aces) {
-                if (entry.getSid().equals(sid) && entry.getPermission().equals(permission)) {
+                if (entry.getSid().equals(sid) && entry.getPermission().equals(permissionMapper.getMask(permissionDto.getPermission()))) {
                     acl.deleteAce(acePosition);
                     acePosition--;
                 }
@@ -94,21 +96,18 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             }
             mutableAclService.updateAcl(acl);
         } catch (NotFoundException | DataAccessException e) {
-            closed = false;
+
         }
-        return closed;
     }
 
     @Transactional
     @Override
-    public boolean closeAllPermissionsToResource(Long resourceId) {
-        boolean closed = true;
+    public void closeAllPermissionsToResource(Long resourceId) {
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(resourceId);
         try {
             mutableAclService.deleteAcl(objectIdentity, false);
-        } catch (DataAccessException e) {
-            closed = false;
+        } catch (NotFoundException | DataAccessException e) {
+
         }
-        return closed;
     }
 }

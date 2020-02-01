@@ -1,6 +1,5 @@
 package com.softserve.rms.security;
 
-
 import com.softserve.rms.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +21,7 @@ public class UserPrincipal implements UserDetails {
     private User user;
 
     /**
-     * Constructor for
+     * Constructor with parameters.
      *
      * @param user object of type user
      */

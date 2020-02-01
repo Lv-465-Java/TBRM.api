@@ -9,7 +9,7 @@ public interface PermissionManagerService {
 
     void updatePermissionForResourceTemplate(PermissionDto permissionDto);
 
-    boolean closePermissionForCertainUser(Long productId, String sidName, Permission permission);
+    void closePermissionForCertainUser(PermissionDto permissionDto);
 
-    boolean closeAllPermissionsToResource(Long productId);
+    void closeAllPermissionsToResource(Long resourceTemplateId);
 }
