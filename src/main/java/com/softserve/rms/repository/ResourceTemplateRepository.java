@@ -23,11 +23,10 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * Method find list of{@link ResourceTemplate} by name or description.
      *
      * @param name        String
-     * @param description String
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplate> findByTableNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
+    List<ResourceTemplate> findByNameContainsIgnoreCase(String name);
 
     Optional<ResourceTemplate> findByName(String name);
 }

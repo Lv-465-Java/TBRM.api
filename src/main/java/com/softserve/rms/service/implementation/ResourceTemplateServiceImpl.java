@@ -59,10 +59,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throws NotUniqueNameException {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setDescription(resourceTemplateSaveDTO.getName());
+        resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setPerson(modelMapper.map(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()),
-                Person.class));
+        resourceTemplate.setPerson(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()));
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -142,9 +141,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body) {
         String name = body.get("name");
-        String description = body.get("description");
-        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository
-                .findByTableNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(name, description.toLowerCase());
+        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findByNameContainsIgnoreCase(name);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());
@@ -161,21 +158,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public ResourceTemplate findEntityById(Long id) throws NotFoundException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
-    }
-
-    /**
-     * Method verifies if {@link ResourceTemplate} name is unique.
-     *
-     * @param name of {@link ResourceTemplateDTO}
-     * @return string of {@link ResourceTemplateDTO} name if it's unique
-     * @throws NotUniqueNameException if the resource template name is not unique
-     * @author Halyna Yatseniuk
-     */
-    public String verifyIfResourceTemplateNameIsUnique(String name) throws NotUniqueNameException {
-        if (resourceTemplateRepository.findByName(name).isPresent()) {
-            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
-        }
-        return name;
     }
 
     /**
@@ -199,13 +181,35 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return findEntityById(id).getIsPublished();
     }
 
+    /**
+     * Method cancels {@link ResourceTemplate} publish.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @author Halyna Yatseniuk
+     */
     public Boolean unPublishResourceTemplate(Long id) {
         ResourceTemplate resourceTemplate = findEntityById(id);
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         //TODO
         //Verify if table has at least one resource entity
-        return findEntityById(id).getIsPublished();
+        return !findEntityById(id).getIsPublished();
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} name is unique.
+     *
+     * @param name of {@link ResourceTemplateDTO}
+     * @return string of {@link ResourceTemplateDTO} name if it's unique
+     * @throws NotUniqueNameException if the resource template name is not unique
+     * @author Halyna Yatseniuk
+     */
+    private String verifyIfResourceTemplateNameIsUnique(String name) throws NotUniqueNameException {
+        if (resourceTemplateRepository.findByName(name).isPresent()) {
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
     }
 
     /**

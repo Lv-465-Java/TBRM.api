@@ -122,4 +122,17 @@ public class ResourceTemplateController {
         LOG.info("Publish a Resource Template");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
     }
+
+    /**
+     * The controller which cancel {@link ResourceTemplateDTO} publication by id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @author Halyna Yatseniuk
+     */
+    @PostMapping("/unpublish-resource-template/{id}")
+    public ResponseEntity<Object> unPublishResourceTemplate(@PathVariable Long id) {
+        LOG.info("Cancel a Resource Template publication");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
+    }
 }

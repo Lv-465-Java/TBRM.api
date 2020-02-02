@@ -93,4 +93,5 @@ public interface ResourceTemplateService {
      */
     Boolean publishResourceTemplate(Long id);
 
+    Boolean unPublishResourceTemplate(Long id);
 }

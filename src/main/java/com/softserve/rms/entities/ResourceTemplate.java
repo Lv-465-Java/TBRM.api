@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 //@EqualsAndHashCode(
 //        exclude = {"person"})
 //@ToString(
