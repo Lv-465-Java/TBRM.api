@@ -51,7 +51,7 @@ public interface ResourceTemplateService {
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO);
+    ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
 
     /**
      * Method deletes {@link ResourceTemplate} by id.

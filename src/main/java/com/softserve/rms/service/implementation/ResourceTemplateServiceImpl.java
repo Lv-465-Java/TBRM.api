@@ -107,12 +107,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResourceTemplateDTO updateById(Long id, ResourceTemplateSaveDTO resourceTemplateSaveDTO)
+    public ResourceTemplateDTO updateById(Long id, Map<String, Object> body)
             throws NotFoundException, NotUniqueNameException {
         ResourceTemplate resourceTemplate = findEntityById(id);
-        resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
+        if (body.get("name") != null) {
+            resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(body.get("name").toString()));
+            resourceTemplate.setTableName(validator.generateTableOrColumnName(body.get("name").toString()));
+        }
+        resourceTemplate.setDescription(body.get("description").toString());
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }

@@ -75,11 +75,17 @@ public class ResourceTemplateController {
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @PutMapping("/resource-template/{id}")
+//    @PutMapping("/resource-template/{id}")
+//    public ResponseEntity<ResourceTemplateDTO> updateById
+//    (@PathVariable Long id, @RequestBody ResourceTemplateSaveDTO templateDTO) {
+//        LOG.info("Updating Resource Template by ID");
+//        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, templateDTO));
+//    }
+    @PatchMapping("/resource-template/{id}")
     public ResponseEntity<ResourceTemplateDTO> updateById
-    (@PathVariable Long id, @RequestBody ResourceTemplateSaveDTO templateDTO) {
+    (@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Updating Resource Template by ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, templateDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, body));
     }
 
     /**
