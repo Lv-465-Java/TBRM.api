@@ -114,7 +114,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(body.get("name").toString()));
             resourceTemplate.setTableName(validator.generateTableOrColumnName(body.get("name").toString()));
         }
-        resourceTemplate.setDescription(body.get("description").toString());
+        if (body.get("description") != null) {
+            resourceTemplate.setDescription(body.get("description").toString());
+        }
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }

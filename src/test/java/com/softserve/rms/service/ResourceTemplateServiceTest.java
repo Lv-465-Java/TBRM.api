@@ -76,19 +76,35 @@ public class ResourceTemplateServiceTest {
         assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByPersonId(anyLong()));
     }
 
-//    @Test
-//    public void testUpdateResourceTemplate() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("name", "name");
-//        map.put("description", "description");
-//
-//        when(resourceTemplateRepository.save(any())).thenReturn(resourceTemplate);
-//        resourceTemplateService.updateById(anyLong(), map);
-//        ResourceTemplate resourceTemp = resourceTemplateService.findEntityById(anyLong());
-//        assertEquals(resourceTemplate, resourceTemp);
-//    }
+    @Test
+    public void testUpdateResourceTemplate() {
+        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", "name");
+        map.put("description", "description");
+        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, res);
+    }
+
+    @Test
+    public void testUpdateResourceTemplateWithNullName() {
+        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", null);
+        map.put("description", "description");
+        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, res);
+    }
+
+    @Test
+    public void testUpdateResourceTemplateWithNullDescription() {
+        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", "name");
+        map.put("description", null);
+        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, res);
+    }
 
     @Test
     public void testDeleteById() {
