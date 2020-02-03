@@ -24,13 +24,4 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;
-
-    public ResourceTemplate() {
-    }
-
-    public ResourceTemplate(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
 }

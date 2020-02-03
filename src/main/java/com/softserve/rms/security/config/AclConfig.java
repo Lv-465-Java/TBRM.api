@@ -130,4 +130,5 @@ public class AclConfig {
         expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
         return expressionHandler;
     }
+
 }

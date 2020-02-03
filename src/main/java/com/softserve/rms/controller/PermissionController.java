@@ -4,6 +4,7 @@ import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.repository.ResourceTemplateRepository;
+import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.service.PermissionManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class PermissionController {
     private final PermissionManagerService permissionManagerService;
 
     @Autowired
-    public PermissionController(PermissionManagerService permissionManagerService, ResourceTemplateRepository resourceTemplateRepository) {
+    public PermissionController(PermissionManagerService permissionManagerService) {
         this.permissionManagerService = permissionManagerService;
     }
 
@@ -36,4 +37,16 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteAclByResourceTemplateId(@PathVariable Long id, Principal principal) {
+        permissionManagerService.closeAllPermissionsToResource(id, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.closePermissionForCertainUser(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
