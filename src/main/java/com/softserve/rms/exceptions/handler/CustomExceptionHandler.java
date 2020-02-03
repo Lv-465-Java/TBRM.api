@@ -1,5 +1,6 @@
 package com.softserve.rms.exceptions.handler;
 
+import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.PermissionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PermissionException.class)
     public ResponseEntity<Object> handleDeniedAccessException(PermissionException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException
+            (NotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(generateErrorMessage(exception));
     }
 
     /**

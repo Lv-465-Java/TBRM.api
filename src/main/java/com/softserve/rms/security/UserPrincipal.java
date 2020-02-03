@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class that implements UserDetails interface.
@@ -100,5 +101,31 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.isEnabled();
+    }
+
+    /**
+     * Overridden method Equals.
+     *
+     * @param o object for comparing
+     * @return true if object are equals
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserPrincipal that = (UserPrincipal) o;
+
+        return Objects.equals(user, that.user);
+    }
+
+    /**
+     * Overridden method HashCode.
+     *
+     * @return hashCode of object user
+     */
+    @Override
+    public int hashCode() {
+        return user != null ? user.hashCode() : 0;
     }
 }
