@@ -1,6 +1,5 @@
 package com.softserve.rms.security.config;
 
-import com.softserve.rms.config.SwaggerConfig;
 import com.softserve.rms.security.UserPrincipalDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

@@ -14,7 +14,7 @@ public interface PermissionManagerService {
 
     void addPermissionForResourceTemplate(PermissionDto permissionDto, Principal principal);
 
-    boolean closePermissionForCertainUser(long productId, String sidName, Permission permission);
+    void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal);
 
-    boolean closeAllPermissionsToResource(long productId);
+    void closeAllPermissionsToResource(Long resourceTemplateId, Principal principal);
 }

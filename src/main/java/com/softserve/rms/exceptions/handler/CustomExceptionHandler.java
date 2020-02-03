@@ -13,10 +13,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * Method with handles {@link PermissionException} exception.
+     *
+     * @param exception {@link PermissionException}
+     * @return ResponseEntity which contains an error message
+     * @author Artur Sydor
+     */
     @ExceptionHandler(PermissionException.class)
-    public ResponseEntity<Object> handleResourceTemplateParameterListIsEmpty
-            (PermissionException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    public ResponseEntity<Object> handleDeniedAccessException(PermissionException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
     }
 
     /**
