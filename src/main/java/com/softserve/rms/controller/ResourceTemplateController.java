@@ -51,8 +51,20 @@ public class ResourceTemplateController {
      */
     @GetMapping("/resource-template/{id}")
     public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
-        LOG.info("Getting Resource Template by ID");
+        LOG.info("Getting Resource Template by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findDTOById(id));
+    }
+
+    /**
+     * The controller which finds all {@link ResourceTemplateDTO}.
+     *
+     * @return list of {@link ResourceTemplateDTO}
+     * @author Halyna Yatseniuk
+     */
+    @GetMapping("/resource-template")
+    public ResponseEntity<List<ResourceTemplateDTO>> getAll() {
+        LOG.info("Getting all Resource Templates");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
     }
 
     /**
@@ -64,27 +76,21 @@ public class ResourceTemplateController {
      */
     @GetMapping("/resource-templates/{userId}")
     public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
-        LOG.info("Getting all Resource Templates by User ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByPersonId(userId));
+        LOG.info("Getting all Resource Templates by user ID: " + userId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
     }
 
     /**
      * The controller which updates a {@link ResourceTemplateDTO} by provided id.
      *
-     * @param templateDTO ResourceTemplateDTO
+     * @param id   ResourceTemplateDTO
+     * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-//    @PutMapping("/resource-template/{id}")
-//    public ResponseEntity<ResourceTemplateDTO> updateById
-//    (@PathVariable Long id, @RequestBody ResourceTemplateSaveDTO templateDTO) {
-//        LOG.info("Updating Resource Template by ID");
-//        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, templateDTO));
-//    }
     @PatchMapping("/resource-template/{id}")
-    public ResponseEntity<ResourceTemplateDTO> updateById
-    (@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        LOG.info("Updating Resource Template by ID");
+    public ResponseEntity<ResourceTemplateDTO> updateById(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        LOG.info("Updating Resource Template by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, body));
     }
 
@@ -97,7 +103,7 @@ public class ResourceTemplateController {
      */
     @DeleteMapping("/resource-template/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable Long id) {
-        LOG.info("Deleting Resource Template by ID");
+        LOG.info("Deleting Resource Template by ID: " + id);
         resourceTemplateService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -110,8 +116,8 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @GetMapping("/search-resource-template")
-    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByName(@RequestBody Map<String, String> body) {
-        LOG.info("Search a Resource Template by name contains");
+    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestBody Map<String, String> body) {
+        LOG.info("Search a Resource Template by name or description contains: " + body.get("search"));
         return ResponseEntity.status(HttpStatus.OK).body
                 (resourceTemplateService.searchByNameOrDescriptionContaining(body));
     }
@@ -125,7 +131,7 @@ public class ResourceTemplateController {
      */
     @PostMapping("/publish-resource-template/{id}")
     public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id) {
-        LOG.info("Publish a Resource Template");
+        LOG.info("Publish a Resource Template by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
     }
 
@@ -138,7 +144,7 @@ public class ResourceTemplateController {
      */
     @PostMapping("/unpublish-resource-template/{id}")
     public ResponseEntity<Boolean> unPublishResourceTemplate(@PathVariable Long id) {
-        LOG.info("Cancel a Resource Template publication");
+        LOG.info("Canceling a Resource Template publish by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
     }
 }

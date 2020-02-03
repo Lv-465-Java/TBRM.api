@@ -3,7 +3,6 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
-import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
@@ -25,7 +24,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -46,6 +44,8 @@ public class ResourceTemplateServiceTest {
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, person.getId(), null);
     private ResourceTemplateDTO resourceTempDTO = new ResourceTemplateDTO(1L, "name", "name", "description", false, person.getId(), Collections.emptyList());
     private ResourceTemplateServiceImpl mocks;
+    private Map<String, Object> map;
+
 
     @Before
     public void initializeMock() {
@@ -70,40 +70,47 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
+    public void testFindAll() {
+        when(resourceTemplateRepository.findAll()).thenReturn(Collections.singletonList(resourceTemplate));
+        List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll());
+    }
+
+    @Test
     public void testFindAllByUserId() {
         when(resourceTemplateRepository.findAllByPersonId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByPersonId(anyLong()));
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong()));
     }
 
     @Test
     public void testUpdateResourceTemplate() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-        Map<String, Object> map = new HashMap<>();
+        map = new HashMap<>();
         map.put("name", "name");
         map.put("description", "description");
-        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
-        assertEquals(resourceTempDTO, res);
+        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, resultResourceTemplate);
     }
 
     @Test
     public void testUpdateResourceTemplateWithNullName() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-        Map<String, Object> map = new HashMap<>();
+        map = new HashMap<>();
         map.put("name", null);
         map.put("description", "description");
-        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
-        assertEquals(resourceTempDTO, res);
+        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, resultResourceTemplate);
     }
 
     @Test
     public void testUpdateResourceTemplateWithNullDescription() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-        Map<String, Object> map = new HashMap<>();
+        map = new HashMap<>();
         map.put("name", "name");
         map.put("description", null);
-        ResourceTemplateDTO res = resourceTemplateService.updateById(anyLong(), map);
-        assertEquals(resourceTempDTO, res);
+        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.updateById(anyLong(), map);
+        assertEquals(resourceTempDTO, resultResourceTemplate);
     }
 
     @Test

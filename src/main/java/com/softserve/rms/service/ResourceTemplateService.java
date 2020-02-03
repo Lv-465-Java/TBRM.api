@@ -35,18 +35,27 @@ public interface ResourceTemplateService {
     ResourceTemplateDTO findDTOById(Long id);
 
     /**
-     * Method finds all {@link ResourceTemplate} by person id.
+     * Method finds all {@link ResourceTemplate}.
      *
-     * @param id of {@link Person}
-     * @return List of all {@link ResourceTemplateDTO} for person
+     * @return list of all {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> getAllByPersonId(Long id);
+    List<ResourceTemplateDTO> getAll();
+
+    /**
+     * Method finds all {@link ResourceTemplate} by user id.
+     *
+     * @param id of {@link Person}
+     * @return list of all {@link ResourceTemplateDTO} for a user
+     * @author Halyna Yatseniuk
+     */
+    List<ResourceTemplateDTO> getAllByUserId(Long id);
 
     /**
      * Method updates {@link ResourceTemplate} by id.
      *
-     * @param id of {@link ResourceTemplateDTO}
+     * @param id   of {@link ResourceTemplateDTO}
+     * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
@@ -79,7 +88,6 @@ public interface ResourceTemplateService {
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-
     ResourceTemplate findEntityById(Long id);
 
     /**

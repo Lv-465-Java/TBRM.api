@@ -5,7 +5,6 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
-import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
@@ -83,6 +82,20 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
+     * Method finds all {@link ResourceTemplate}.
+     *
+     * @return list of all {@link ResourceTemplateDTO}
+     * @author Halyna Yatseniuk
+     */
+    @Override
+    public List<ResourceTemplateDTO> getAll() {
+        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAll();
+        return resourceTemplates.stream()
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Method finds all {@link ResourceTemplate} created by provided person id.
      *
      * @param id of {@link Person}
@@ -90,7 +103,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAllByPersonId(Long id) {
+    public List<ResourceTemplateDTO> getAllByUserId(Long id) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByPersonId(id);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
@@ -100,7 +113,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * Method updates {@link ResourceTemplate} by id.
      *
-     * @param id of {@link ResourceTemplateDTO}
+     * @param id   of {@link ResourceTemplateDTO}
+     * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
      * @throws NotFoundException      if the resource template is not found
      * @throws NotUniqueNameException if the resource template name is not unique
@@ -206,7 +220,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * Method verifies if {@link ResourceTemplate} name is unique.
      *
      * @param name of {@link ResourceTemplateDTO}
-     * @return string of {@link ResourceTemplateDTO} name if it's unique
+     * @return string of {@link ResourceTemplateDTO} name if it is unique
      * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
