@@ -56,16 +56,16 @@ public class ResourceTemplateController {
     }
 
     /**
-     * The controller which finds all {@link ResourceTemplateDTO} created by provided person id.
+     * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
      *
-     * @param personId of {@link Person}
-     * @return list of {@link ResourceTemplateDTO} with appropriate person id
+     * @param userId of {@link Person}
+     * @return list of {@link ResourceTemplateDTO} with appropriate user id
      * @author Halyna Yatseniuk
      */
-    @GetMapping("/resource-templates/{personId}")
-    public ResponseEntity<List<ResourceTemplateDTO>> getAllByPersonId(@PathVariable Long personId) {
+    @GetMapping("/resource-templates/{userId}")
+    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
         LOG.info("Getting all Resource Templates by User ID");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByPersonId(personId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByPersonId(userId));
     }
 
     /**
@@ -104,8 +104,8 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @GetMapping("/search-resource-template")
-    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestBody Map<String, String> body) {
-        LOG.info("Search a Resource Template by name or description contains");
+    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByName(@RequestBody Map<String, String> body) {
+        LOG.info("Search a Resource Template by name contains");
         return ResponseEntity.status(HttpStatus.OK).body
                 (resourceTemplateService.searchByNameOrDescriptionContaining(body));
     }
@@ -124,14 +124,14 @@ public class ResourceTemplateController {
     }
 
     /**
-     * The controller which cancel {@link ResourceTemplateDTO} publication by id.
+     * The controller which cancels {@link ResourceTemplateDTO} publication by id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @author Halyna Yatseniuk
      */
     @PostMapping("/unpublish-resource-template/{id}")
-    public ResponseEntity<Object> unPublishResourceTemplate(@PathVariable Long id) {
+    public ResponseEntity<Boolean> unPublishResourceTemplate(@PathVariable Long id) {
         LOG.info("Cancel a Resource Template publication");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
     }

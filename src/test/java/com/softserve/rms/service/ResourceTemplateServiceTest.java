@@ -3,6 +3,7 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
@@ -110,10 +111,11 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testSearchByNameOrDescription() {
         List<ResourceTemplate> resourceTemplates = Collections.singletonList(resourceTemplate);
-        when(resourceTemplateRepository.findByNameContainsIgnoreCase(anyString())).thenReturn(resourceTemplates);
+        when(resourceTemplateRepository.findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase
+                (anyString(), anyString())).thenReturn(resourceTemplates);
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
         Map<String, String> myAnyMap = new HashMap<>();
-        myAnyMap.put("name", anyString());
+        myAnyMap.put("search", anyString());
         assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(myAnyMap));
     }
 

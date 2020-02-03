@@ -5,6 +5,7 @@ import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Person;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
@@ -52,6 +53,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param resourceTemplateSaveDTO {@link ResourceTemplateDTO}
      * @return new {@link ResourceTemplateDTO}
+     * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
     @Override
@@ -100,7 +102,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template is not found
+     * @throws NotFoundException      if the resource template is not found
+     * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
     @Override
@@ -140,8 +143,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Override
     public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body) {
-        String name = body.get("name");
-        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findByNameContainsIgnoreCase(name);
+        String searchedWord = body.get("search");
+        List<ResourceTemplate> resourceTemplates =
+                resourceTemplateRepository.findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());
@@ -177,7 +181,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
         }
-        //create new table method;
         return findEntityById(id).getIsPublished();
     }
 
@@ -192,8 +195,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         ResourceTemplate resourceTemplate = findEntityById(id);
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
-        //TODO
-        //Verify if table has at least one resource entity
         return !findEntityById(id).getIsPublished();
     }
 

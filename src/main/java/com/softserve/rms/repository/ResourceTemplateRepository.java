@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface ResourceTemplateRepository extends JpaRepository<ResourceTemplate, Long> {
 
     /**
-     * Method find list of{@link ResourceTemplate} by user id.
+     * Method finds list of{@link ResourceTemplate} by user id.
      *
      * @param id of {@link ResourceTemplate}
      * @return list of {@link ResourceTemplate}
@@ -20,13 +20,21 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     List<ResourceTemplate> findAllByPersonId(Long id);
 
     /**
-     * Method find list of{@link ResourceTemplate} by name or description.
+     * Method finds list of{@link ResourceTemplate} by name or description.
      *
      * @param name        String
+     * @param description String
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplate> findByNameContainsIgnoreCase(String name);
+    List<ResourceTemplate> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(String name, String description);
 
+    /**
+     * Method finds {@link Optional<ResourceTemplate>} by name.
+     *
+     * @param name String
+     * @return {@link Optional<ResourceTemplate>}
+     * @author Halyna Yatseniuk
+     */
     Optional<ResourceTemplate> findByName(String name);
 }

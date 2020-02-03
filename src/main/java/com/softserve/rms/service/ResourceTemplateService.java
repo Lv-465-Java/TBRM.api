@@ -93,5 +93,12 @@ public interface ResourceTemplateService {
      */
     Boolean publishResourceTemplate(Long id);
 
+    /**
+     * Method cancels {@link ResourceTemplate} publish.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @author Halyna Yatseniuk
+     */
     Boolean unPublishResourceTemplate(Long id);
 }
