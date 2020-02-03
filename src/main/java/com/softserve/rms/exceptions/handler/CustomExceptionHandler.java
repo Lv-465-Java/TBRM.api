@@ -1,6 +1,6 @@
 package com.softserve.rms.exceptions.handler;
 
-import com.softserve.rms.exceptions.security.DeniedAccessException;
+import com.softserve.rms.exceptions.PermissionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,14 +14,14 @@ import java.util.Map;
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
-     * Method with handles {@link DeniedAccessException} exception.
+     * Method with handles {@link PermissionException} exception.
      *
-     * @param exception {@link DeniedAccessException}
+     * @param exception {@link PermissionException}
      * @return ResponseEntity which contains an error message
      * @author Artur Sydor
      */
-    @ExceptionHandler(DeniedAccessException.class)
-    public ResponseEntity<Object> handleDeniedAccessException(DeniedAccessException exception) {
+    @ExceptionHandler(PermissionException.class)
+    public ResponseEntity<Object> handleDeniedAccessException(PermissionException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
     }
 

@@ -1,4 +1,4 @@
-package com.softserve.rms.util;
+package com.softserve.rms.security.mappers;
 
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * to object of type Permission.
  */
 @Component
-public class PermissionMapperImpl implements PermissionMapper{
+public class PermissionMapper {
     /**
      * Method converts string permission
      * to object of type Permission.
@@ -17,7 +17,6 @@ public class PermissionMapperImpl implements PermissionMapper{
      * @param permission in string form
      * @return integer mask
      */
-    @Override
     public Permission getMask(String permission) {
         Permission basePermission = null;
         if (permission.equalsIgnoreCase("read")) {

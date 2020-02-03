@@ -72,8 +72,3 @@ FROM (
 WHERE (SELECT COUNT(*) FROM roles) <= 0;
 COMMIT;
 END;
-
-
-INSERT INTO public.acl_sid(id, principal, sid)
-SELECT 1, false, 'MANAGER'
-WHERE NOT EXISTS(SELECT * FROM acl_sid);

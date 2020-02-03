@@ -1,7 +1,8 @@
 package com.softserve.rms.constants;
 
 public enum ErrorMessage {
-    DENIED_ACCESS("Only users, who have role MANAGER can delete permission.");
+    DENIED_ACCESS("You don`t have permission on this operation."),
+    PERMISSION_NOT_FOUND("Could not find such permission.");
 
     private String message;
 
