@@ -1,10 +1,11 @@
 package com.softserve.rms.security;
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,11 +32,11 @@ public class UserPrincipalDetailsService implements UserDetailsService {
      *
      * @param username represents user`s email
      * @return object of type UserPrincipals, that implement UserDetails interface
-     * @throws UsernameNotFoundException
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findPersonByEmail(username).orElseThrow(() -> new RuntimeException("No user found"));
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findPersonByEmail(username).orElseThrow(
+                () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage()));
         return new UserPrincipal(user);
     }
 }
