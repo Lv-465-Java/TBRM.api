@@ -1,5 +1,6 @@
 # TBRS
 backend
+[![Coverage Status](https://coveralls.io/repos/github/Lv-465-Java/TBRM.api/badge.svg?branch=develop)](https://coveralls.io/github/Lv-465-Java/TBRM.api?branch=develop)
 
 
 Resource Template can be created inside the Resource Management System by a _manager_. While creating a Resource Template, manager can add parameters for a detailed specification of a specific Resource. Once Resource Template is executed, it becomes an example for a _registrator_ on how to create a certain Resource in the system. All parameter fields are required and have to be filled with proper values for a better description of a Resource.
