@@ -3,7 +3,7 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
@@ -45,7 +45,7 @@ public interface ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by user id.
      *
-     * @param id of {@link Person}
+     * @param id of {@link User}
      * @return list of all {@link ResourceTemplateDTO} for a user
      * @author Halyna Yatseniuk
      */

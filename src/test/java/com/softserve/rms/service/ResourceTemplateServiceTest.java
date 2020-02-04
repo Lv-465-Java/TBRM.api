@@ -7,8 +7,8 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
-import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
+import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.implementation.ResourceTemplateServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,25 +36,25 @@ public class ResourceTemplateServiceTest {
     @Mock
     private ResourceTemplateRepository resourceTemplateRepository;
     @Mock
-    private PersonRepository personRepository;
+    private UserRepository userRepository;
 
-    private Person person = new Person(1L, "testName", "testSurname", "testEmail", "any", "any", "any", Collections.emptyList());
-    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name", "description", false, person, Collections.emptyList(), Collections.emptyList());
-    private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description", person.getId());
-    private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, person.getId(), null);
-    private ResourceTemplateDTO resourceTempDTO = new ResourceTemplateDTO(1L, "name", "name", "description", false, person.getId(), Collections.emptyList());
+    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, Collections.emptyList());
+    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name", "description", false, user, Collections.emptyList(), Collections.emptyList());
+    private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description", user.getId());
+    private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, user.getId(), null);
+    private ResourceTemplateDTO resourceTempDTO = new ResourceTemplateDTO(1L, "name", "name", "description", false, user.getId(), Collections.emptyList());
     private ResourceTemplateServiceImpl mocks;
     private Map<String, Object> map;
 
 
     @Before
     public void initializeMock() {
-        mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, personRepository));
+        mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userRepository));
     }
 
     @Test
     public void testSaveResourceTemplate() {
-        when(personRepository.getOne(anyLong())).thenReturn(person);
+        when(userRepository.getOne(anyLong())).thenReturn(user);
         assertEquals(resourceTemplateDTO, resourceTemplateService.save(resourceTemplateSaveDTO));
     }
 
@@ -78,7 +78,7 @@ public class ResourceTemplateServiceTest {
 
     @Test
     public void testFindAllByUserId() {
-        when(resourceTemplateRepository.findAllByPersonId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
+        when(resourceTemplateRepository.findAllByUserId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
         assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong()));
     }

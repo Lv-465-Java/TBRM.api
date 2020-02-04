@@ -4,13 +4,13 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
-import com.softserve.rms.repository.PersonRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
+import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
 import org.modelmapper.ModelMapper;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
-    private final PersonRepository personRepository;
+    private final UserRepository userRepository;
     private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -42,9 +42,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
-                                       PersonRepository personRepository) {
+                                       UserRepository userRepository) {
         this.resourceTemplateRepository = resourceTemplateRepository;
-        this.personRepository = personRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -62,7 +62,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setPerson(personRepository.getOne(resourceTemplateSaveDTO.getPersonId()));
+        resourceTemplate.setUser(userRepository.getOne(resourceTemplateSaveDTO.getUserId()));
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
@@ -98,13 +98,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} created by provided person id.
      *
-     * @param id of {@link Person}
+     * @param id of {@link User}
      * @return list of {@link ResourceTemplateDTO} with appropriate person id
      * @author Halyna Yatseniuk
      */
     @Override
     public List<ResourceTemplateDTO> getAllByUserId(Long id) {
-        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByPersonId(id);
+        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByUserId(id);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());

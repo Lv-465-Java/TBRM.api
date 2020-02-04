@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class ResourceTemplateSaveDTO {
     private String name;
     private String description;
-    private Long personId;
+    private Long userId;
 }

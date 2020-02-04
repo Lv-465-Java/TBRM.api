@@ -2,7 +2,7 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class ResourceTemplateController {
     /**
      * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
      *
-     * @param userId of {@link Person}
+     * @param userId of {@link User}
      * @return list of {@link ResourceTemplateDTO} with appropriate user id
      * @author Halyna Yatseniuk
      */

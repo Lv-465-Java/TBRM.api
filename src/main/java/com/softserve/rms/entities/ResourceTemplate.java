@@ -34,7 +34,7 @@ public class ResourceTemplate {
     @ManyToOne
     @JoinColumn(name = "creator_id")
     @ToString.Exclude
-    private Person person;
+    private User user;
 
     @OneToMany(mappedBy = "resourceTemplate", cascade=CascadeType.REMOVE)
     private List<ResourceParameter> resourceParameters;
