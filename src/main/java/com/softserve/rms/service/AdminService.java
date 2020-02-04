@@ -2,7 +2,7 @@ package com.softserve.rms.service;
 
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.entity.User;
+import com.softserve.rms.entities.User;
 
 import java.util.List;
 

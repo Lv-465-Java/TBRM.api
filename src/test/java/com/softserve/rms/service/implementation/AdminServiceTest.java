@@ -1,4 +1,4 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.implementation;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.ImmutableList;
 import com.softserve.rms.dto.UserDto;;
-import com.softserve.rms.entity.User;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.service.impl.AdminServiceImpl;
 import org.junit.jupiter.api.Test;

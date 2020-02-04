@@ -2,7 +2,7 @@ package com.softserve.rms.service.impl;
 
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.entity.User;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.service.AdminService;
 import org.modelmapper.ModelMapper;

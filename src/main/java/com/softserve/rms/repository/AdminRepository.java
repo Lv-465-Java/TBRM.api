@@ -1,7 +1,7 @@
 package com.softserve.rms.repository;
 
-import com.softserve.rms.entity.Role;
-import com.softserve.rms.entity.User;
+import com.softserve.rms.entities.Role;
+import com.softserve.rms.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

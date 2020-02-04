@@ -1,6 +1,6 @@
 package com.softserve.rms.dto;
 
-import com.softserve.rms.entity.Role;
+import com.softserve.rms.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
