@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -24,6 +25,7 @@ import java.util.Objects;
  *
  * @author Kravets Maryana
  */
+@Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter implements Message {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
@@ -34,7 +36,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
      *
      * @param tokenManagementService {@link TokenManagementService}
      */
-    public JwtAuthorizationFilter(@Autowired TokenManagementService tokenManagementService) {
+    @Autowired
+    public JwtAuthorizationFilter(TokenManagementService tokenManagementService) {
         this.tokenManagementService = tokenManagementService;
     }
 

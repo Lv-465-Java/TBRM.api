@@ -25,7 +25,6 @@ import java.util.*;
  * Class that provides methods for working with JWT.
  * @author Kravets Maryana
  */
-//@Slf4j
 @Component
 public class TokenManagementService implements Message {
 
@@ -46,7 +45,8 @@ public class TokenManagementService implements Message {
      * constructor
      * @param userPrincipalDetailsService {@link UserPrincipalDetailsService}
      */
-    public TokenManagementService(@Autowired UserPrincipalDetailsService userPrincipalDetailsService){
+    @Autowired
+    public TokenManagementService(UserPrincipalDetailsService userPrincipalDetailsService){
         this.userPrincipalDetailsService=userPrincipalDetailsService;
     }
 

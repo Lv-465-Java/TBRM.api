@@ -26,7 +26,8 @@ public class UserServiceImpl implements UserService, Message{
      * constructor
      * @param userRepository {@link UserRepository}
      */
-    public UserServiceImpl(@Autowired UserRepository userRepository){
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository){
         this.userRepository = userRepository;
     }
 

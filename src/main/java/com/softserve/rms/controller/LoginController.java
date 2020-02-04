@@ -38,9 +38,10 @@ public class LoginController {
      * @param authenticationService {@link AuthenticationService}
      * @param tokenManagementService {@link TokenManagementService}
      */
-    public LoginController(@Autowired UserService userService,
-                           @Autowired AuthenticationService authenticationService,
-                           @Autowired TokenManagementService tokenManagementService){
+    @Autowired
+    public LoginController(UserService userService,
+                           AuthenticationService authenticationService,
+                           TokenManagementService tokenManagementService){
         this.userService = userService;
         this.authenticationService=authenticationService;
         this.tokenManagementService=tokenManagementService;

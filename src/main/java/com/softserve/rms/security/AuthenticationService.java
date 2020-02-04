@@ -27,8 +27,9 @@ public class AuthenticationService implements Message {
      * @param tokenManagementService {@link TokenManagementService}
      * @param userService {@link UserServiceImpl}
      */
-    public AuthenticationService(@Autowired TokenManagementService tokenManagementService,
-                                 @Autowired UserServiceImpl userService){
+    @Autowired
+    public AuthenticationService(TokenManagementService tokenManagementService,
+                                 UserServiceImpl userService){
         this.tokenManagementService=tokenManagementService;
         this.userService=userService;
     }

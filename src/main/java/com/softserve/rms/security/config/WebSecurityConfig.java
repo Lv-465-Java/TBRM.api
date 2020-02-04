@@ -35,7 +35,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * constructor
      * @param tokenManagementService {@link TokenManagementService}
      */
-    public WebSecurityConfig(@Autowired TokenManagementService tokenManagementService){
+    @Autowired
+    public WebSecurityConfig(TokenManagementService tokenManagementService){
         this.tokenManagementService=tokenManagementService;
     }
 
