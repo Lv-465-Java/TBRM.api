@@ -3,10 +3,10 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 @Builder
 @Data
 @NoArgsConstructor
