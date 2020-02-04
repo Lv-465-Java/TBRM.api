@@ -59,7 +59,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test
     public void closePermissionForCertainUserOk() {
-
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal);

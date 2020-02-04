@@ -1,5 +1,6 @@
 package com.softserve.rms.security;
 
+
 import com.softserve.rms.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
