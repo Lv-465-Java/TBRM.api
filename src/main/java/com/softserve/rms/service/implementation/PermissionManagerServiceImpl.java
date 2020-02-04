@@ -51,6 +51,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      *
      * @param id of {@link ResourceTemplate}
      * @return List of principal with access to object
+     * @author Marian Dutchyn
      */
     @Override
     public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
@@ -76,6 +77,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      *
      * @param permissionDto {@link PermissionDto}
      * @param principal authenticated user
+     * @author Marian Dutchyn
      */
     @Transactional
     @Override
