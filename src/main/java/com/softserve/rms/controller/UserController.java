@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 //import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
@@ -38,7 +37,7 @@ public class UserController {
      * @author Mariia Shchur
      */
     @PutMapping
-    public ResponseEntity updateUser(@Valid @RequestBody UserEditDto userEditDto,String principal){
+    public ResponseEntity updateUser( @RequestBody UserEditDto userEditDto,String principal){
                                      //@ApiIgnore @AuthenticationPrincipal Principal principal) {
 
         userService.update(validateService.validateUpdateData(userEditDto),principal);
@@ -53,7 +52,7 @@ public class UserController {
      * @author Mariia Shchur
      */
     @PatchMapping
-    public ResponseEntity updatePassword(@Valid @RequestBody PasswordEditDto passwordEditDto, String principal) {
+    public ResponseEntity updatePassword( @RequestBody PasswordEditDto passwordEditDto, String principal) {
         //@ApiIgnore @AuthenticationPrincipal Principal principal) {)
         validateService.validatePassword(passwordEditDto);
         userService.editPassword(passwordEditDto,principal);

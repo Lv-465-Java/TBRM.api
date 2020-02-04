@@ -11,8 +11,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PasswordEditDto {
-    @NotNull
-    @NotEmpty
     private String password;
 
 }

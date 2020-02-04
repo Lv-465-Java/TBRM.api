@@ -40,7 +40,7 @@ public class RegistrationController {
      */
 
     @PostMapping("/registration")
-    public ResponseEntity createPerson(@Valid @RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity createPerson( @RequestBody RegistrationDto registrationDto) {
         userService.save(validateService.validate(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
