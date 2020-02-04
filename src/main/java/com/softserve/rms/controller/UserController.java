@@ -1,11 +1,11 @@
 package com.softserve.rms.controller;
 
 
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.UserEditDto;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.UserService;
-import com.softserve.rms.service.impl.UserValidationServiceImpl;
+import com.softserve.rms.service.implementation.UserValidationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

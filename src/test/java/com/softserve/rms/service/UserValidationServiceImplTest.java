@@ -1,14 +1,12 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service;
 
-import com.softserve.rms.constant.ErrorMessage;
-import com.softserve.rms.constant.ValidationErrorConstants;
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.dto.UserEditDto;
-import com.softserve.rms.entities.User;
-import com.softserve.rms.exception.InvalidUserDataException;
-import com.softserve.rms.exception.NotSavedException;
+import com.softserve.rms.constants.ValidationErrorConstants;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.exceptions.user.InvalidUserDataException;
 import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.service.implementation.UserValidationServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +19,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.powermock.reflect.exceptions.MethodNotFoundException;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(UserValidationServiceImpl .class)
+@PrepareForTest(UserValidationServiceImpl.class)
 public class UserValidationServiceImplTest {
     @Mock
     private UserRepository userRepository;
@@ -94,7 +91,7 @@ public class UserValidationServiceImplTest {
         PowerMockito.doReturn(map)
                 .when(spy, "passwordDataValidation",
                 user.getPassword());
-        map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
+        map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME.getMessage());
         PowerMockito.doReturn(map)
                 .when(spy, "basicDataValidation",
                 user.getFirstName(), user.getLastName(),user.getEmail(),user.getPhone());
@@ -129,7 +126,7 @@ public class UserValidationServiceImplTest {
         UserValidationServiceImpl spy = PowerMockito.spy(userValidationService);
         Map<String,String> map=new HashMap<>();
         PowerMockito.doReturn(user1).when(spy, "trimEditData",user1);
-        map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
+        map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME.getMessage());
         PowerMockito.doReturn(map)
                 .when(spy, "basicDataValidation",
                         user1.getFirstName(), user1.getLastName(),user1.getEmail(),user1.getPhone());
@@ -159,7 +156,7 @@ public class UserValidationServiceImplTest {
     public void validatePasswordFail() throws Exception {
         UserValidationServiceImpl spy = PowerMockito.spy(userValidationService);
         Map<String,String> map=new HashMap<>();
-        map.put("passwordsDoNotMatches", ErrorMessage.PASSWORDS_NOT_MATCHES);
+        map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD.getMessage());
         PowerMockito.doReturn(map)
                 .when(spy, "passwordDataValidation",
                         user2.getPassword());
@@ -179,7 +176,7 @@ public class UserValidationServiceImplTest {
     @Test(expected = NullPointerException.class)
     public void trimRegistrationDataFail() throws Exception {
         RegistrationDto actual= Whitebox.invokeMethod(userValidationService,
-                "trimRegistrationData", null);
+                "trimRegistrationData", (Object) null);
         assertThat(actual, is(user));
     }
 
@@ -193,7 +190,7 @@ public class UserValidationServiceImplTest {
     @Test(expected = NullPointerException.class)
     public void trimEditDataFail() throws Exception {
         UserEditDto actual= Whitebox.invokeMethod(userValidationService,
-                "trimEditData", null);
+                "trimEditData", (Object) null);
         assertThat(actual, is(user1));
     }
 
@@ -235,12 +232,12 @@ public class UserValidationServiceImplTest {
     @Test
     public void passwordDataValidation() throws Exception {
         Map<String,String > actual= Whitebox.invokeMethod(userValidationService,
-                "passwordDataValidation", "qwertQWE111!");
+                "passwordDataValidation", "qwertEEQWE111!");
         assertThat(actual, is(new HashMap<>()));
         Map<String,String > secondActual= Whitebox.invokeMethod(userValidationService,
                 "passwordDataValidation", "qwer1!");
         Map<String,String > actualToCheck=new HashMap<>();
-        actualToCheck.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
+        actualToCheck.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD.getMessage());
         assertThat(secondActual, is(actualToCheck));
     }
 

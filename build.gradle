@@ -10,6 +10,12 @@ group = 'com.softserve'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -22,29 +28,33 @@ jacocoTestReport {
 }
 
 dependencies {
-    implementation(
-			'org.springframework.boot:spring-boot-starter-web',
-            'org.springframework.boot:spring-boot-starter-data-jpa')
-	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
 
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
+//    compile 'junit:junit:4.12'
 
-	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
-	compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1'
-	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
-	compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
-	compile 'org.powermock:powermock-module-junit4:2.0.4'
-	compile 'org.powermock:powermock-api-mockito2:2.0.4'
-	compile 'io.springfox:springfox-swagger2:2.9.2'
-	compile 'io.springfox:springfox-swagger-ui:2.9.2'
-
-	annotationProcessor 'org.projectlombok:lombok'
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    compile 'io.springfox:springfox-swagger2:2.9.2'
+    compile 'io.springfox:springfox-swagger-ui:2.9.2'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1'
+    compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
 }
 
 test {
-	useJUnitPlatform()
+    useJUnit()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 

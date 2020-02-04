@@ -1,12 +1,12 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.constant.ErrorMessage;
-import com.softserve.rms.constant.ValidationErrorConstants;
-import com.softserve.rms.constant.ValidationPattern;
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.dto.UserEditDto;
-import com.softserve.rms.exception.InvalidUserDataException;
+import com.softserve.rms.constants.ValidationErrorConstants;
+import com.softserve.rms.constants.ValidationPattern;
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.exceptions.user.InvalidUserDataException;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,25 +115,25 @@ public class UserValidationServiceImpl implements UserValidationService {
         Map<String, String> map = new HashMap<>();
 
         if (isBlank(firstName,lastName,email,phone)) {
-            map.put("emptyField", ErrorMessage.EMPTY_FIELD);
+            map.put("emptyField", ErrorMessage.EMPTY_FIELD.getMessage());
         }
         if (!validateByPattern(ValidationPattern.NAME_PATTERN, firstName)) {
-            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME);
+            map.put("invalidFirstName", ValidationErrorConstants.INVALID_FIRSTNAME.getMessage());
         }
         if (!validateByPattern(ValidationPattern.NAME_PATTERN, lastName)) {
-            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME);
+            map.put("invalidLastName", ValidationErrorConstants.INVALID_LASTNAME.getMessage());
         }
-        if(userRepository.existsPersonByEmail(email)){
-            map.put("emailExists", ErrorMessage.USER_WITH_EMAIL_EXISTS);
+        if(userRepository.existsUserByEmail(email)){
+            map.put("emailExists", ErrorMessage.USER_WITH_EMAIL_EXISTS.getMessage());
         }
         if (!validateByPattern(ValidationPattern.EMAIL_PATTERN, email)) {
-            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL);
+            map.put("invalidEmail", ValidationErrorConstants.INVALID_EMAIL.getMessage());
         }
         if (!validateByPattern(ValidationPattern.PHONE_PATTERN, phone)) {
-            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE);
+            map.put("invalidPhone", ValidationErrorConstants.INVALID_PHONE.getMessage());
         }
-        if(userRepository.existsPersonByPhone(phone)){
-            map.put("phoneNotUnique",ErrorMessage.PHONE_NUMBER_NOT_UNIQUE);
+        if(userRepository.existsUserByPhone(phone)){
+            map.put("phoneNotUnique",ErrorMessage.PHONE_NUMBER_NOT_UNIQUE.getMessage());
         }
         return map;
     }
@@ -147,7 +147,7 @@ public class UserValidationServiceImpl implements UserValidationService {
     private Map<String,String> passwordDataValidation(String password){
         Map<String, String> map = new HashMap<>();
         if (!validateByPattern(ValidationPattern.PASSWORD_PATTERN, password)) {
-            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD);
+            map.put("invalidPassword", ValidationErrorConstants.INVALID_PASSWORD.getMessage());
         }
         return map;
     }

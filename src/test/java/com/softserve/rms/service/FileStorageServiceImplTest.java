@@ -1,20 +1,15 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service;
 
-import com.softserve.rms.entities.S3BucketTest;
 import com.softserve.rms.repository.S3BucketTestRepository;
-import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.service.implementation.FileStorageServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+
 @RunWith(PowerMockRunner.class)
 public class FileStorageServiceImplTest {
     @Mock

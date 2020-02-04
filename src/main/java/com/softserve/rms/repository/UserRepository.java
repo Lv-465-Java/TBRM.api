@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param email
      * @author Mariia Shchur
      */
-    boolean existsPersonByEmail(String email);
+    boolean existsUserByEmail(String email);
 
     /**
      * Method that check if person with this phone number already exist
@@ -36,7 +36,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param phone
      * @author Mariia Shchur
      */
-    boolean existsPersonByPhone(String phone);
+    boolean existsUserByPhone(String phone);
 
 
 }

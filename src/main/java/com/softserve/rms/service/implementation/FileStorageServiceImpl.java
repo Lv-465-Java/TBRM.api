@@ -1,4 +1,4 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service.implementation;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.softserve.rms.dto.FileStorageDto;
-import com.softserve.rms.dto.RegistrationDto;
 import com.softserve.rms.entities.S3BucketTest;
 import com.softserve.rms.repository.S3BucketTestRepository;
 import com.softserve.rms.service.FileStorageService;

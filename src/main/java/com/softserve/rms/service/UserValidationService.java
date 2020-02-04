@@ -1,8 +1,8 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.dto.UserEditDto;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import org.springframework.stereotype.Service;
 
 @Service

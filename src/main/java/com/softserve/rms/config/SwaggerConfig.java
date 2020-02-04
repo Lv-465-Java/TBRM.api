@@ -11,13 +11,14 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Configuration Swagger into project.
+ * Configuration Swagger into TBRM project.
  *
- * @author Mariia Shchur
+ * @author Andrii Bren
  */
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+
     /**
      * Customizing the Docket bean.
      *

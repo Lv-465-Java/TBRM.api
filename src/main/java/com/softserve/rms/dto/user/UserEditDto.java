@@ -1,4 +1,4 @@
-package com.softserve.rms.dto;
+package com.softserve.rms.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

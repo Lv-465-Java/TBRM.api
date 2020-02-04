@@ -1,7 +1,7 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.dto.FileStorageDto;
-import com.softserve.rms.service.impl.FileStorageServiceImpl;
+import com.softserve.rms.service.implementation.FileStorageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

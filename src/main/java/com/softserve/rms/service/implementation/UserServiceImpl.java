@@ -1,12 +1,12 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.constant.ErrorMessage;
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.dto.UserEditDto;
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.exception.NotSavedException;
-import com.softserve.rms.exception.WrongEmailException;
+import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -43,9 +43,8 @@ public class UserServiceImpl implements UserService {
     public void save(RegistrationDto registrationDto) {
         User user = modelMapper.map(registrationDto, User.class);
         //user.setPassword(passwordEncoder.encode(user.getPassword()));
-        //user=userRepository.save(user);
         if (userRepository.save(user)==null) {
-            new NotSavedException(ErrorMessage.USER_NOT_SAVED);
+            throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
         }
     }
 
@@ -59,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public void update(UserEditDto userEditDto, String currentUserEmail) {
         User user = userRepository.findByEmail(currentUserEmail);
         if (user == null) {
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail);
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
         }
         user.setFirstName(userEditDto.getFirstName());
         user.setLastName(userEditDto.getLastName());
@@ -77,7 +76,7 @@ public class UserServiceImpl implements UserService {
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
         User user = userRepository.findByEmail(currentUserEmail);
         if (user == null) {
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + currentUserEmail);
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
         }
         //user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setPassword(passwordEditDto.getPassword());

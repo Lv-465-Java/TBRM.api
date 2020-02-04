@@ -1,18 +1,16 @@
 package com.softserve.rms.controller;
 
 
-import com.softserve.rms.dto.RegistrationDto;
+import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.UserService;
-import com.softserve.rms.service.impl.UserValidationServiceImpl;
+import com.softserve.rms.service.implementation.UserValidationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 @RestController
 public class RegistrationController {
@@ -40,7 +38,7 @@ public class RegistrationController {
      */
 
     @PostMapping("/registration")
-    public ResponseEntity createPerson( @RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity createUser( @RequestBody RegistrationDto registrationDto) {
         userService.save(validateService.validate(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

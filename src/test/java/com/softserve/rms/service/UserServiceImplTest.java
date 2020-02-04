@@ -1,23 +1,20 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service;
 
-import com.softserve.rms.dto.PasswordEditDto;
-import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.dto.UserEditDto;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.exception.NotSavedException;
-import com.softserve.rms.exception.WrongEmailException;
+import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.service.implementation.UserServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
 
-
-import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;

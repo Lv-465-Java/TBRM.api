@@ -1,4 +1,4 @@
-package com.softserve.rms.exception;
+package com.softserve.rms.exceptions;
 
 public class NotSavedException extends RuntimeException  {
 

@@ -1,4 +1,4 @@
-package com.softserve.rms.exception;
+package com.softserve.rms.exceptions.user;
 
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
