@@ -11,10 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "persons")
-@EqualsAndHashCode(
-      exclude = {"resource_templates"})
-@ToString(
-     exclude = {"resource_templates"})
+//@EqualsAndHashCode(
+//      exclude = {"resource_templates"})
+//@ToString(
+//     exclude = {"resource_templates"})
 
 public class Person {
 
@@ -34,7 +34,7 @@ public class Person {
     @Column(nullable = false, unique = true, length = 50)
     private String phone;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
