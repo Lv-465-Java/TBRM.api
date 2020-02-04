@@ -1,37 +1,32 @@
 package com.softserve.rms.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "persons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "persons")
-//@EqualsAndHashCode(
-//      exclude = {"resource_templates"})
-//@ToString(
-//     exclude = {"resource_templates"})
-
 public class Person {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String firstName;
 
-    @Column( nullable = false, length = 50)
+    @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false,unique = true, length = 50)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true)
     private String phone;
 
     @Column(nullable = false)
@@ -39,13 +34,13 @@ public class Person {
 
     @Column(nullable = false)
     private String status;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "person")
+    private List<ResourceTemplate> resourceTemplate;
+
 //TODO mapping on roles table
 //    @ManyToOne (fetch = FetchType.LAZY)
 //    @JoinColumn(name = "role_id")
 //    private Role role;
-
-    @OneToMany(mappedBy = "person", orphanRemoval = true)
-    private List<ResourceTemplate> resourceTemplates;
-
-
 }
