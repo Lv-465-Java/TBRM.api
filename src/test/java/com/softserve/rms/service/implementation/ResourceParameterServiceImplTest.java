@@ -1,4 +1,4 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
@@ -12,6 +12,7 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
+import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.implementation.ResourceParameterServiceImpl;
 import com.softserve.rms.util.RangeIntegerPatternGenerator;
 import com.softserve.rms.util.Validator;

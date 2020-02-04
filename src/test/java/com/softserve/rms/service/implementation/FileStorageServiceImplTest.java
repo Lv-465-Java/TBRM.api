@@ -1,4 +1,4 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.repository.S3BucketTestRepository;
 import com.softserve.rms.service.implementation.FileStorageServiceImpl;
