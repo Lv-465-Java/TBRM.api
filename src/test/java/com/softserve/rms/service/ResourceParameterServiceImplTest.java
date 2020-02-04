@@ -1,9 +1,15 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
+import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.implementation.ResourceParameterServiceImpl;
@@ -16,17 +22,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ResourceParameterServiceImplTest {
 
     @InjectMocks
@@ -51,31 +58,28 @@ public class ResourceParameterServiceImplTest {
     private RangeIntegerPatternGenerator patternGenerator;
 
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "template", "resource_template", "some description", false, null, null, null);
-    private ResourceParameter resourceParameter = new ResourceParameter(1L, "resourceParameter", "resource_parameter", null, null, null, null);
-    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", null, null, null, null);
-
+    private ResourceParameter resourceParameter = new ResourceParameter(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, null, null, null);
+    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, null, null, null);
+    private ResourceParameterSaveDTO resourceParameterSaveDTO = new ResourceParameterSaveDTO("resource_parameter", ParameterType.POINT_INT, null, 1L, null);
+    private ResourceRelation resourceRelation = new ResourceRelation(1L, resourceParameter, resourceTemplate);
+    private ResourceRelationDTO resourceRelationDTO = new ResourceRelationDTO(1L);
     private List<ResourceParameterDTO> parameterDTOS = Arrays.asList(
-            new ResourceParameterDTO(1L, "firstParameter", "first_parameter", null, null, 1L, null),
-            new ResourceParameterDTO(2L, "secondParameter", "second_parameter", null, null, 1L, null));
+            new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null),
+            new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null));
 
     private List<ResourceParameter> parameters = Arrays.asList(
-            new ResourceParameter(1L, "firstParameter", "first_parameter", null, null, resourceTemplate, null),
-            new ResourceParameter(2L, "secondParameter", "second_parameter", null, null, resourceTemplate, null));
-
+            new ResourceParameter(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, resourceTemplate, null),
+            new ResourceParameter(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, resourceTemplate, null));
 
     @Test
     public void getListOfResourceParameterDTOSuccess() {
         when(resourceParameterRepository.findAll()).thenReturn(parameters);
-        when(modelMapper.map(parameters, new TypeToken<List<ResourceParameterDTO>>() {
-        }.getType())).thenReturn(parameterDTOS);
         assertEquals(parameterDTOS, resourceParameterService.findAll());
     }
 
     @Test
     public void getEmptyListOfResourceParameterDTO() {
         List<ResourceParameterDTO> expected = Collections.emptyList();
-        when(modelMapper.map(resourceParameterRepository.findAll(), new TypeToken<List<ResourceParameterDTO>>() {
-        }.getType())).thenReturn(expected);
         assertEquals(expected, resourceParameterService.findAll());
     }
 
@@ -83,8 +87,6 @@ public class ResourceParameterServiceImplTest {
     public void getResourceParametersByTemplateId() {
         when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
         when(resourceParameterRepository.findAllByResourceTemplateId(anyLong())).thenReturn(parameters);
-        when(modelMapper.map(parameters, new TypeToken<List<ResourceParameterDTO>>() {
-        }.getType())).thenReturn(parameterDTOS);
         assertEquals(parameterDTOS, resourceParameterService.findAllByTemplateId(anyLong()));
     }
 
@@ -100,18 +102,47 @@ public class ResourceParameterServiceImplTest {
     }
 
     @Test
-    public void getResourceParameterDTOSuccess() {
+    public void getResourceParameterByIdDTOSuccess() {
         when(resourceParameterRepository.findById(anyLong())).thenReturn(Optional.of(resourceParameter));
-        when(modelMapper.map(resourceParameter, ResourceParameterDTO.class)).thenReturn(resourceParameterDTO);
         assertEquals(resourceParameterDTO, resourceParameterService.findByIdDTO(anyLong()));
     }
 
     @Test(expected = NotFoundException.class)
-    public void getResourceParameterDTOFailed() {
+    public void getResourceParameterDTOByIdFailed() {
         resourceParameterService.findByIdDTO(anyLong());
     }
 
+    //TODO
+    @Test
+    public void saveResourceParameterSuccess() {
+        when(resourceParameterRepository.save(resourceParameter)).thenReturn(resourceParameter);
+        assertEquals(resourceParameter, resourceParameterRepository.save(resourceParameter));
+    }
 
+    //TODO
+//    @Test
+//    public void saveResourceParameterSaveDTOSuccess() {
+////        when(modelMapper.map(resourceParameterSaveDTO, ResourceParameter.class)).thenReturn(resourceParameter);
+//
+//        when(resourceParameterRepository.save(resourceParameter)).thenReturn(resourceParameter);
+//        assertEquals(resourceParameterDTO, resourceParameterService.save(resourceParameterSaveDTO));
+//    }
 
+    @Test
+    public void saveResourceRelationSuccess() {
+        when(resourceRelationRepository.save(resourceRelation)).thenReturn(resourceRelation);
+        assertEquals(resourceRelation, resourceRelationRepository.save(resourceRelation));
+    }
 
+    @Test
+    public void deleteResourceParameterSuccess() {
+        resourceParameterService.delete(anyLong());
+        verify(resourceParameterRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test(expected = NotDeletedException.class)
+    public void deleteResourceParameterFailed() {
+       doThrow(new EmptyResultDataAccessException(1)).when(resourceParameterRepository).deleteById(anyLong());
+       resourceParameterService.delete(anyLong());
+    }
 }
