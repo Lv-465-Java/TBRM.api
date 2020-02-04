@@ -1,4 +1,4 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ValidationErrorConstants;
 import com.softserve.rms.dto.user.PasswordEditDto;

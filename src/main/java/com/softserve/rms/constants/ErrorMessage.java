@@ -19,7 +19,12 @@ public enum ErrorMessage {
     USER_NOT_SAVED ("User was not saved "),
     PHONE_NUMBER_NOT_UNIQUE ("Account with this phone number already exists"),
     EMPTY_FIELD ("All fields should not be empty "),
-    USER_NOT_FOUND_BY_EMAIL ("User was not found by email ");
+    USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
+
+    ACCESS_DENIED("You do not have permission on this operation"),
+    PRINCIPAL_NOT_FOUND("Not found principal for this object"),
+    PERMISSION_NOT_FOUND("Could not find such permission."),
+    USER_DO_NOT_EXISTS("Sorry such user don`t exists (");
 
     private String message;
 

@@ -1,7 +1,9 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "users")
@@ -9,10 +11,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
-@EqualsAndHashCode(
-        exclude = {"resourceTemplates"})
-
+@EqualsAndHashCode(exclude = {"resourceTemplates"})
+@ToString(exclude = {"resourceTemplates"})
 public class User {
 
     @Id
@@ -35,13 +35,12 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    @Builder.Default
-    private boolean enabled = false;
-//TODO mapping on roles table
-//    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn(name = "role_id")
-//    private Role role;
-    @ToString.Exclude
+    private boolean enabled;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 

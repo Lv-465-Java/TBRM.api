@@ -4,6 +4,8 @@ import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
+import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.PermissionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +29,18 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleRuntimeException
     (RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    }
+
+    /**
+     * Method with handles {@link PermissionException} exception.
+     *
+     * @param exception {@link PermissionException}
+     * @return ResponseEntity which contains an error message
+     * @author Artur Sydor
+     */
+    @ExceptionHandler(PermissionException.class)
+    public ResponseEntity<Object> handleDeniedAccessException(PermissionException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
     }
 
     /**

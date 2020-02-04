@@ -1,4 +1,4 @@
-package com.softserve.rms.service;
+package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
@@ -38,7 +38,8 @@ public class ResourceTemplateServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, Collections.emptyList());
+    private Role role = new Role(2L, "MANAGER");
+    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false,role, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name", "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description", user.getId());
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, user.getId(), null);
