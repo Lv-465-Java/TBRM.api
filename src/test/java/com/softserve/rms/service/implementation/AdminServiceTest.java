@@ -9,14 +9,12 @@ import com.google.common.collect.ImmutableList;
 import com.softserve.rms.dto.UserDto;;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
-import com.softserve.rms.service.impl.AdminServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +41,7 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void testFindByIdIsCall() throws SQLException {
+    public void testFindByIdIsCall() {
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(new User()));
         Optional<User> user = service.findById(anyLong());
         verify(adminRepository).findById(anyLong());
@@ -57,26 +55,28 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void testUpdateIsCall() throws SQLException {
+    public void testUpdateIsCall() {
         when(adminRepository.save(new User())).thenReturn(new User());
         service.update(new UserDto());
         verify(adminRepository).save(new User());
     }
+
     @Test
-    public void testFindAllNotNull(){
+    public void testFindAllNotNull() {
         List<User> users = new ArrayList<>();
         users.add(new User());
-       when(service.findAll()).thenReturn(users);
+        when(service.findAll()).thenReturn(users);
         assertFalse(service.findAll().isEmpty());
     }
+
     @Test
-    public void testFindByIdNotNull() throws SQLException {
+    public void testFindByIdNotNull(){
         when(service.findById(anyLong())).thenReturn(Optional.of(new User()));
         assertNotNull(service.findById(anyLong()));
     }
 
     @Test
-    public void testFindUsersByStatuslNotNull(){
+    public void testFindUsersByStatusNotNull() {
         List<User> users = new ArrayList<>();
         users.add(new User());
         when(service.findUsersByStatus(anyBoolean())).thenReturn(users);

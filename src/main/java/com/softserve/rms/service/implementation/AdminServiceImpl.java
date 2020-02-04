@@ -1,4 +1,4 @@
-package com.softserve.rms.service.impl;
+package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
@@ -15,12 +15,12 @@ import java.util.Optional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
-    @Autowired
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
     private ModelMapper modelMapper;
-
-    public AdminServiceImpl() {
+   @Autowired
+    public AdminServiceImpl(AdminRepository adminRepository) {
         modelMapper = new ModelMapper();
+        this.adminRepository = adminRepository;
     }
     /**
      * Method returns list of all users

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.service.impl.AdminServiceImpl;
+import com.softserve.rms.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,14 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @RestController
 public class AdminController {
+
+    private final AdminService adminService;
+
     @Autowired
-    private AdminServiceImpl adminService;
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
+
 
     @GetMapping(value = "/admin/user")
     public ResponseEntity<List<User>> getAllUsers() {
