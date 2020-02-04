@@ -162,8 +162,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body) {
         String searchedWord = body.get("search");
-        List<ResourceTemplate> resourceTemplates =
-                resourceTemplateRepository.findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
+        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.
+                findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
         return resourceTemplates.stream()
                 .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());
