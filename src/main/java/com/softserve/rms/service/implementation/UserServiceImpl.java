@@ -1,36 +1,98 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.entities.Role;
-import com.softserve.rms.exceptions.Message;
-import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
-
-/**
- * The class provides implementation of the {@code UserService}.
- * @author Kravets Maryana
- */
 @Service
-public class UserServiceImpl implements UserService, Message{
-
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    //private PasswordEncoder passwordEncoder;
+    private ModelMapper modelMapper = new ModelMapper();
 
     /**
-     * constructor
-     * @param userRepository {@link UserRepository}
+     * Constructor with parameters
+     *
+     * @author Mariia Shchur
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository){
+                           //PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        //this.passwordEncoder=passwordEncoder;
     }
 
+    /**
+     * Method that allow you to get {@link User} by ID.
+     *
+     * @param id a value of {@link Long}
+     * @return {@link User}
+     */
+    @Override
+    public User getById(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(()->new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void save(RegistrationDto registrationDto) {
+        User user = modelMapper.map(registrationDto, User.class);
+        //user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userRepository.save(user)==null) {
+            throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    @Transactional
+    public void update(UserEditDto userEditDto, String currentUserEmail) {
+        User user = userRepository.findByEmail(currentUserEmail);
+        if (user == null) {
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
+        }
+        user.setFirstName(userEditDto.getFirstName());
+        user.setLastName(userEditDto.getLastName());
+        user.setEmail(userEditDto.getEmail());
+        user.setPhone(userEditDto.getPhone());
+        userRepository.save(user);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
+        User user = userRepository.findByEmail(currentUserEmail);
+        if (user == null) {
+            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
+        }
+        //user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEditDto.getPassword());
+        userRepository.save(user);
+    }
 
     /**
      * Method that allow you to get {@link User} by email.
@@ -56,11 +118,4 @@ public class UserServiceImpl implements UserService, Message{
                 .orElseThrow(()->new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
     }
 
-    /**
-     * BCrypt encoder
-     * @return PasswordEncoder
-     */
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }

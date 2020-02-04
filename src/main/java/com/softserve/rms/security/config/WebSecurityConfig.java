@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Configuration
 @EnableWebSecurity
-@EnableSwagger2
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private TokenManagementService tokenManagementService;
@@ -43,29 +42,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_WHITELIST = {
             "/register",
             "/authentication",
-            "/refresh",
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/webjars/**"
+            "/refresh"
     };
-
-    /**
-     *
-     * @return Docket
-     */
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build();
-    }
-
 
     /**
      * Provides AuthenticationManager.

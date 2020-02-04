@@ -1,17 +1,13 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +17,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String firstName;
@@ -35,7 +31,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String phone;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -47,5 +43,6 @@ public class User {
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
+
 
 }

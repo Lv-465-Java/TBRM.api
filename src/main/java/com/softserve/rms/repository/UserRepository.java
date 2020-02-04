@@ -6,27 +6,40 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Provides an interface to manage {@link User} entity.
- * @author Kravets Maryana
- */
 @Repository
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
+    /**
+     * Save person
+     *
+     * @param user to save.
+     * @return Person saved}
+     */
+    User save(User user);
 
     /**
-     * Find {@link User} by email.
+     * Find Person by email.
      *
-     * @param email user email.
-     * @return Optional of {@link User}
+     * @param email person email.
+     * @return Person
      */
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
 
     /**
-     * Find {@link User} by id.
+     * Method that check if person with this email already exist
      *
-     * @param id is value of {@link Long}.
-     * @return Optional of {@link User}
+     * @param email
+     * @author Mariia Shchur
      */
-    Optional<User> findById(long id);
+    boolean existsUserByEmail(String email);
+
+    /**
+     * Method that check if person with this phone number already exist
+     *
+     * @param phone
+     * @author Mariia Shchur
+     */
+    boolean existsUserByPhone(String phone);
+
+    Optional<User> findUserByEmail(String email);
 
 }
