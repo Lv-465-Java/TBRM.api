@@ -1,36 +1,35 @@
 package com.softserve.rms.security;
 
-import com.softserve.rms.dto.JwtClaimsDto;
 import com.softserve.rms.dto.JwtDto;
-import com.softserve.rms.exceptions.JwtExpiredTokenException;
+import com.softserve.rms.exceptions.JwtAuthenticationException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
-import com.softserve.rms.service.impl.PersonServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
 
-import javafx.util.Pair;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
- * Class with manage with token
+ * Class that provides methods for working with JWT.
  * @author Kravets Maryana
  */
+//@Slf4j
 @Component
 public class TokenManagementService implements Message {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenManagementService.class);
-    private static Map<String, Pair<Long, String>> tokenMap = new HashMap<>();
 
     @Value("${secretKey}")
     private String secretKey;
@@ -41,26 +40,23 @@ public class TokenManagementService implements Message {
     @Value("${expireTimeRefreshToken}")
     private String expireTimeRefreshToken;
 
-    private PersonServiceImpl personService;
     private UserPrincipalDetailsService userPrincipalDetailsService;
 
     /**
      * constructor
-     * @param personService {@link PersonServiceImpl}
+     * @param userPrincipalDetailsService {@link UserPrincipalDetailsService}
      */
-    public TokenManagementService(@Autowired PersonServiceImpl personService,
-                                  @Autowired UserPrincipalDetailsService userPrincipalDetailsService){
-        this.personService=personService;
+    public TokenManagementService(@Autowired UserPrincipalDetailsService userPrincipalDetailsService){
         this.userPrincipalDetailsService=userPrincipalDetailsService;
     }
 
     /**
      * Generates a JWT access and refresh tokens containing userId as claim. These properties are taken from the specified
      *  User object. Access token validity is 2 min, refresh token validity 60 days.
-     * @param jwtClaimsDto {@link JwtClaimsDto} - it is userId
+     * @param email {@link String}
      * @return JwtDto - it is access and refresh tokens
      */
-    public JwtDto generateTokenPair(JwtClaimsDto jwtClaimsDto) {
+    public JwtDto generateTokenPair(String email) {
 
         long nowMillis=System.currentTimeMillis();
         long expirationTime =Long.parseLong(expireTimeAccessToken);
@@ -69,46 +65,42 @@ public class TokenManagementService implements Message {
         byte[] decodeSecretKey = TextCodec.BASE64.decode(secretKey);
 
         String token = Jwts.builder()
-                .claim("userClaims", jwtClaimsDto)
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(signatureAlgorithm, decodeSecretKey).compact();
 
 
-
         long expirationTimeRefresh = Long.parseLong(expireTimeRefreshToken);
         String refreshToken=Jwts.builder()
-                .claim("userClaims", jwtClaimsDto)
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(nowMillis+expirationTimeRefresh))
                 .signWith(signatureAlgorithm, decodeSecretKey).compact();
-
-        tokenMap.put(refreshToken, new Pair<>(jwtClaimsDto.getUserId(), token));
 
         return new JwtDto(token, refreshToken);
     }
 
     /**
      * Refresh access and refresh tokens, using refresh token
-     * @param jwtDto {@link JwtDto}
+     * @param refreshToken {@link String}
      * @return JwtDto
      */
 
-    public JwtDto refreshTokens(JwtDto jwtDto) {
-        Pair<Long, String> idToTokenPair = tokenMap.get(jwtDto.getRefreshToken());
+    public JwtDto refreshTokens(String  refreshToken) {
+        if (refreshToken!=null && validateToken(refreshToken)) {
+            try {
+                String email=getUserEmail(refreshToken);
+                JwtDto jwtDto= generateTokenPair(email);
+                LOGGER.info("tokens refreshed successfully!");
 
-        if (Objects.nonNull(idToTokenPair) && idToTokenPair.getValue().equals(jwtDto.getAccessToken())) {
-            JwtDto newPairOfToken = generateTokenPair(new JwtClaimsDto((idToTokenPair.getKey())));
-            tokenMap.remove(jwtDto.getRefreshToken());
-            tokenMap.put(newPairOfToken.getRefreshToken(), new Pair<>(idToTokenPair.getKey(),newPairOfToken.getAccessToken()));
-            return newPairOfToken;
-
-//            try {
-//            JwtDto jwtDto1 = generateTokenPair(new JwtClaimsDto(parseJwtToken(jwtDto.getRefreshToken()).getUserId()));
-//            return jwtDto1;
-//
-        } else {//catch (JwtException e){
-            throw new RefreshTokenException(REFRESH_TOKEN_EXCEPTION);
+                return jwtDto;
+            }
+            catch (JwtException e) {
+                throw new RefreshTokenException(REFRESH_TOKEN_EXCEPTION);
+            }
+        } else {
+            throw new JwtAuthenticationException(JWT_AUTHENTICATION_EXCEPTION);
         }
     }
 
@@ -119,59 +111,70 @@ public class TokenManagementService implements Message {
      * @return {@link Authentication} if user successfully authenticated.
      */
     public Authentication getAuthentication(String token) {
-        JwtClaimsDto jwtClaimsDto=parseJwtToken(token);
-        String email=personService.getById(jwtClaimsDto.getUserId()).getEmail();
-        UserDetails userDetails = userPrincipalDetailsService.loadUserByUsername(email);
+        UserDetails userDetails = userPrincipalDetailsService.loadUserByUsername(getUserEmail(token));
         return new UsernamePasswordAuthenticationToken(userDetails,
                 "", userDetails.getAuthorities());
     }
 
 
     /**
-     * Tries to parse specified String as a JWT access token. If successful, returns User_id.
-     *  If unsuccessful (token is invalid or not containing all required user properties), simply returns exception.
-     * @param  accessToken {@link String} - jwt access token.
-     * @return JwtClaimsDto - it is userId
-     * @throws BadCredentialsException
-     * @throws JwtExpiredTokenException
-     * @throws io.jsonwebtoken.ExpiredJwtException - if the token expired.
-     * @throws UnsupportedJwtException  if the argument does not represent an Claims JWS
-     * @throws io.jsonwebtoken.MalformedJwtException if the string is not a valid JWS
-     * @throws io.jsonwebtoken.SignatureException if the JWS signature validation fails
+     * Gets email from token and throws an error if token is expired.
+     * @param token {@link String}
+     * @return email {@link String}
      */
-
-    public JwtClaimsDto parseJwtToken(String accessToken){
-        try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(accessToken);
-
-            LinkedHashMap userClaims = ((LinkedHashMap) claims.getBody().get("userClaims"));
-
-            Long userId = Long.parseLong(userClaims.get("userId").toString());
-
-            return new JwtClaimsDto(userId);
-        } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException | SignatureException ex){
-            LOGGER.error("Invalid JWT Token", ex);
-            throw new BadCredentialsException("Invalid JWT token: ", ex);
-        }  catch (ExpiredJwtException ex) {
-            LOGGER.info("JWT Token is expired", ex);
-            throw new JwtExpiredTokenException("JWT Token expired");
-        }
+    public String getUserEmail(String token) {
+            return Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey))
+                    .parseClaimsJws(token).getBody().getSubject();
     }
+
 
     /**
      * Method verify whether the token has expired or not.
      * @param token {@link String}
      * @return boolean
      */
-
     public boolean validateToken(String token) {
-        boolean isValid=false;
+        boolean isValid = false;
         try{
-            Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
+            Jws<Claims> claimsJws=Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
+            if (!claimsJws.getBody().getExpiration().before(new Date())){
                 isValid=true;
-        }catch(JwtException | IllegalArgumentException e){
-            LOGGER.info("Jwt token expired!");
+            }
+        }catch(IllegalArgumentException | UnsupportedJwtException | MalformedJwtException | SignatureException ex){
+            LOGGER.info("Token is not valid!");
         }
         return isValid;
+    }
+
+
+    /**
+     * Method that get access token from {@link HttpServletRequest}.
+     *
+     * @param request this is your request.
+     * @return {@link String} of token or null.
+     */
+    public String resolveAccessToken(HttpServletRequest request) {
+        String AUTH_HEADER_PREFIX="Bearer ";
+        String AUTHORIZATION_HEADER="Authorization";
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (Objects.nonNull(bearerToken) && bearerToken.startsWith(AUTH_HEADER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * Method that get refresh token from {@link HttpServletRequest}.
+     *
+     * @param request this is your request.
+     * @return {@link String} of token or null.
+     */
+    public String resolveRefreshToken(HttpServletRequest request) {
+        String REFRESH_HEADER="RefreshToken";
+        String refreshToken = request.getHeader(REFRESH_HEADER);
+        if (Objects.nonNull(refreshToken)) {
+            return refreshToken;
+        }
+        return null;
     }
 }

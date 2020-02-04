@@ -13,4 +13,6 @@ public interface Message {
     String REFRESH_TOKEN_EXCEPTION="Error when refresh token";
 
     String JWT_EXPIRE_TOKEN_EXCEPTION="JWT Token expired";
+
+    String JWT_AUTHENTICATION_EXCEPTION="JWT Authentication failed. Please sign in again";
 }

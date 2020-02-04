@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Class with save access and refresh token
+ *  Class which contain user credential
  * @author Kravets Maryana
  */
 @Data
 @AllArgsConstructor
-public class JwtDto {
+public class LoginUser {
 
-    private String accessToken;
-    private String refreshToken;
+    private String email;
+    private String password;
 }

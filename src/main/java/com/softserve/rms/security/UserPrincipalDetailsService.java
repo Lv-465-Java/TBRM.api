@@ -1,25 +1,27 @@
 package com.softserve.rms.security;
 
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.NotFoundException;
-import com.softserve.rms.repository.PersonRepository;
+import com.softserve.rms.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserPrincipalDetailsService implements UserDetailsService, Message {
 
-    private PersonRepository personRepository;
+    private UserRepository userRepository;
 
-    public UserPrincipalDetailsService(PersonRepository personRepository) {
-        this.personRepository=personRepository;
+    public UserPrincipalDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Person person = personRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION,email)));
-        return new UserPrincipal(person);
+        return new UserPrincipal(user);
     }
 }

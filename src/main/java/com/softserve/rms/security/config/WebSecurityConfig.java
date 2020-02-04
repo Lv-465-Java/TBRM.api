@@ -1,5 +1,7 @@
-package com.softserve.rms.security;
+package com.softserve.rms.security.config;
 
+import com.softserve.rms.security.TokenManagementService;
+import com.softserve.rms.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,37 +12,65 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Config for security
  * @author Kravets Maryana
  */
 @Configuration
 @EnableWebSecurity
-//@EnableSwagger2
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableSwagger2
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private TokenManagementService tokenManagementService;
 
-    public SecurityConfig(@Autowired TokenManagementService tokenManagementService){
+    /**
+     * constructor
+     * @param tokenManagementService {@link TokenManagementService}
+     */
+    public WebSecurityConfig(@Autowired TokenManagementService tokenManagementService){
         this.tokenManagementService=tokenManagementService;
     }
 
-    public static final String REGISTER_URI="/register";
-    public static final String LOGIN_URI="/authentication";
+    private static final String[] AUTH_WHITELIST = {
+            "/register",
+            "/authentication",
+            "/refresh",
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
 
-//    /**
-//     *
-//     * @return Docket
-//     */
-//    @Bean
-//    public Docket api() {
-//        return new Docket(DocumentationType.SWAGGER_2)
-//                .select()
-//                .apis(RequestHandlerSelectors.basePackage("edu.softserve"))
-//                .paths(PathSelectors.any())
-//                .build();
-//    }
+    /**
+     *
+     * @return Docket
+     */
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build();
+    }
 
+
+    /**
+     * Provides AuthenticationManager.
+     *
+     * @return {@link AuthenticationManager}
+     */
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -60,12 +90,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
-//        .authenticationEntryPoint(
-//                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-//        )
+                .authenticationEntryPoint(
+                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                 )
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST,REGISTER_URI,LOGIN_URI).permitAll()
+                .antMatchers(AUTH_WHITELIST)
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

@@ -1,19 +1,18 @@
 package com.softserve.rms.security;
 
-import com.softserve.rms.dto.JwtClaimsDto;
 import com.softserve.rms.dto.JwtDto;
-import com.softserve.rms.dto.LoginPerson;
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.dto.LoginUser;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.BadCredentialException;
 import com.softserve.rms.exceptions.Message;
-import com.softserve.rms.service.impl.PersonServiceImpl;
+import com.softserve.rms.service.implementation.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- *
+ * Class that provides authentication logic.
  * @author Kravets Maryana
  */
 @Component
@@ -21,35 +20,33 @@ public class AuthenticationService implements Message {
 
     private static final Logger LOGGER= LoggerFactory.getLogger(AuthenticationService.class);
     private TokenManagementService tokenManagementService;
-    private PersonServiceImpl personService;
+    private UserServiceImpl userService;
 
     /**
      * constructor
      * @param tokenManagementService {@link TokenManagementService}
-     * @param personService {@link PersonServiceImpl}
+     * @param userService {@link UserServiceImpl}
      */
     public AuthenticationService(@Autowired TokenManagementService tokenManagementService,
-                                 @Autowired PersonServiceImpl personService){
+                                 @Autowired UserServiceImpl userService){
         this.tokenManagementService=tokenManagementService;
-        this.personService=personService;
+        this.userService=userService;
     }
 
     /**
-     * authentication user. Method verify user credential. If user is in DB than gererate access and refresh token, if no thrown
+     * authentication user. Method verify user credential. If user is in DB than generating access and refresh token, if no thrown
      * BadCredentialException exception
-     * @param loginPerson {@link LoginPerson}
+     * @param loginUser {@link LoginUser}
      * @return JwtDto
      * @throws BadCredentialException
      */
-    public JwtDto loginUser(LoginPerson loginPerson){
-        LOGGER.info("user login info - {}", loginPerson);
+    public JwtDto loginUser(LoginUser loginUser){
+        LOGGER.info("user login info - {}", loginUser);
+        User user =userService.getUserByEmail(loginUser.getEmail());
 
-        Person person=personService.getUserByEmail(loginPerson.getEmail());
+        if (userService.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
 
-        if (personService.passwordEncoder().matches(loginPerson.getPassword(),person.getPassword())){
-            JwtClaimsDto jwtClaimsDto=new JwtClaimsDto(person.getId());
-
-            return tokenManagementService.generateTokenPair(jwtClaimsDto);
+            return tokenManagementService.generateTokenPair(loginUser.getEmail());
 
         } else {
             throw new BadCredentialException(BAD_CREDENTIAL_EXCEPTION);
