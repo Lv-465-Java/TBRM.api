@@ -21,11 +21,5 @@ public class RmsApplication {
     {
         SpringApplication.run(RmsApplication.class, args);
     }
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.parse("10491145KB"));
-        factory.setMaxRequestSize(DataSize.parse("10491145KB"));
-        return factory.createMultipartConfig();
-    }
+
 }

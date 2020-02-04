@@ -14,5 +14,5 @@ public class PasswordEditDto {
     @NotNull
     @NotEmpty
     private String password;
-    private String passwordConfirm;
+
 }

@@ -17,7 +17,7 @@ public class ResourceTemplate {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Person person;
+    private User user;
 
     @OneToMany(mappedBy = "resourceTemplate")
     private List<ResourceParameter> resourceParameters;

@@ -5,18 +5,18 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity(name = "persons")
+@Entity(name = "users")
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "persons")
+@Table(name = "users")
 @EqualsAndHashCode(
         exclude = {"resourceTemplates"})
 @ToString(
         exclude = {"resourceTemplates"})
 
-public class Person {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,7 @@ public class Person {
 //    @ManyToOne (fetch = FetchType.EAGER)
 //    private Role role;
 
-    @OneToMany(mappedBy = "person", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
 

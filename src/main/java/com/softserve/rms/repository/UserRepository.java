@@ -1,20 +1,18 @@
 package com.softserve.rms.repository;
 
-import com.softserve.rms.entities.Person;
+import com.softserve.rms.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface PersonRepository extends JpaRepository<Person, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Save person
      *
-     * @param person to save.
+     * @param user to save.
      * @return Person saved}
      */
-    Person save(Person person);
+    User save(User user);
 
     /**
      * Find Person by email.
@@ -22,7 +20,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
      * @param email person email.
      * @return Person
      */
-    Person findByEmail(String email);
+    User findByEmail(String email);
 
     /**
      * Method that check if person with this email already exist
@@ -31,6 +29,14 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
      * @author Mariia Shchur
      */
     boolean existsPersonByEmail(String email);
+
+    /**
+     * Method that check if person with this phone number already exist
+     *
+     * @param phone
+     * @author Mariia Shchur
+     */
+    boolean existsPersonByPhone(String phone);
 
 
 }

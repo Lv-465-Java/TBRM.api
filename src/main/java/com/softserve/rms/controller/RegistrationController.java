@@ -2,9 +2,9 @@ package com.softserve.rms.controller;
 
 
 import com.softserve.rms.dto.RegistrationDto;
-import com.softserve.rms.entities.Person;
-import com.softserve.rms.service.PersonService;
-import com.softserve.rms.service.impl.PersonValidationService;
+import com.softserve.rms.entities.User;
+import com.softserve.rms.service.UserService;
+import com.softserve.rms.service.impl.UserValidationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +16,8 @@ import javax.validation.Valid;
 
 @RestController
 public class RegistrationController {
-    private PersonService personService;
-    private PersonValidationService validateService;
+    private UserService userService;
+    private UserValidationServiceImpl validateService;
 
     /**
      * Constructor with parameters
@@ -25,14 +25,14 @@ public class RegistrationController {
      * @author Mariia Shchur
      */
     @Autowired
-    public RegistrationController(PersonService personService,
-                                  PersonValidationService validateService) {
-        this.personService = personService;
+    public RegistrationController(UserService userService,
+                                  UserValidationServiceImpl validateService) {
+        this.userService = userService;
         this.validateService = validateService;
     }
 
     /**
-     * Method which save {@link Person}.
+     * Method which save {@link User}.
      *
      * @param registrationDto {@link RegistrationDto}
      * @return ResponseEntity
@@ -41,8 +41,7 @@ public class RegistrationController {
 
     @PostMapping("/registration")
     public ResponseEntity createPerson(@Valid @RequestBody RegistrationDto registrationDto) {
-        validateService.validate(registrationDto);
-        personService.save(registrationDto);
+        userService.save(validateService.validate(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
