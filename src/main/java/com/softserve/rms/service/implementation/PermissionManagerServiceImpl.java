@@ -6,20 +6,15 @@ import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.security.mappers.PermissionMapper;
-import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +30,15 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     private final PermissionMapper permissionMapper;
     private final Formatter formatter;
 
+    /**
+     * Constructor with parameters.
+     *
+     * @param mutableAclService perform crud operations with acl
+     * @param permissionMapper map string permission to integer mask
+     * @param formatter format permission string retrieved from Sid object
+     *
+     * @author Artur Sydor
+     */
     @Autowired
     public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper, Formatter formatter) {
         this.mutableAclService = mutableAclService;
@@ -109,6 +113,8 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      *
      * @param permissionDto transfer information about certain ACE
      * @param principal authenticated user
+     *
+     * @author Artur Sydor
      */
     @Transactional
     @Override
@@ -143,6 +149,8 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      *
      * @param resourceId id of resource template
      * @param principal authenticated user
+     *
+     * @author Artur Sydor
      */
     @Transactional
     @Override

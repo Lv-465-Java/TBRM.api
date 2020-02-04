@@ -4,7 +4,8 @@ public enum ErrorMessage {
 
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
-    PERMISSION_NOT_FOUND("Could not find such permission.");
+    PERMISSION_NOT_FOUND("Could not find such permission."),
+    USER_DO_NOT_EXISTS("Sorry such user don`t exists (");
 
     private String message;
 
