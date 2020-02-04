@@ -59,7 +59,6 @@ public class PermissionManagerServiceImplTest {
         principal = new UserPrincipal("owner");
         Sid sid = new PrincipalSid("owner");
         mutableAcl = new AclImpl(objectIdentity, 1L, authorizationStrategy, null, null, null, false, sid);
-
         permissionDto = new PermissionDto(1L, "manager", "read", true);
     }
 
