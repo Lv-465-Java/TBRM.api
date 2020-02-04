@@ -45,7 +45,7 @@ public class UserPrincipalDetailsServiceTest {
 
     @Test
     public void loadUserByUsernameOk() {
-        doReturn(Optional.of(user)).when(userRepository).findPersonByEmail(anyString());
+        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
         UserDetails expected = new UserPrincipal(user);
         UserDetails actual = userPrincipalDetailsService.loadUserByUsername("user@com");
         assertEquals(expected, actual);
@@ -54,7 +54,7 @@ public class UserPrincipalDetailsServiceTest {
     @Test(expected = NotFoundException.class)
     public void loadUserByUsernameFail() {
         doThrow(new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage()))
-                .when(userRepository).findPersonByEmail(anyString());
+                .when(userRepository).findUserByEmail(anyString());
         userPrincipalDetailsService.loadUserByUsername("user@com");
     }
 }

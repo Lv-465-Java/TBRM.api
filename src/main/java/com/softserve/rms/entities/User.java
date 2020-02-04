@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "users")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String firstName;
@@ -30,7 +31,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String phone;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)

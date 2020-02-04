@@ -35,7 +35,7 @@ public class UserPrincipalDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findPersonByEmail(username).orElseThrow(
+        User user = userRepository.findUserByEmail(username).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage()));
         return new UserPrincipal(user);
     }
