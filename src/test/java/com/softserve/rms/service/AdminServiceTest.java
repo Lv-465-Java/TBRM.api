@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.softserve.rms.dto.UserDto;;
 import com.softserve.rms.entity.User;
 import com.softserve.rms.repository.AdminRepository;
-import com.softserve.rms.service.Impl.AdminServiceImpl;
+import com.softserve.rms.service.impl.AdminServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

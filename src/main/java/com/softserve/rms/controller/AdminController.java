@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entity.User;
-import com.softserve.rms.service.Impl.AdminServiceImpl;
+import com.softserve.rms.service.impl.AdminServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +31,15 @@ public class AdminController {
     }
 
     @PostMapping(value = "/admin/user")
-    public void addUser(@RequestBody UserDto newUser) {
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto newUser) {
         adminService.create(newUser);
+        return new ResponseEntity<>(newUser,HttpStatus.CREATED);
     }
 
     @PatchMapping(value = "/admin/user/{id}")
-    public void setRole(@RequestBody UserDtoRole updateUser, @PathVariable("id") String id) {
+    public ResponseEntity<UserDtoRole> setRole(@RequestBody UserDtoRole updateUser, @PathVariable("id") String id) {
         adminService.editUserRole(updateUser, Long.valueOf(id));
+        return new ResponseEntity<>(updateUser,HttpStatus.OK);
     }
 
     @PutMapping(value = "/admin/user/{id}")

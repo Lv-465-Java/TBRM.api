@@ -1,4 +1,4 @@
-package com.softserve.rms.service.Impl;
+package com.softserve.rms.service.impl;
 
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
