@@ -21,6 +21,8 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -33,6 +35,9 @@ public class PermissionManagerServiceImplTest {
 
     @Mock
     private MutableAclService mutableAclService;
+
+    @Mock
+    private MutableAcl aclService;
 
     @Mock
     private Formatter formatter;
@@ -55,6 +60,34 @@ public class PermissionManagerServiceImplTest {
         Sid sid = new PrincipalSid("owner");
         mutableAcl = new AclImpl(objectIdentity, 1L, authorizationStrategy, null, null, null, false, sid);
         permissionDto = new PermissionDto(1L, "manager", "read", true);
+    }
+
+    @Test
+    public void findPrincipalWithAccessToResourceTemplateSuccess(){
+        List<AccessControlEntry> entries = Arrays.asList();
+        doReturn(mutableAcl).when(mutableAclService).readAclById(any());
+        doReturn(entries).when(aclService).getEntries();
+        permissionManagerService.findPrincipalWithAccessToResourceTemplate(anyLong());
+    }
+
+    @Test(expected = PermissionException.class)
+    public void findPrincipalWithAccessToResourceTemplateFail(){
+        doThrow(new NotFoundException("fail found")).when(mutableAclService).readAclById(any());
+        permissionManagerService.findPrincipalWithAccessToResourceTemplate(anyLong());
+    }
+
+    @Test
+    public void addPermissionForResourceTemplateSuccess(){
+        doReturn(mutableAcl).when(mutableAclService).readAclById(any());
+        doReturn("owner").when(formatter).sidFormatter(anyString());
+        permissionManagerService.addPermissionForResourceTemplate(permissionDto, principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void addPermissionForResourceTemplateFail(){
+        doReturn(mutableAcl).when(mutableAclService).readAclById(any());
+        doReturn("not owner").when(formatter).sidFormatter(anyString());
+        permissionManagerService.addPermissionForResourceTemplate(permissionDto, principal);
     }
 
     @Test
