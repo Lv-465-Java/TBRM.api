@@ -16,6 +16,6 @@ public class Validator {
      */
 
     public String generateTableOrColumnName(String name) {
-        return name.toLowerCase().replaceAll("[-!$%^&*()_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
+        return name.toLowerCase().replaceAll("[-!$%^&*()/_+|~=`\\[\\]{}:\";'<>?,. ]", "_");
     }
 }
