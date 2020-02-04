@@ -5,20 +5,22 @@ import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.exceptions.Message;
+import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    //private PasswordEncoder passwordEncoder;
+public class UserServiceImpl implements UserService, Message {
+    private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -27,23 +29,12 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
-                           //PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        //this.passwordEncoder=passwordEncoder;
+        this.passwordEncoder=passwordEncoder;
     }
 
-    /**
-     * Method that allow you to get {@link User} by ID.
-     *
-     * @param id a value of {@link Long}
-     * @return {@link User}
-     */
-    @Override
-    public User getById(long id) {
-        return userRepository.findById(id)
-                .orElseThrow(()->new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
-    }
 
     /**
      * {@inheritDoc }
@@ -53,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(RegistrationDto registrationDto) {
         User user = modelMapper.map(registrationDto, User.class);
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (userRepository.save(user)==null) {
             throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
         }
@@ -67,10 +58,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void update(UserEditDto userEditDto, String currentUserEmail) {
-        User user = userRepository.findByEmail(currentUserEmail);
-        if (user == null) {
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
-        }
+        User user = userRepository.findUserByEmail(currentUserEmail)
+                .orElseThrow(()-> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
         user.setFirstName(userEditDto.getFirstName());
         user.setLastName(userEditDto.getLastName());
         user.setEmail(userEditDto.getEmail());
@@ -85,11 +74,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
-        User user = userRepository.findByEmail(currentUserEmail);
-        if (user == null) {
-            throw new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail);
-        }
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = userRepository.findUserByEmail(currentUserEmail)
+                .orElseThrow(()-> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setPassword(passwordEditDto.getPassword());
         userRepository.save(user);
     }
@@ -102,7 +90,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findUserByEmail(email)
                 .orElseThrow(()-> new NotFoundException(String.format(USER_EMAIL_NOT_FOUND_EXCEPTION,email)));
     }
 

@@ -5,6 +5,7 @@ import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.BadCredentialException;
 import com.softserve.rms.exceptions.Message;
+import com.softserve.rms.security.config.WebSecurityConfig;
 import com.softserve.rms.service.implementation.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class AuthenticationService implements Message {
     private static final Logger LOGGER= LoggerFactory.getLogger(AuthenticationService.class);
     private TokenManagementService tokenManagementService;
     private UserServiceImpl userService;
+    private WebSecurityConfig webSecurityConfig;
 
     /**
      * constructor
@@ -29,9 +31,11 @@ public class AuthenticationService implements Message {
      */
     @Autowired
     public AuthenticationService(TokenManagementService tokenManagementService,
-                                 UserServiceImpl userService){
+                                 UserServiceImpl userService,
+                                 WebSecurityConfig webSecurityConfig){
         this.tokenManagementService=tokenManagementService;
         this.userService=userService;
+        this.webSecurityConfig=webSecurityConfig;
     }
 
     /**
@@ -45,7 +49,7 @@ public class AuthenticationService implements Message {
         LOGGER.info("user login info - {}", loginUser);
         User user =userService.getUserByEmail(loginUser.getEmail());
 
-        if (userService.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
+        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
 
             return tokenManagementService.generateTokenPair(loginUser.getEmail());
 
