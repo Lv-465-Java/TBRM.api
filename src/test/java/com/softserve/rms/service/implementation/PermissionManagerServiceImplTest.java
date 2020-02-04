@@ -59,11 +59,7 @@ public class PermissionManagerServiceImplTest {
 
     @Test
     public void closePermissionForCertainUserOk() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-            PowerMockito.whenNew(PrincipalSid.class).withArguments(anyString()).thenReturn(new PrincipalSid(anyString()));
-        } catch (Exception ignored) {
-        }
+
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal);
@@ -71,11 +67,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test(expected = PermissionException.class)
     public void closePermissionForCertainUserFailAccess() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-            PowerMockito.whenNew(PrincipalSid.class).withArguments(anyString()).thenReturn(new PrincipalSid(anyString()));
-        } catch (Exception ignored) {
-        }
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("not owner").when(formatter).sidFormatter(anyString());
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal);
@@ -83,11 +74,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test(expected = PermissionException.class)
     public void closePermissionForCertainUserFailFound() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-            PowerMockito.whenNew(PrincipalSid.class).withArguments(anyString()).thenReturn(new PrincipalSid(anyString()));
-        } catch (Exception ignored) {
-        }
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         doThrow(new NotFoundException("fail found")).when(mutableAclService).updateAcl(any(MutableAcl.class));
@@ -96,10 +82,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test
     public void closeAllPermissionsToResourceOk() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-        } catch (Exception ignored) {
-        }
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         doNothing().when(mutableAclService).deleteAcl(any(ObjectIdentityImpl.class), anyBoolean());
@@ -110,10 +92,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test(expected = PermissionException.class)
     public void closeAllPermissionsToResourceFailFound() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-        } catch (Exception ignored) {
-        }
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         doThrow(new NotFoundException("fail found")).when(mutableAclService).deleteAcl(any(ObjectIdentityImpl.class), anyBoolean());
@@ -122,10 +100,6 @@ public class PermissionManagerServiceImplTest {
 
     @Test(expected = PermissionException.class)
     public void closeAllPermissionsToResourceFailAccess() {
-        try {
-            PowerMockito.whenNew(ObjectIdentityImpl.class).withArguments(any(), any()).thenReturn(new ObjectIdentityImpl(ResourceTemplate.class, 1L));
-        } catch (Exception ignored) {
-        }
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("not owner").when(formatter).sidFormatter(anyString());
         doNothing().when(mutableAclService).deleteAcl(any(ObjectIdentityImpl.class), anyBoolean());
