@@ -9,23 +9,23 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
-     * Save person
+     * Save user
      *
      * @param user to save.
-     * @return Person saved}
+     * @return User saved}
      */
     User save(User user);
 
     /**
-     * Find Person by email.
+     * Find User by email.
      *
-     * @param email person email.
-     * @return Person
+     * @param email user email.
+     * @return user {@link User}
      */
-    User findByEmail(String email);
+    Optional<User> findUserByEmail(String email);
 
     /**
-     * Method that check if person with this email already exist
+     * Method that check if user with this email already exist
      *
      * @param email
      * @author Mariia Shchur
@@ -33,13 +33,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsUserByEmail(String email);
 
     /**
-     * Method that check if person with this phone number already exist
+     * Method that check if user with this phone number already exist
      *
      * @param phone
      * @author Mariia Shchur
      */
     boolean existsUserByPhone(String phone);
-
-    Optional<User> findUserByEmail(String email);
-
 }

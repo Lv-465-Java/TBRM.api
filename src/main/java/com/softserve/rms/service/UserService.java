@@ -33,6 +33,19 @@ public interface UserService {
      */
     void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail);
 
-    User findByEmail(String email);
+    /**
+     * Method that allow you to get {@link User} by email.
+     *
+     * @param email a value of {@link String}
+     * @return {@link User}
+     */
+    User getUserByEmail(String email);
 
+    /**
+     * Method that allow you to get {@link User} by ID.
+     *
+     * @param id a value of {@link Long}
+     * @return {@link User}
+     */
+    User getById(long id);
 }
