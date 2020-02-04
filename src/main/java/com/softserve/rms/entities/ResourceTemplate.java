@@ -17,7 +17,6 @@ public class ResourceTemplate {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "person_id")
     private Person person;
 
     @OneToMany(mappedBy = "resourceTemplate")
