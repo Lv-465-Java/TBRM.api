@@ -10,19 +10,17 @@ import com.softserve.rms.dto.UserDto;;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.service.impl.AdminServiceImpl;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
 @RunWith(PowerMockRunner.class)
 public class AdminServiceTest {
     @Mock
