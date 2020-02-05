@@ -1,19 +1,29 @@
 package com.softserve.rms.config;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.awt.print.Pageable;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Configuration Swagger into TBRM project.
@@ -22,38 +32,54 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableSwagger2
+@Import(springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
-    /**
-     * Customizing the Docket bean.
-     *
-     * @return docket - {@code Docket}
-     */
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .useDefaultResponseMessages(false)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo())
-                .produces(Sets.newHashSet(MediaType.APPLICATION_JSON_VALUE))    //
-                .securitySchemes(Arrays.asList(apiKey()));
-    }
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("REST API")
-                .description("The REST API for demo swagger.").termsOfServiceUrl("")
-                .license("Apache License Version 2.0")
-                .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
-                .version("0.0.1")
-                .build();
+    @Bean
+    public Docket swaggerSpringfoxDocket() {
+
+
+        Docket docket =
+                new Docket(DocumentationType.SWAGGER_2)
+                        .pathMapping("/")
+                        .apiInfo(ApiInfo.DEFAULT)
+                        .forCodeGeneration(true)
+                        .genericModelSubstitutes(ResponseEntity.class)
+                        .ignoredParameterTypes(Pageable.class)
+                        .ignoredParameterTypes(java.sql.Date.class)
+                        .directModelSubstitute(java.time.LocalDate.class, java.sql.Date.class)
+                        .directModelSubstitute(java.time.ZonedDateTime.class, Date.class)
+                        .directModelSubstitute(java.time.LocalDateTime.class, Date.class)
+                        .securityContexts(Lists.newArrayList(securityContext()))
+                        .securitySchemes(Lists.newArrayList(apiKey()))
+                        .useDefaultResponseMessages(false);
+
+        docket = docket.select().apis(RequestHandlerSelectors.withClassAnnotation(RestController.class)).build();
+        return docket;
     }
 
     private ApiKey apiKey() {
-        return new ApiKey("token", "Authorization", "header");
+        return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
     }
 
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(this::include)
+                .build();
+    }
 
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope =
+                new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Lists.newArrayList(new SecurityReference("JWT", authorizationScopes));
+    }
+
+    private boolean include(String path) {
+        return !path.startsWith("/ownSecurity");
+    }
 }
