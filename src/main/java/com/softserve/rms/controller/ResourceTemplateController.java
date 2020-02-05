@@ -100,7 +100,7 @@ public class ResourceTemplateController {
             @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/resource-templates/{userId}")
+    @GetMapping("/resource-template/{userId}")
     public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
         LOG.info("Getting all Resource Templates by user ID: " + userId);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));

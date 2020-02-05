@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.ImmutableList;
 import com.softserve.rms.dto.UserDto;;
+import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
 import org.junit.Test;
@@ -25,18 +26,21 @@ public class AdminServiceTest {
     AdminRepository adminRepository;
     @InjectMocks
     AdminServiceImpl service;
+    Role role =new Role(1L,"admin");
+    User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role , null);
+    UserDto userDto = new UserDto(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role );
 
     @Test
     public void testFindAllMethodIsCall() {
         when(adminRepository.findAll()).thenReturn(ImmutableList.of());
-        List<User> users = service.findAll();
+        List<UserDto> users = service.findAll();
         verify(adminRepository).findAll();
     }
 
     @Test
     public void testFindUsersByStatusIsCall() {
         when(adminRepository.getAllByEnabled(anyBoolean())).thenReturn(ImmutableList.of());
-        List<User> users = service.findUsersByStatus(anyBoolean());
+        List<UserDto> users = service.findUsersByStatus(anyBoolean());
         verify(adminRepository).getAllByEnabled(anyBoolean());
     }
 
@@ -63,10 +67,12 @@ public class AdminServiceTest {
 
     @Test
     public void testFindAllNotNull() {
+        List<UserDto> userDtos = new ArrayList<>();
         List<User> users = new ArrayList<>();
-        users.add(new User());
-        when(service.findAll()).thenReturn(users);
-        assertFalse(service.findAll().isEmpty());
+        users.add(user);
+        userDtos.add(userDto);
+        when(adminRepository.findAll()).thenReturn(users);
+        assertEquals(userDtos,service.findAll());
     }
 
     @Test
@@ -77,9 +83,11 @@ public class AdminServiceTest {
 
     @Test
     public void testFindUsersByStatusNotNull() {
+        List<UserDto> userDtos = new ArrayList<>();
         List<User> users = new ArrayList<>();
-        users.add(new User());
-        when(service.findUsersByStatus(anyBoolean())).thenReturn(users);
-        assertFalse(service.findUsersByStatus(anyBoolean()).isEmpty());
+        users.add(user);
+        userDtos.add(userDto);
+        when(adminRepository.getAllByEnabled(false)).thenReturn(users);
+        assertEquals(userDtos,service.findUsersByStatus(false));
     }
 }
