@@ -76,12 +76,10 @@ public class TokenManagementServiceTest {
     }
 
     @Test
-    @Ignore
+
     public void validateTokenTest() {
-        when(tokenManagementService.validateToken(anyString())).thenReturn(anyBoolean());
-        boolean valid = tokenManagementService.validateToken(anyString());//"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYWFAdWtyLm5ldCIsImlhdCI6MTU4MDgyNDk3OCwiZXhwIjoxNTgwODI1MDc4fQ.aBEH7mjXYt7-pCvrPsdx2sMG50v-xKxdexqxFft5mJE");
-        //TODO
-        Assert.assertTrue(true);
+        boolean valid = tokenManagementService.validateToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYWFAdWtyLm5ldCIsImlhdCI6MTU4MDg5NzQ5NywiZXhwIjoxNTg2MDgxNDk3fQ.NxL2kXGRkZJe3uHvf1nL5tYSK0kLjT15hFdLfn8OU3M");
+        Assert.assertTrue(valid);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.softserve.rms.security;
 
+import com.amazonaws.services.kms.model.DisabledException;
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.entities.User;
@@ -47,10 +48,13 @@ public class AuthenticationService implements Message {
      */
     public JwtDto loginUser(LoginUser loginUser){
         LOGGER.info("user login info - {}", loginUser);
+
         User user =userService.getUserByEmail(loginUser.getEmail());
 
         if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
-
+            if (!user.isEnabled()){
+                throw new DisabledException("Your account is not active");
+            }
             return tokenManagementService.generateTokenPair(loginUser.getEmail());
 
         } else {
