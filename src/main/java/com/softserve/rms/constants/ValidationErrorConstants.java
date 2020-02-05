@@ -10,7 +10,9 @@ public enum ValidationErrorConstants {
 
     private String message;
     ValidationErrorConstants(String message) {
+        this.message=message;
     }
+
     public String getMessage() {
         return message;
     }
