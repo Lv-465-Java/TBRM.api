@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AdminService extends BaseService<User, UserDto> {
 
-    List<User> findUsersByStatus(boolean status);
+    List<UserDto> findUsersByStatus(boolean status);
 
     void editUserRole(UserDtoRole userDto, Long id);
 

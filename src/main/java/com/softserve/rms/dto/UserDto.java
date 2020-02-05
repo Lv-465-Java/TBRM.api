@@ -9,12 +9,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    private Long id;
     private String firstName;
-    private boolean enabled;
-    private Role role;
     private String lastName;
     private String email;
     private String phone;
     private String password;
+    private boolean enabled;
+    private Role role;
+
+
+
+
 
 }

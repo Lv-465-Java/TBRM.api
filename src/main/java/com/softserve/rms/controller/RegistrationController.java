@@ -1,10 +1,13 @@
 package com.softserve.rms.controller;
 
 
+import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.UserService;
 import com.softserve.rms.service.implementation.UserValidationServiceImpl;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +39,10 @@ public class RegistrationController {
      * @return ResponseEntity
      * @author Mariia Shchur
      */
-
+    @ApiResponses(value = {
+            @ApiResponse(code = 201,message = HttpStatuses.CREATED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @PostMapping("/registration")
     public ResponseEntity createUser( @RequestBody RegistrationDto registrationDto) {
         userService.save(validateService.validate(registrationDto));

@@ -4,6 +4,7 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -43,7 +44,9 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Override
     public void save(RegistrationDto registrationDto) {
+        Role role = new Role(5L,"ROLE_GUEST");
         User user = modelMapper.map(registrationDto, User.class);
+        user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (userRepository.save(user)==null) {
             throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
@@ -76,9 +79,7 @@ public class UserServiceImpl implements UserService, Message {
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
         User user = userRepository.findUserByEmail(currentUserEmail)
                 .orElseThrow(()-> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPassword(passwordEditDto.getPassword());
         userRepository.save(user);
     }
 

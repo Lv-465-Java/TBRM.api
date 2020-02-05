@@ -1,7 +1,10 @@
 package com.softserve.rms.controller;
 
+import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.FileStorageDto;
 import com.softserve.rms.service.implementation.FileStorageServiceImpl;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,12 @@ public class RegistratorController {
      * @param file to save.
      * @return url of the saved file.
      */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @PostMapping("/uploadFile")
     public ResponseEntity<String> uploadFile(@RequestPart(value = "file") MultipartFile file) {
         return  ResponseEntity.status(HttpStatus.OK).
@@ -39,6 +48,12 @@ public class RegistratorController {
      * @param file to save.
      * @return url of the updated file.
      */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @PutMapping("{resourceId}/updateFile/")
     public ResponseEntity<String> updateFile(@RequestPart(value = "file") MultipartFile file,
                                              @PathVariable long resourceId) {
@@ -51,6 +66,12 @@ public class RegistratorController {
      *
      * @param fileStorageDto file's url to delete.
      */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @DeleteMapping("{resourceId}/deleteFile")
     public ResponseEntity deleteFile(@RequestBody FileStorageDto fileStorageDto,
                                      @PathVariable long resourceId) {

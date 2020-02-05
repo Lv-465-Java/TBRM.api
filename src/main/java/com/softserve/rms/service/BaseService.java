@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface BaseService<T, D> {
 
-    List<T> findAll() ;
+    List<D> findAll() ;
 
     Optional<T> findById(Long id);
 
