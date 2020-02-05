@@ -38,6 +38,7 @@ public class SwaggerConfig {
 
         Docket docket =
                 new Docket(DocumentationType.SWAGGER_2)
+                        .useDefaultResponseMessages(false)
                         .pathMapping("/")
                         .apiInfo(ApiInfo.DEFAULT)
                         .forCodeGeneration(true)

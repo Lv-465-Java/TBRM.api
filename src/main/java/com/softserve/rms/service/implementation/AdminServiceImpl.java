@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -29,8 +30,11 @@ public class AdminServiceImpl implements AdminService {
      * @author Ivan Syniuk
      */
     @Override
-    public List<User> findAll() {
-        return adminRepository.findAll();
+    public List<UserDto> findAll() {
+        List<User> users = adminRepository.findAll();
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -40,8 +44,11 @@ public class AdminServiceImpl implements AdminService {
      * @author Ivan Syniuk
      */
     @Override
-    public List<User> findUsersByStatus(boolean status) {
-        return adminRepository.getAllByEnabled(status);
+    public List<UserDto> findUsersByStatus(boolean status) {
+        List<User> users = adminRepository.getAllByEnabled(status);
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
     /**

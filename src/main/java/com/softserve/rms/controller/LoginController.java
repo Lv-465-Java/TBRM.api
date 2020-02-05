@@ -1,10 +1,13 @@
 package com.softserve.rms.controller;
 
+import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.security.AuthenticationService;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.service.UserService;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +57,10 @@ public class LoginController {
      * @param loginUser - {@link LoginUser} that have email and password.
      * @return {@link ResponseEntity}
      */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @PostMapping("/authentication")
     public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response){
 
@@ -69,6 +76,10 @@ public class LoginController {
      *
      * @return {@link ResponseEntity}
      */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
 
