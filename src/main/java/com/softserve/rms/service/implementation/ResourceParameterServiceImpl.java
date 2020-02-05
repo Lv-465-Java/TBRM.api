@@ -68,7 +68,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO)
             throws NotFoundException, NotUniqueNameException {
         ResourceParameter resourceParameter = new ResourceParameter();
-        resourceParameter.setName(getValidName(parameterDTO.getName()));
+        resourceParameter.setName(parameterDTO.getName());
         resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null ||
@@ -106,22 +106,6 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
         //TODO
         return "pattern for double";
-    }
-
-    /**
-     * Method checks whether parameter name is valid.
-     *
-     * @param parameterName String {@link ResourceParameter} name
-     * @return String validName
-     * @throws NotUniqueNameException if the resource parameter with provided name exists
-     * @author Andrii Bren
-     */
-    private String getValidName(String parameterName) throws NotUniqueNameException {
-        if (resourceParameterRepository.findByName(parameterName).isPresent()) {
-            throw new NotUniqueNameException(
-                    ErrorMessage.RESOURCE_PARAMETER_IS_ALREADY_EXISTED.getMessage() + parameterName);
-        }
-        return parameterName;
     }
 
     /**
