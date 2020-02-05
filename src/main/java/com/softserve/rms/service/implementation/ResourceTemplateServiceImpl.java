@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -11,14 +12,17 @@ import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublished
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +38,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final UserRepository userRepository;
     private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
+    private PermissionManagerService permissionManagerService;
 
     /**
      * Constructor with parameters.
@@ -42,9 +47,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
-                                       UserRepository userRepository) {
+                                       UserRepository userRepository,
+                                       PermissionManagerService permissionManagerService) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userRepository = userRepository;
+        this.permissionManagerService = permissionManagerService;
     }
 
     /**
@@ -64,7 +71,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setUser(userRepository.getOne(resourceTemplateSaveDTO.getUserId()));
         resourceTemplate.setIsPublished(false);
-        resourceTemplateRepository.save(resourceTemplate);
+        Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, principal.getName(), "write", true), principal);
+        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
@@ -147,6 +157,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public void deleteById(Long id) throws NotFoundException {
         try {
             resourceTemplateRepository.deleteById(id);
+            Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+            permissionManagerService.closeAllPermissionsToResource(id, principal);
         } catch (EmptyResultDataAccessException ex) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
