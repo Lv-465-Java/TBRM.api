@@ -130,6 +130,9 @@ public class ResourceTemplateServiceTest {
 
     @Test
     public void testDeleteById() {
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
+        doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
         resourceTemplateService.deleteById(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }

@@ -12,8 +12,13 @@ import java.util.Optional;
 @Repository
 public interface ResourceTemplateRepository extends JpaRepository<ResourceTemplate, Long> {
 
+
+
     @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', read)")
     Optional<ResourceTemplate> findById(Long id);
+
+    @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', write)")
+    void deleteById(Long id);
 
     @PostFilter("hasPermission(filterObject, 'read')")
     List<ResourceTemplate> findAll();

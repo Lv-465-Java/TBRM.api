@@ -157,6 +157,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public void deleteById(Long id) throws NotFoundException {
         try {
             resourceTemplateRepository.deleteById(id);
+            Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+            permissionManagerService.closeAllPermissionsToResource(id, principal);
         } catch (EmptyResultDataAccessException ex) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
