@@ -20,6 +20,9 @@ import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
@@ -37,6 +40,12 @@ public class ResourceTemplateServiceTest {
     private ResourceTemplateRepository resourceTemplateRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PermissionManagerServiceImpl permissionManagerService;
+    @Mock
+    Authentication authentication;
+    @Mock
+    SecurityContext securityContext;
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, role, Collections.emptyList());
@@ -50,12 +59,17 @@ public class ResourceTemplateServiceTest {
 
     @Before
     public void initializeMock() {
-        mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userRepository));
+        mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userRepository, permissionManagerService));
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
     }
 
     @Test
     public void testSaveResourceTemplate() {
         when(userRepository.getOne(anyLong())).thenReturn(user);
+        when(resourceTemplateRepository.saveAndFlush(any())).thenReturn(resourceTemplate);
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         assertEquals(resourceTemplateDTO, resourceTemplateService.save(resourceTemplateSaveDTO));
     }
 
@@ -116,6 +130,9 @@ public class ResourceTemplateServiceTest {
 
     @Test
     public void testDeleteById() {
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
+        doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
         resourceTemplateService.deleteById(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }

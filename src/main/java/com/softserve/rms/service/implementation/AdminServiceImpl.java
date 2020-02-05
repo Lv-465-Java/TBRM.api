@@ -7,6 +7,7 @@ import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.service.AdminService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@PreAuthorize("hasRole('ADMIN')")
 @Service
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
