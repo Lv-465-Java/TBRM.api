@@ -74,11 +74,11 @@ public interface ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
      *
-     * @param body map containing String key and String value
+     * @param searchedWord request parameter to search resource templates
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body);
+    List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord);
 
     /**
      * Method finds  {@link ResourceTemplate} by provided id.

@@ -79,7 +79,8 @@ public class UserServiceImpl implements UserService, Message {
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
         User user = userRepository.findUserByEmail(currentUserEmail)
                 .orElseThrow(()-> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        user.setPassword(passwordEncoder.encode(passwordEditDto.getPassword()));
         userRepository.save(user);
     }
 

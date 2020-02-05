@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,9 +81,8 @@ public class LoginController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> refresh(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
 
-        String refresh=tokenManagementService.resolveRefreshToken(request);
         JwtDto newToken = tokenManagementService.refreshTokens(refresh);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX + newToken.getAccessToken());
         response.setHeader(REFRESH_HEADER, newToken.getRefreshToken());

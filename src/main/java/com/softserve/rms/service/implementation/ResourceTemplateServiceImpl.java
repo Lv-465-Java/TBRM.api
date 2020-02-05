@@ -167,13 +167,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
      *
-     * @param body map containing String key and String value
+     * @param searchedWord request parameter to search resource templates
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(Map<String, String> body) {
-        String searchedWord = body.get("search");
+    public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.
                 findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
         return resourceTemplates.stream()
