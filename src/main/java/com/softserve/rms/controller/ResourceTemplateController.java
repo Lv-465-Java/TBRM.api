@@ -100,7 +100,7 @@ public class ResourceTemplateController {
             @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/resource-template/{userId}")
+    @GetMapping("/resource-templates/{userId}")
     public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
         LOG.info("Getting all Resource Templates by user ID: " + userId);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
@@ -149,7 +149,7 @@ public class ResourceTemplateController {
     /**
      * The controller which searches all {@link ResourceTemplateDTO} by name or description.
      *
-     * @param body map containing String key and String value
+     * @param searchedWord request parameter to search resource templates
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
@@ -159,10 +159,10 @@ public class ResourceTemplateController {
             @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/search-resource-template")
-    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestBody Map<String, String> body) {
-        LOG.info("Search a Resource Template by name or description contains: " + body.get("search"));
+    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord) {
+        LOG.info("Search a Resource Template by name or description contains: " + searchedWord);
         return ResponseEntity.status(HttpStatus.OK).body
-                (resourceTemplateService.searchByNameOrDescriptionContaining(body));
+                (resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
     }
 
     /**
