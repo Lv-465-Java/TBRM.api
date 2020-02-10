@@ -193,39 +193,52 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
-    /**
-     * Method makes {@link ResourceTemplate} be published.
-     *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-     * @throws ResourceTemplateIsPublishedException if resource template has been published already
-     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
-     * @author Halyna Yatseniuk
-     */
-    @Override
-    public Boolean publishResourceTemplate(Long id, Map<String, Object> body)
-            throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
-        //TODO Create table method + checking of map parameters
+
+//    /**
+//     * Method makes {@link ResourceTemplate} be published.
+//     *
+//     * @param id of {@link ResourceTemplateDTO}
+//     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+//     * @throws ResourceTemplateIsPublishedException if resource template has been published already
+//     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+//     * @author Halyna Yatseniuk
+//     */
+
+    public void checkSomething(Long id, Map<String, Object> body) {
         ResourceTemplate resourceTemplate = findEntityById(id);
+        if (body.get("isPublished").equals(true)) {
+            publishResourceTemplate(resourceTemplate);
+        } else if (body.get("isPublished").equals(false)) {
+            unPublishResourceTemplate(resourceTemplate);
+        }
+    }
+
+
+    @Override
+    public Boolean publishResourceTemplate(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
+            //create table
         }
-        return findEntityById(id).getIsPublished();
+        return findEntityById(resourceTemplate.getId()).getIsPublished();
     }
 
     /**
      * Method cancels {@link ResourceTemplate} publish.
+     * <p>
+     * //     * @param id of {@link ResourceTemplateDTO}
      *
-     * @param id of {@link ResourceTemplateDTO}
      * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @author Halyna Yatseniuk
      */
-    public Boolean unPublishResourceTemplate(Long id) {
-        ResourceTemplate resourceTemplate = findEntityById(id);
+    public Boolean unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
+        //verifications
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
-        return !findEntityById(id).getIsPublished();
+        //drop table
+        return !findEntityById(resourceTemplate.getId()).getIsPublished();
     }
 
     /**

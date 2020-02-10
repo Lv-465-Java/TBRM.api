@@ -41,10 +41,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 201,message = HttpStatuses.CREATED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/")
     public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateSaveDTO templateDTO) {
@@ -60,10 +60,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/{id}")
     public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
@@ -78,9 +78,9 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/")
     public ResponseEntity<List<ResourceTemplateDTO>> getAll() {
@@ -96,10 +96,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/user/{id}")
     public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
@@ -116,10 +116,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PatchMapping("/{id}")
     public ResponseEntity<ResourceTemplateDTO> updateById(@PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -135,10 +135,10 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable Long id) {
@@ -155,9 +155,9 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/search")
     public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord) {
@@ -174,15 +174,16 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/{id}/publish")
     public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Publish a Resource Template by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
+        resourceTemplateService.checkSomething(id, body);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 //    /**
