@@ -99,7 +99,7 @@ public interface ResourceTemplateService {
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-    Boolean publishResourceTemplate(Long id);
+    Boolean publishResourceTemplate(Long id, Map<String, Object> body);
 
     /**
      * Method cancels {@link ResourceTemplate} publish.

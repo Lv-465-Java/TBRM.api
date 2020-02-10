@@ -203,8 +203,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public Boolean publishResourceTemplate(Long id)
+    public Boolean publishResourceTemplate(Long id, Map<String, Object> body)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
+        //TODO Create table method + checking of map parameters
         ResourceTemplate resourceTemplate = findEntityById(id);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
