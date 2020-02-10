@@ -6,7 +6,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.softserve.rms.dto.FileStorageDto;
 import com.softserve.rms.entities.S3BucketTest;
 import com.softserve.rms.repository.S3BucketTestRepository;
 import com.softserve.rms.service.FileStorageService;
@@ -22,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
@@ -68,7 +68,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     /**
      * Method that convert MultipartFile to File
      *
-     * @param  multipartFile
+     * @param multipartFile
      * @return File
      * @author Mariia Shchur
      */
@@ -78,17 +78,6 @@ public class FileStorageServiceImpl implements FileStorageService {
         fos.write(multipartFile.getBytes());
         fos.close();
         return convFile;
-    }
-
-    /**
-     * Method that generate unique name for file
-     *
-     * @param multiPart
-     * @return String
-     * @author Mariia Shchur
-     */
-    private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
     }
 
     /**
@@ -113,7 +102,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         String fileUrl = "";
         try {
             File file = convertMultiPartToFile(multipartFile);
-            String fileName = generateFileName(multipartFile);
+            String fileName = UUID.randomUUID().toString();
             fileUrl = endpointUrl + fileName;
             //TODO change it to s3BucketTestRepository generated tableNameRepository from dynamic db
             //TODO change S3BucketTest to our table entity (with fileName field)
@@ -135,20 +124,21 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Transactional
     public String updateFile(MultipartFile multipartFile, Long resourceId) {
         String fileUrl = "";
-        try{
-        File file = convertMultiPartToFile(multipartFile);
-        String fileName = generateFileName(multipartFile);
+        try {
+            File file = convertMultiPartToFile(multipartFile);
+            String fileName = UUID.randomUUID().toString();
             fileUrl = endpointUrl + fileName;
             //TODO change it to s3BucketTestRepository generated tableNameRepository from dynamic db
             //TODO change S3BucketTest to our table entity (with fileName field)
             Optional<S3BucketTest> q = s3BucketTestRepository.findById(resourceId);
-            s3client.deleteObject(bucketName,q.get().getFileName());
+            s3client.deleteObject(bucketName, q.get().getFileName());
             s3BucketTestRepository.save(S3BucketTest.builder().id(resourceId).
                     fileName(fileName).build());
             uploadFileTos3bucket(fileName, file);
             file.delete();
         } catch (Exception e) {
-            e.printStackTrace();}
+            e.printStackTrace();
+        }
         return fileUrl;
 
     }
@@ -160,13 +150,11 @@ public class FileStorageServiceImpl implements FileStorageService {
      */
     @Override
     @Transactional
-    public void deleteFile(FileStorageDto fileStorageDto, Long resourceId) {
-        String fileName = fileStorageDto.getFileUrl().
-                substring(fileStorageDto.getFileUrl().lastIndexOf("/") + 1);
+    public void deleteFile(Long resourceId) {
+        s3client.deleteObject(bucketName,
+                s3BucketTestRepository.findById(resourceId).get().getFileName());
         //TODO change it to s3BucketTestRepository generated tableNameRepository from dynamic db
         s3BucketTestRepository.save(S3BucketTest.builder().id(resourceId).
                 fileName(null).build());
-        s3client.deleteObject(bucketName, fileName);
-
     }
 }

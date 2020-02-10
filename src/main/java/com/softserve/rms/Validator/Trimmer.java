@@ -2,7 +2,9 @@ package com.softserve.rms.Validator;
 
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
+import org.springframework.stereotype.Service;
 
+@Service
 public class Trimmer {
 
     /**

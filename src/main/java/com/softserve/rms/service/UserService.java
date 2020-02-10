@@ -1,5 +1,6 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
@@ -48,4 +49,12 @@ public interface UserService {
      * @return {@link User}
      */
     User getById(long id);
+
+    /**
+     * Method update user's email.
+     *
+     * @param emailEditDto {@link EmailEditDto},currentUserEmail
+     * @author Mariia Shchur
+     */
+    void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
 }

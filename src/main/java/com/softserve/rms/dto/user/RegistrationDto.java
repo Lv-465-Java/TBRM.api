@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
@@ -31,15 +30,17 @@ public class RegistrationDto implements Serializable {
             message = ValidationErrorConstants.INVALID_LASTNAME)
     private String lastName;
 
-    @EmailExist
     @NotBlank(message =ValidationErrorConstants.EMPTY_EMAIL )
-    @Email(message = ValidationErrorConstants.INVALID_EMAIL)
+    @Pattern(regexp = ValidationPattern.EMAIL_PATTERN,
+            message = ValidationErrorConstants.INVALID_EMAIL)
+    @EmailExist
     private String email;
 
-    @PhoneExist
+
     @NotBlank(message = ValidationErrorConstants.EMPTY_PHONE)
     @Pattern(regexp = ValidationPattern.PHONE_PATTERN,
             message = ValidationErrorConstants.INVALID_PHONE)
+    @PhoneExist
     private String phone;
 
     @NotEmpty(message = ValidationErrorConstants.EMPTY_PASSWORD)

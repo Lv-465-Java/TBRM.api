@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -16,7 +15,7 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEditDto {
-    @NotBlank(message =  ValidationErrorConstants.EMPTY_FIRSTNAME)
+    @NotBlank(message = ValidationErrorConstants.EMPTY_FIRSTNAME)
     @Pattern(regexp = ValidationPattern.NAME_PATTERN,
             message = ValidationErrorConstants.INVALID_FIRSTNAME)
     private String firstName;
@@ -25,10 +24,6 @@ public class UserEditDto {
     @Pattern(regexp = ValidationPattern.NAME_PATTERN,
             message = ValidationErrorConstants.INVALID_LASTNAME)
     private String lastName;
-
-//    @NotBlank(message = "Email may not be blank")
-//    @Email(message = ValidationErrorConstants.INVALID_EMAIL)
-//    private String email;
 
     @PhoneExist
     @NotBlank(message = ValidationErrorConstants.EMPTY_PHONE)

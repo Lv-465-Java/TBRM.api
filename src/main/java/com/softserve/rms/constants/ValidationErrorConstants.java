@@ -7,7 +7,6 @@ public interface ValidationErrorConstants {
     String INVALID_PHONE="Phone number is invalid";
     String INVALID_PASSWORD="Password must contain at least eight characters and at least one character of "
             + " uppercase letter, lowercase letter, digit, special character";
-   // String EMPTY_FIELD=" %s may not be blank";
     String EMPTY_LASTNAME="Last name may not be blank";
     String EMPTY_FIRSTNAME="First name may not be blank";
     String EMPTY_EMAIL="Email may not be blank";

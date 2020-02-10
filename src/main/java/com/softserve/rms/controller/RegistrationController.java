@@ -23,7 +23,6 @@ import javax.validation.Valid;
 @RestController
 public class RegistrationController {
     private UserService userService;
-    private UserValidationServiceImpl validateService;
     private Trimmer trimmer;
 
     /**
@@ -33,11 +32,9 @@ public class RegistrationController {
      */
     @Autowired
     public RegistrationController(UserService userService,
-                                  UserValidationServiceImpl validateService,
                                   Trimmer trimmer) {
         this.userService = userService;
-        this.validateService = validateService;
-        this.trimmer = trimmer;
+        this.trimmer=trimmer;
     }
 
     /**

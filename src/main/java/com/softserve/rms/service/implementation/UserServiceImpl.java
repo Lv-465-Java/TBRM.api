@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class UserServiceImpl implements UserService, Message {
@@ -80,11 +82,28 @@ public class UserServiceImpl implements UserService, Message {
         User user = userRepository.findUserByEmail(currentUserEmail)
                 .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
         if (!passwordEncoder.matches(passwordEditDto.getOldPassword(), user.getPassword())) {
-            throw new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
         user.setPassword(passwordEncoder.encode(passwordEditDto.getNewPassword()));
         userRepository.save(user);
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void editEmail(EmailEditDto emailEditDto, String currentUserEmail) {
+        User user = userRepository.findUserByEmail(currentUserEmail)
+                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
+        if (!passwordEncoder.matches(emailEditDto.getPassword(), user.getPassword())) {
+            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+        }
+        user.setEmail(emailEditDto.getEmail());
+        userRepository.save(user);
+    }
+
 
     /**
      * Method that allow you to get {@link User} by email.

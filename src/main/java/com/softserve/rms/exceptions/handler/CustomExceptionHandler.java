@@ -3,7 +3,6 @@ package com.softserve.rms.exceptions.handler;
 import com.softserve.rms.exceptions.*;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.exceptions.NotFoundException;
-import com.softserve.rms.exceptions.user.ValidationExceptionDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
