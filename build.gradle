@@ -54,7 +54,7 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
     compile group: 'org.jooq', name: 'jooq', version: '3.12.3'
     compile group: 'org.jooq', name: 'jooq-meta', version: '3.12.4'
-//    compile group: 'org.jooq', name: 'jooq-codegen', version: '3.12.4'
+    compile group: 'org.jooq', name: 'jooq-codegen', version: '3.12.4'
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
