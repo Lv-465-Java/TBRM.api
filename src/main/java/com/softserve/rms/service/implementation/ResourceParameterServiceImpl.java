@@ -44,6 +44,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
 
+
     /**
      * Constructor with parameters
      *
@@ -65,8 +66,9 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     @Transactional
-    public ResourceParameterDTO save(ResourceParameterSaveDTO parameterDTO)
+    public ResourceParameterDTO save(Long id, ResourceParameterSaveDTO parameterDTO)
             throws NotFoundException, NotUniqueNameException {
+
         ResourceParameter resourceParameter = new ResourceParameter();
         resourceParameter.setName(parameterDTO.getName());
         resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
@@ -77,7 +79,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
         resourceParameter.setResourceTemplate(
-                resourceTemplateService.findEntityById(parameterDTO.getResourceTemplateId()));
+                resourceTemplateService.findEntityById(id));
 
         resourceParameterRepository.save(resourceParameter);
 
@@ -115,9 +117,12 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     @Transactional
-    public ResourceParameterDTO update(Long id, ResourceParameterSaveDTO parameterDTO)
+    public ResourceParameterDTO update(Long id, Long parameterId, ResourceParameterSaveDTO parameterDTO)
             throws NotFoundException, NotUniqueNameException {
-        ResourceParameter resourceParameter = findById(id);
+
+        resourceTemplateService.findEntityById(id);
+
+        ResourceParameter resourceParameter = findById(parameterId);
         resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
@@ -166,17 +171,17 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         return resourceTemplate;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @author Andrii Bren
-     */
-    @Override
-    public List<ResourceParameterDTO> findAll() {
-        return modelMapper.map(resourceParameterRepository.findAll(),
-                new TypeToken<List<ResourceParameterDTO>>() {
-                }.getType());
-    }
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @author Andrii Bren
+//     */
+//    @Override
+//    public List<ResourceParameterDTO> findAll() {
+//        return modelMapper.map(resourceParameterRepository.findAll(),
+//                new TypeToken<List<ResourceParameterDTO>>() {
+//                }.getType());
+//    }
 
     /**
      * Method find {@link ResourceParameter} by id.
@@ -198,8 +203,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceParameterDTO findByIdDTO(Long id) throws NotFoundException {
-        return modelMapper.map(findById(id),
+    public ResourceParameterDTO findByIdDTO(Long id, Long parameterId) throws NotFoundException {
+        return modelMapper.map(findById(parameterId),
                 ResourceParameterDTO.class);
     }
 
@@ -225,13 +230,15 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     @Transactional
-    public void delete(Long id) throws NotDeletedException {
+    public void delete(Long id, Long parameterId) throws NotDeletedException {
+        resourceTemplateService.findEntityById(id);
         try {
-            resourceParameterRepository.deleteById(id);
+            resourceParameterRepository.deleteById(parameterId);
         } catch (EmptyResultDataAccessException ex) {
             throw new NotDeletedException(
-                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_DELETE_BY_ID.getMessage() + id);
+                    ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_DELETE_BY_ID.getMessage() + parameterId);
         }
     }
+
 
 }
