@@ -92,21 +92,25 @@ public interface ResourceTemplateService {
 
     /**
      * Method makes {@link ResourceTemplate} be published.
+     * <p>
+     * //     * @param id of {@link ResourceTemplateDTO}
      *
-     * @param id of {@link ResourceTemplateDTO}
      * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @throws ResourceTemplateIsPublishedException if resource template has been published already
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-    Boolean publishResourceTemplate(Long id);
+    Boolean publishResourceTemplate(ResourceTemplate resourceTemplate);
 
     /**
      * Method cancels {@link ResourceTemplate} publish.
+     * <p>
+     * //     * @param id of {@link ResourceTemplateDTO}
      *
-     * @param id of {@link ResourceTemplateDTO}
      * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @author Halyna Yatseniuk
      */
-    Boolean unPublishResourceTemplate(Long id);
+    Boolean unPublishResourceTemplate(ResourceTemplate resourceTemplate);
+
+    void checkSomething(Long id, Map<String, Object> body);
 }
