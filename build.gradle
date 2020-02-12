@@ -1,9 +1,12 @@
+import groovy.xml.MarkupBuilder
+
 plugins {
     id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
     id 'jacoco'
     id 'com.github.kt3k.coveralls' version "2.9.0"
+    id 'nu.studer.jooq' version '4.1'
 }
 
 group = 'com.softserve'
@@ -34,7 +37,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-acl'
     implementation 'org.springframework.security:spring-security-config'
+    implementation 'org.jooq:jooq'
     implementation 'org.springframework:spring-context-support'
+//    implementation 'org.springframework.boot:spring-boot-starter-jooq'
     implementation 'net.sf.ehcache:ehcache-core:2.6.11'
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     compileOnly 'org.projectlombok:lombok'
@@ -52,13 +57,73 @@ dependencies {
     compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.10'
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
-    compile group: 'org.jooq', name: 'jooq', version: '3.12.3'
-    compile group: 'org.jooq', name: 'jooq-meta', version: '3.12.4'
-    compile group: 'org.jooq', name: 'jooq-codegen', version: '3.12.4'
+//    compile 'org.jooq:jooq'
+    jooqRuntime 'postgresql:postgresql:9.1-901.jdbc4'
+//    compile group: 'org.jooq', name: 'jooq', version: '3.12.3'
+//    compile group: 'org.jooq', name: 'jooq-meta', version: '3.12.4'
+//    compile group: 'org.jooq', name: 'jooq-codegen', version: '3.12.4'
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
 }
+
+// Use your favourite XML builder to construct the code generation configuration file
+// ----------------------------------------------------------------------------------
+//def writer = new StringWriter()
+//def xml = new MarkupBuilder(writer)
+//        .configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.12.0.xsd') {
+jooq {
+    sample(sourceSets.main) {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = '${DATASOURCE_URL}'
+            user = '${DATASOURCE_USER}'
+            password = '${DATASOURCE_PASSWORD}'
+        }
+        generator {
+            name = 'org.jooq.codegen.DefaultGenerator'
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+            }
+
+            // Watch out for this caveat when using MarkupBuilder with "reserved names"
+            // - https://github.com/jOOQ/jOOQ/issues/4797
+            // - http://stackoverflow.com/a/11389034/521799
+            // - https://groups.google.com/forum/#!topic/jooq-user/wi4S9rRxk4A
+            generate {
+                pojos = true
+                daos = true
+            }
+            target {
+                packageName = 'com.softserve.rms.database'
+//                directory = 'src/main/java'
+            }
+        }
+    }
+}
+
+tasks.generateSampleJooqSchemaSource.with {
+    def out = new ByteArrayOutputStream()
+    javaExecSpec = { JavaExecSpec s ->
+        s.standardOutput = out
+        s.errorOutput = out
+        s.ignoreExitValue = true
+        s.jvmArgs '-Xmx512M'
+    }
+    execResultHandler = { ExecResult r ->
+        if (r.exitValue != 0) {
+            throw new RuntimeException('jOOQ source code generation failed:\n\n' + out.toString())
+        }
+    }
+}
+
+
+// Run the code generator
+// ----------------------
+//org.jooq.codegen.GenerationTool.generate(writer.toString())
+//org.jooq.util.GenerationTool.generate(
+//        javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
+//)
 
 test {
     useJUnit()

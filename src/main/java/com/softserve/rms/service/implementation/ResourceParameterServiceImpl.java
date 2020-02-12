@@ -20,6 +20,7 @@ import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.RangeIntegerPatternGenerator;
 import com.softserve.rms.util.Validator;
+import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
 
 
+    private DSLContext dslContext;
+
     /**
      * Constructor with parameters
      *
@@ -53,10 +56,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     @Autowired
     public ResourceParameterServiceImpl(ResourceParameterRepository resourceParameterRepository,
                                         ResourceTemplateService resourceTemplateService,
-                                        ResourceRelationRepository resourceRelationRepository) {
+                                        ResourceRelationRepository resourceRelationRepository, DSLContext dslContext) {
         this.resourceParameterRepository = resourceParameterRepository;
         this.resourceTemplateService = resourceTemplateService;
         this.resourceRelationRepository = resourceRelationRepository;
+        this.dslContext = dslContext;
     }
 
     /**
@@ -228,6 +232,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      *
      * @author Andrii Bren
      */
+//    @Override
+//    @Transactional
+//    public void delete(Long id, Long parameterId) throws NotDeletedException {
+//        dslContext.select().where()
+//    }
     @Override
     @Transactional
     public void delete(Long id, Long parameterId) throws NotDeletedException {

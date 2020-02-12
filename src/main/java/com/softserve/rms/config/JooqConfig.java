@@ -5,6 +5,7 @@ import org.jooq.ExecuteListener;
 import org.jooq.SQLDialect;
 import org.jooq.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 
 @Configuration
+@EnableAutoConfiguration
 public class JooqConfig {
 
     @Autowired
@@ -44,7 +46,7 @@ public class JooqConfig {
         return new ExceptionTranslator();
     }
 
-    class ExceptionTranslator extends DefaultExecuteListener {
+    static class ExceptionTranslator extends DefaultExecuteListener {
 
         public void exception(ExecuteContext context) {
             SQLDialect dialect = context.configuration().dialect();
