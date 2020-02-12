@@ -20,48 +20,6 @@ public class Source {
     @Value("${spring.datasource.password}")
     private String postgresPassword;
 
-//    @Bean
-//    @ConfigurationProperties(prefix = "spring.datasource")
-//    public DataSource myDataSource() {
-//        return DataSourceBuilder
-//                .create()
-//                .driverClassName("org.postgresql.Driver")
-//                .url("${spring.datasource.url}")
-//                .username("${spring.datasource.username}")
-//                .password("${spring.datasource.password}")
-//                .build();
-
-//        PGSimpleDataSource dataSource = new PGSimpleDataSource();
-//        dataSource.setDatabaseName("tbrm");
-//        dataSource.setServerName("localhost");
-//        dataSource.setUser("postgres");
-//        dataSource.setPassword("root");
-//        return dataSource;
-
-//        Driver sqlDriver = new Driver();
-//        return new DataSource(sqlDriver,
-//                "jdbc:mysql://localhost:3306/lv326?useSSL=false", "root", "root");
-
-//    }
-//    @Bean
-//    @ConfigurationProperties(prefix = "spring.datasource")
-//    public DataSource myDataSource() {
-//        return DataSourceBuilder.create().build();
-//    }
-
-//    @Bean
-//    @Primary
-//    @ConfigurationProperties("spring.datasource")
-//    public HikariDataSource dataSource() {
-//        return DataSourceBuilder.create()
-//                .type(HikariDataSource.class)
-//                .build();
-//    }
-
-    //    spring.datasource.url=jdbc:postgresql://localhost:5432/tbrm
-//    spring.datasource.username=postgres
-//    spring.datasource.password=root
-//    spring.datasource.driver-class-name=org.postgresql.Driver
     @Primary
     @Bean
     public DataSource customDataSource() {
