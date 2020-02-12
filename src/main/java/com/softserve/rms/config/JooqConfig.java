@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
