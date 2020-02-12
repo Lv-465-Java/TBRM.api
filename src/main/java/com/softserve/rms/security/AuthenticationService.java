@@ -51,8 +51,6 @@ public class AuthenticationService implements Message {
 
         User user = userService.getUserByEmail(loginUser.getEmail());
 
-        System.out.println(user.getGroups());
-
         if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())) {
             if (!user.isEnabled()) {
                 throw new DisabledException("Your account is not active");
