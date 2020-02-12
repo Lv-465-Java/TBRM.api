@@ -15,6 +15,8 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
+import org.jooq.DSLContext;
+import org.jooq.impl.SQLDataType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,6 +41,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
     private PermissionManagerService permissionManagerService;
+    private DSLContext dslContext;
 
     /**
      * Constructor with parameters.
@@ -48,10 +51,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserRepository userRepository,
-                                       PermissionManagerService permissionManagerService) {
+                                       PermissionManagerService permissionManagerService, DSLContext dslContext) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userRepository = userRepository;
         this.permissionManagerService = permissionManagerService;
+        this.dslContext = dslContext;
     }
 
     /**
@@ -220,9 +224,18 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
+            createResourceTable(resourceTemplate);
             //create table
         }
         return findEntityById(resourceTemplate.getId()).getIsPublished();
+    }
+
+    private void createResourceTable(ResourceTemplate resourceTemplate) {
+        dslContext.createTable(resourceTemplate.getTableName())
+                .column("Id", SQLDataType.BIGINT)
+                .column("Name", SQLDataType.VARCHAR(255))
+                .column("Description", SQLDataType.VARCHAR(255))
+                .execute();
     }
 
     /**
