@@ -14,6 +14,11 @@ import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
+
+//import static com.softserve.rms.jooq.tables.ResourceParameters.RESOURCE_PARAMETERS;
+//import com.softserve.rms.jooq.tables.records.ResourceParametersRecord;
+
+import com.softserve.rms.jooq.tables.ResourceParameters;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
@@ -41,6 +46,9 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceRelationRepository resourceRelationRepository;
     private final ResourceTemplateService resourceTemplateService;
     private Validator validator = new Validator();
+
+    ResourceParameters resourceParameters = ResourceParameters.RESOURCE_PARAMETERS;
+
 
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
@@ -235,7 +243,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
 //    @Override
 //    @Transactional
 //    public void delete(Long id, Long parameterId) throws NotDeletedException {
-//        dslContext.select().where()
+//        dslContext.delete(resourceParameters).where(resourceParameters.ID.eq(parameterId)).execute();
 //    }
     @Override
     @Transactional
