@@ -20,7 +20,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', write)")
     void deleteById(Long id);
 
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findAll();
 
     /**

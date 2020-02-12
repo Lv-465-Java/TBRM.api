@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates"})
+@ToString(exclude = {"resourceTemplates", "groupMembers"})
 public class User {
 
     @Id
@@ -41,8 +42,20 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @OneToMany(mappedBy = "user")
+    private List<GroupMember> groupMembers;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
-
+    public List<Group> getGroups() {
+        System.out.println(groupMembers);
+        List<Group> groups = new ArrayList<>();
+        for (GroupMember groupMember : groupMembers) {
+            groups.add(groupMember.getGroup());
+        }
+        return groups;
+    }
 }

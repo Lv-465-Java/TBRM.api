@@ -49,10 +49,12 @@ public class AuthenticationService implements Message {
     public JwtDto loginUser(LoginUser loginUser){
         LOGGER.info("user login info - {}", loginUser);
 
-        User user =userService.getUserByEmail(loginUser.getEmail());
+        User user = userService.getUserByEmail(loginUser.getEmail());
 
-        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
-            if (!user.isEnabled()){
+        System.out.println(user.getGroups());
+
+        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())) {
+            if (!user.isEnabled()) {
                 throw new DisabledException("Your account is not active");
             }
             return tokenManagementService.generateTokenPair(loginUser.getEmail());

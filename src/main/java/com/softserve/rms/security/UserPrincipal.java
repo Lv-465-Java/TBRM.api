@@ -1,7 +1,9 @@
 package com.softserve.rms.security;
 
 
+import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,13 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Class that implements UserDetails interface.
  *
  * @author Artur Sydor
  */
+@Data
 public class UserPrincipal implements UserDetails {
     /**
      * Represents User entity.
@@ -41,6 +43,9 @@ public class UserPrincipal implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
+        for (Group group : user.getGroups()) {
+            authorities.add(new SimpleGrantedAuthority(group.getName()));
+        }
         return authorities;
     }
 
@@ -102,31 +107,5 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.isEnabled();
-    }
-
-    /**
-     * Overridden method Equals.
-     *
-     * @param o object for comparing
-     * @return true if object are equals
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UserPrincipal that = (UserPrincipal) o;
-
-        return Objects.equals(user, that.user);
-    }
-
-    /**
-     * Overridden method HashCode.
-     *
-     * @return hashCode of object user
-     */
-    @Override
-    public int hashCode() {
-        return user != null ? user.hashCode() : 0;
     }
 }
