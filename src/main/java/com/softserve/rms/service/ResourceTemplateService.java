@@ -7,8 +7,6 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 
 import java.util.List;
 import java.util.Map;

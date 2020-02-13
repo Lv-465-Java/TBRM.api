@@ -73,7 +73,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
-        resourceTemplate.setTableName(validator.generateTableOrColumnName(resourceTemplateSaveDTO.getName()));
+        resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setUser(userRepository.getOne(resourceTemplateSaveDTO.getUserId()));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
@@ -200,7 +200,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
 
     /**
      * Method verifies which action must be handled - publish or unpublish resource template -
-     * by provided boolean value in body.
+     * by provided boolean value in a body.
      *
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
@@ -262,6 +262,22 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_NAME_IS_NOT_UNIQUE.getMessage());
         }
         return name;
+    }
+
+    /**
+     * Method verifies if {@link ResourceTemplate} table name is unique.
+     *
+     * @param name of {@link ResourceTemplateDTO}
+     * @return string of {@link ResourceTemplateDTO} table name if it is unique
+     * @throws NotUniqueNameException if the resource template table name is not unique
+     * @author Halyna Yatseniuk
+     */
+    private String verifyIfResourceTemplateTableNameIsUnique(String name) throws NotUniqueNameException {
+        String generatedTableName = validator.generateTableOrColumnName(name);
+        if (resourceTemplateRepository.findByTableName(generatedTableName).isPresent()) {
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_TEMPLATE_TABLE_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return generatedTableName;
     }
 
     /**
