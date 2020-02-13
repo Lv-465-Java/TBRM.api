@@ -78,9 +78,9 @@ jooq {
             driver = 'org.postgresql.Driver'
             url = 'jdbc:postgresql://localhost:5432/tbrm'
 //            url = '${DATASOURCE_URL}'
-            user = 'lviv465'
+            user = 'postgres'
 //            user = '${DATASOURCE_USER}'
-            password = 'secret'
+            password = 'root'
 //            password = '${DATASOURCE_PASSWORD}'
         }
         generator {

@@ -42,7 +42,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ResourceTemplates extends TableImpl<ResourceTemplatesRecord> {
 
-    private static final long serialVersionUID = 1932671885;
+    private static final long serialVersionUID = -1628025342;
 
     /**
      * The reference instance of <code>public.resource_templates</code>
@@ -60,7 +60,7 @@ public class ResourceTemplates extends TableImpl<ResourceTemplatesRecord> {
     /**
      * The column <code>public.resource_templates.id</code>.
      */
-    public final TableField<ResourceTemplatesRecord, Long> ID = createField(DSL.name("id"), org.jooq.impl.SQLDataType.BIGINT.nullable(false).defaultValue(org.jooq.impl.DSL.field("nextval('resource_templates_id_seq1'::regclass)", org.jooq.impl.SQLDataType.BIGINT)), this, "");
+    public final TableField<ResourceTemplatesRecord, Long> ID = createField(DSL.name("id"), org.jooq.impl.SQLDataType.BIGINT.nullable(false).defaultValue(org.jooq.impl.DSL.field("nextval('resource_templates_id_seq'::regclass)", org.jooq.impl.SQLDataType.BIGINT)), this, "");
 
     /**
      * The column <code>public.resource_templates.description</code>.

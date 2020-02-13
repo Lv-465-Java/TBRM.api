@@ -12,11 +12,11 @@ import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublished
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
-import org.jooq.DSLContext;
-import org.jooq.impl.SQLDataType;
+import org.jooq.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,10 +38,11 @@ import java.util.stream.Collectors;
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
     private final UserRepository userRepository;
+    private PermissionManagerService permissionManagerService;
     private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
-    private PermissionManagerService permissionManagerService;
     private DSLContext dslContext;
+    private JooqDDL jooqDDL;
 
     /**
      * Constructor with parameters.
@@ -50,8 +51,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
-                                       UserRepository userRepository,
-                                       PermissionManagerService permissionManagerService, DSLContext dslContext) {
+                                       UserRepository userRepository, PermissionManagerService permissionManagerService,
+                                       DSLContext dslContext) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userRepository = userRepository;
         this.permissionManagerService = permissionManagerService;
@@ -61,9 +62,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * Method creates {@link ResourceTemplate}.
      *
-     * @param resourceTemplateSaveDTO {@link ResourceTemplateDTO}
+     * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
      * @return new {@link ResourceTemplateDTO}
-     * @throws NotUniqueNameException if the resource template name is not unique
+     * @throws NotUniqueNameException if the resource template with provided name exists
      * @author Halyna Yatseniuk
      */
     @Override
@@ -87,7 +88,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template is not found
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
@@ -110,10 +111,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds all {@link ResourceTemplate} created by provided person id.
+     * Method finds all {@link ResourceTemplate} by user id.
      *
      * @param id of {@link User}
-     * @return list of {@link ResourceTemplateDTO} with appropriate person id
+     * @return list of all {@link ResourceTemplateDTO} for a user
      * @author Halyna Yatseniuk
      */
     @Override
@@ -130,7 +131,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException      if the resource template is not found
+     * @throws NotFoundException      if the resource template with provided id is not found
      * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
@@ -197,61 +198,55 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
-
-//    /**
-//     * Method makes {@link ResourceTemplate} be published.
-//     *
-//     * @param id of {@link ResourceTemplateDTO}
-//     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-//     * @throws ResourceTemplateIsPublishedException if resource template has been published already
-//     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
-//     * @author Halyna Yatseniuk
-//     */
-
-    public void checkSomething(Long id, Map<String, Object> body) {
+    /**
+     * Method verifies which action must be handled - publish or unpublish resource template -
+     * by provided boolean value in body.
+     *
+     * @param id   of {@link ResourceTemplateDTO}
+     * @param body map containing String key and Object value
+     * @throws NotFoundException if the resource template with provided id is not found
+     * @author Halyna Yatseniuk
+     */
+    public void selectPublishOrUnpublishAction(Long id, Map<String, Object> body) {
+        String publish = "isPublished";
         ResourceTemplate resourceTemplate = findEntityById(id);
-        if (body.get("isPublished").equals(true)) {
+        if (body.get(publish).equals(true)) {
             publishResourceTemplate(resourceTemplate);
-        } else if (body.get("isPublished").equals(false)) {
+        } else if (body.get(publish).equals(false)) {
             unPublishResourceTemplate(resourceTemplate);
         }
     }
 
+    /**
+     * Method makes {@link ResourceTemplate} be published.
+     *
+     * @param resourceTemplate of {@link ResourceTemplateDTO}
+     * @throws ResourceTemplateIsPublishedException if resource template has been published already
+     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
 
-    @Override
-    public Boolean publishResourceTemplate(ResourceTemplate resourceTemplate)
+    private void publishResourceTemplate(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
+        jooqDDL = new JooqDDL(dslContext);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
+            jooqDDL.createResourceContainerTable(resourceTemplate);
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
-            createResourceTable(resourceTemplate);
-            //create table
         }
-        return findEntityById(resourceTemplate.getId()).getIsPublished();
-    }
-
-    private void createResourceTable(ResourceTemplate resourceTemplate) {
-        dslContext.createTable(resourceTemplate.getTableName())
-                .column("Id", SQLDataType.BIGINT)
-                .column("Name", SQLDataType.VARCHAR(255))
-                .column("Description", SQLDataType.VARCHAR(255))
-                .execute();
     }
 
     /**
      * Method cancels {@link ResourceTemplate} publish.
-     * <p>
-     * //     * @param id of {@link ResourceTemplateDTO}
      *
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @param resourceTemplate of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    public Boolean unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
+    private void unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
         //verifications
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         //drop table
-        return !findEntityById(resourceTemplate.getId()).getIsPublished();
     }
 
     /**

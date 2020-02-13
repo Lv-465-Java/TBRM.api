@@ -86,7 +86,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null ||
-                parameterDTO.getParameterType() == ParameterType.AREA_DOUBLE) {
+                parameterDTO.getParameterType() == ParameterType.COORDINATES) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
@@ -112,7 +112,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private String getMatchedPatternToParameterType(ParameterType type, String pattern) {
         if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
             return patternGenerator.generateRangeIntegerRegex(pattern);
-        } else if (type == ParameterType.AREA_DOUBLE) {
+        } else if (type == ParameterType.COORDINATES) {
             return Validator.COORDINATES_PATTERN;
         } else if (type == ParameterType.POINT_STRING) {
             //TODO

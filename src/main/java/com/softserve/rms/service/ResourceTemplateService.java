@@ -15,7 +15,7 @@ import java.util.Map;
 
 public interface ResourceTemplateService {
     /**
-     * Method creates {@link ResourceTemplateSaveDTO}.
+     * Method creates {@link ResourceTemplate}.
      *
      * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
      * @return new {@link ResourceTemplateDTO}
@@ -25,7 +25,7 @@ public interface ResourceTemplateService {
     ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO);
 
     /**
-     * Method finds {@link ResourceTemplate} by id.
+     * Method finds {@link ResourceTemplate} by provided id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
@@ -57,7 +57,8 @@ public interface ResourceTemplateService {
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template with provided id is not found
+     * @throws NotFoundException      if the resource template with provided id is not found
+     * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
     ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
@@ -91,26 +92,13 @@ public interface ResourceTemplateService {
     ResourceTemplate findEntityById(Long id);
 
     /**
-     * Method makes {@link ResourceTemplate} be published.
-     * <p>
-     * //     * @param id of {@link ResourceTemplateDTO}
+     * Method verifies which action must be handled - publish or unpublish resource template -
+     * by provided boolean value in body.
      *
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-     * @throws ResourceTemplateIsPublishedException if resource template has been published already
-     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
+     * @param id   of {@link ResourceTemplateDTO}
+     * @param body map containing String key and Object value
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    Boolean publishResourceTemplate(ResourceTemplate resourceTemplate);
-
-    /**
-     * Method cancels {@link ResourceTemplate} publish.
-     * <p>
-     * //     * @param id of {@link ResourceTemplateDTO}
-     *
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-     * @author Halyna Yatseniuk
-     */
-    Boolean unPublishResourceTemplate(ResourceTemplate resourceTemplate);
-
-    void checkSomething(Long id, Map<String, Object> body);
+    void selectPublishOrUnpublishAction(Long id, Map<String, Object> body);
 }

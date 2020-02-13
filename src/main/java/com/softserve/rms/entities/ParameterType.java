@@ -7,15 +7,16 @@ public enum ParameterType {
     POINT_INT("Point", "Integer", SQLDataType.INTEGER),
     POINT_DOUBLE("Point", "Double", SQLDataType.DOUBLE),
     POINT_STRING("Point", "String", SQLDataType.VARCHAR),
+//    POINT_REFERENCE("Point", "String", SQLDataType.VARCHAR),
     RANGE_DOUBLE("Range", "Double", SQLDataType.DOUBLE),
     RANGE_INT("Range", "Integer", SQLDataType.INTEGER),
-    AREA_DOUBLE("Area", "Double", SQLDataType.DOUBLE);
+    COORDINATES("Coordinates", "String", SQLDataType.VARCHAR);
 
     private String name;
     private String type;
-    private DataType sqlType;
+    private DataType<?> sqlType;
 
-    ParameterType(String name, String type, DataType sqlType) {
+    ParameterType(String name, String type, DataType<?> sqlType) {
         this.name = name;
         this.type = type;
         this.sqlType = sqlType;
@@ -29,7 +30,7 @@ public enum ParameterType {
         return type;
     }
 
-    public DataType getSqlType() {
+    public DataType<?> getSqlType() {
         return sqlType;
     }
 }
