@@ -8,12 +8,14 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
+import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -72,11 +74,11 @@ public class UserServiceImplTest {
                     .password("qwertQWE!@1")
                     .build();
     private UserEditDto userEditDto =
-            new UserEditDto("test","test","test@gmail.com",
+            new UserEditDto("test","test",
                     "+380111111111");
 
     private PasswordEditDto passwordEditDto =
-            new PasswordEditDto("qwertQWE!@1");
+            new PasswordEditDto("qwertQWE!@1","qwertyQQ1!!");
 
     @Test
     public void saveTest() {
@@ -108,13 +110,15 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void editPasswordTest(){
-        when(userRepository.save(any())).thenReturn(user);
+    public void editPasswordTest() {
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(any(),any())).thenReturn(true);
         userService.editPassword(passwordEditDto,
                 user.getEmail());
+        when(userRepository.save(any())).thenReturn(user);
         verify(userRepository,times(1)).save(any());
     }
+
 
     @Test(expected = WrongEmailException.class)
     public void editPasswordWrongEmailTest(){
