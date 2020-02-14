@@ -12,9 +12,7 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
-    @OneToOne
-    @JoinColumn(name = "owner_id")
-    User owner;
+    String description;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class GroupSaveDto {
     private String name;
-    private String resource_template;
+    private String description;
 }

@@ -8,5 +8,11 @@ import java.util.List;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
-    List<Group> findAllByOwnerId(Long id);
+    List<Group> findAll();
+
+    Group findByName(String name);
+
+    Group save(Group group);
+
+    void deleteByName(String name);
 }
