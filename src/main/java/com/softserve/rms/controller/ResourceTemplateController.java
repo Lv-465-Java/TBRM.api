@@ -182,7 +182,7 @@ public class ResourceTemplateController {
     @PutMapping("/{id}/publish")
     public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Publish a Resource Template by ID: " + id);
-        resourceTemplateService.selectPublishOrUnpublishAction(id, body);
+        resourceTemplateService.selectPublishOrCancelPublishAction(id, body);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

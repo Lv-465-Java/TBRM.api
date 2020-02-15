@@ -64,7 +64,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     /**
      * Method finds {@link Optional<ResourceTemplate>} by name.
      *
-     * @param name String
+     * @param name of {@link ResourceTemplate}
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
@@ -73,7 +73,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     /**
      * Method finds {@link Optional<ResourceTemplate>} by table name.
      *
-     * @param tableName String
+     * @param tableName of {@link ResourceTemplate}
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
@@ -86,6 +86,6 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return created {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#resourceTemplate, write)")
+    @PreAuthorize("hasPermission(#resourceTemplate, write) or hasAnyRole('MANAGER')")
     ResourceTemplate save(ResourceTemplate resourceTemplate);
 }

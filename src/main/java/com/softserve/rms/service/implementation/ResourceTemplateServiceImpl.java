@@ -1,13 +1,14 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
@@ -60,35 +61,29 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method creates {@link ResourceTemplate}.
+     * {@inheritDoc}
      *
-     * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
-     * @return new {@link ResourceTemplateDTO}
-     * @throws NotUniqueNameException if the resource template with provided name exists
      * @author Halyna Yatseniuk
      */
     @Override
     public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO)
             throws NotUniqueNameException {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
         resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(resourceTemplateSaveDTO.getName()));
-        resourceTemplate.setUser(userRepository.getOne(resourceTemplateSaveDTO.getUserId()));
+        resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
+        resourceTemplate.setUser(userRepository.findUserByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("dd")));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
-        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
         permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, principal.getName(), "write", true), principal);
         permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
     /**
-     * Method finds {@link ResourceTemplate} by provided id.
+     * {@inheritDoc}
      *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
@@ -97,9 +92,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds all {@link ResourceTemplate}.
+     * {@inheritDoc}
      *
-     * @return list of all {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
     @Override
@@ -111,10 +105,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds all {@link ResourceTemplate} by user id.
+     * {@inheritDoc}
      *
-     * @param id of {@link User}
-     * @return list of all {@link ResourceTemplateDTO} for a user
      * @author Halyna Yatseniuk
      */
     @Override
@@ -126,35 +118,46 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method updates {@link ResourceTemplate} by id.
+     * {@inheritDoc}
      *
-     * @param id   of {@link ResourceTemplateDTO}
-     * @param body map containing String key and Object value
-     * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException      if the resource template with provided id is not found
-     * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
     @Override
     public ResourceTemplateDTO updateById(Long id, Map<String, Object> body)
-            throws NotFoundException, NotUniqueNameException {
+            throws NotFoundException, NotUniqueNameException, ResourceTemplateCanNotBeModified {
         ResourceTemplate resourceTemplate = findEntityById(id);
-        if (body.get("name") != null) {
-            resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(body.get("name").toString()));
-            resourceTemplate.setTableName(validator.generateTableOrColumnName(body.get("name").toString()));
+        if (resourceTemplate.getIsPublished().equals(false)) {
+            return updateResourceTemplateFields(resourceTemplate, body);
+        } else
+            throw new ResourceTemplateCanNotBeModified(ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_UPDATED.getMessage());
+    }
+
+    /**
+     * Method updates fields of {@link ResourceTemplate}.
+     *
+     * @param resourceTemplate of {@link ResourceTemplateDTO}
+     * @param body             map containing String key and Object value
+     * @throws NotUniqueNameException if the resource template name is not unique
+     * @author Halyna Yatseniuk
+     */
+    public ResourceTemplateDTO updateResourceTemplateFields(ResourceTemplate resourceTemplate, Map<String, Object> body)
+            throws NotUniqueNameException {
+        if (body.get(FieldConstants.NAME.getValue()) != null) {
+            resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(
+                    body.get(FieldConstants.NAME.getValue()).toString()));
+            resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(
+                    body.get(FieldConstants.NAME.getValue()).toString()));
         }
-        if (body.get("description") != null) {
-            resourceTemplate.setDescription(body.get("description").toString());
+        if (body.get(FieldConstants.DESCRIPTION.getValue()) != null) {
+            resourceTemplate.setDescription(body.get(FieldConstants.DESCRIPTION.getValue()).toString());
         }
         resourceTemplateRepository.save(resourceTemplate);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
     /**
-     * Method deletes {@link ResourceTemplate} by id.
+     * {@inheritDoc}
      *
-     * @param id of {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
     @Override
@@ -170,10 +173,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds all {@link ResourceTemplate} by name or description.
+     * {@inheritDoc}
      *
-     * @param searchedWord request parameter to search resource templates
-     * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
     @Override
@@ -186,33 +187,16 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method finds {@link ResourceTemplate} by provided id.
+     * {@inheritDoc}
      *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return {@link ResourceTemplate}
-     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplate findEntityById(Long id) throws NotFoundException {
-        return resourceTemplateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
-    }
-
-    /**
-     * Method verifies which action must be handled - publish or unpublish resource template -
-     * by provided boolean value in a body.
-     *
-     * @param id   of {@link ResourceTemplateDTO}
-     * @param body map containing String key and Object value
-     * @throws NotFoundException if the resource template with provided id is not found
-     * @author Halyna Yatseniuk
-     */
-    public void selectPublishOrUnpublishAction(Long id, Map<String, Object> body) {
-        String publish = "isPublished";
+    @Override
+    public void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body) {
         ResourceTemplate resourceTemplate = findEntityById(id);
-        if (body.get(publish).equals(true)) {
+        if (body.get(FieldConstants.IS_PUBLISHED.getValue()).equals(true)) {
             publishResourceTemplate(resourceTemplate);
-        } else if (body.get(publish).equals(false)) {
+        } else {
             unPublishResourceTemplate(resourceTemplate);
         }
     }
@@ -225,11 +209,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-
     private void publishResourceTemplate(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
         jooqDDL = new JooqDDL(dslContext);
-        if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) && verifyIfResourceTemplateHasParameters(resourceTemplate)) {
+        if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) &&
+                verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             jooqDDL.createResourceContainerTable(resourceTemplate);
             resourceTemplate.setIsPublished(true);
             resourceTemplateRepository.save(resourceTemplate);
@@ -247,6 +231,19 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         resourceTemplate.setIsPublished(false);
         resourceTemplateRepository.save(resourceTemplate);
         //drop table
+    }
+
+    /**
+     * Method finds {@link ResourceTemplate} by provided id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplate}
+     * @throws NotFoundException if the resource template with provided id is not found
+     * @author Halyna Yatseniuk
+     */
+    public ResourceTemplate findEntityById(Long id) throws NotFoundException {
+        return resourceTemplateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
     /**

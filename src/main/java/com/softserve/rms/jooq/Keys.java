@@ -13,6 +13,7 @@ import com.softserve.rms.jooq.tables.ResourceRelations;
 import com.softserve.rms.jooq.tables.ResourceTemplates;
 import com.softserve.rms.jooq.tables.Roles;
 import com.softserve.rms.jooq.tables.S3bucketTest;
+import com.softserve.rms.jooq.tables.Tables;
 import com.softserve.rms.jooq.tables.Users;
 import com.softserve.rms.jooq.tables.records.AclClassRecord;
 import com.softserve.rms.jooq.tables.records.AclEntryRecord;
@@ -23,6 +24,7 @@ import com.softserve.rms.jooq.tables.records.ResourceRelationsRecord;
 import com.softserve.rms.jooq.tables.records.ResourceTemplatesRecord;
 import com.softserve.rms.jooq.tables.records.RolesRecord;
 import com.softserve.rms.jooq.tables.records.S3bucketTestRecord;
+import com.softserve.rms.jooq.tables.records.TablesRecord;
 import com.softserve.rms.jooq.tables.records.UsersRecord;
 
 import javax.annotation.Generated;
@@ -79,6 +81,7 @@ public class Keys {
     public static final UniqueKey<RolesRecord> ROLES_PKEY = UniqueKeys0.ROLES_PKEY;
     public static final UniqueKey<RolesRecord> UNIQUE_UK_5 = UniqueKeys0.UNIQUE_UK_5;
     public static final UniqueKey<S3bucketTestRecord> S3BUCKET_TEST_PKEY = UniqueKeys0.S3BUCKET_TEST_PKEY;
+    public static final UniqueKey<TablesRecord> PK_ID = UniqueKeys0.PK_ID;
     public static final UniqueKey<UsersRecord> USERS_PKEY = UniqueKeys0.USERS_PKEY;
     public static final UniqueKey<UsersRecord> UK_6DOTKOTT2KJSP8VW4D0M25FB7 = UniqueKeys0.UK_6DOTKOTT2KJSP8VW4D0M25FB7;
     public static final UniqueKey<UsersRecord> UK_DU5V5SR43G5BFNJI4VB8HG5S3 = UniqueKeys0.UK_DU5V5SR43G5BFNJI4VB8HG5S3;
@@ -120,6 +123,7 @@ public class Keys {
         public static final UniqueKey<RolesRecord> ROLES_PKEY = Internal.createUniqueKey(Roles.ROLES, "roles_pkey", Roles.ROLES.ID);
         public static final UniqueKey<RolesRecord> UNIQUE_UK_5 = Internal.createUniqueKey(Roles.ROLES, "unique_uk_5", Roles.ROLES.NAME);
         public static final UniqueKey<S3bucketTestRecord> S3BUCKET_TEST_PKEY = Internal.createUniqueKey(S3bucketTest.S3BUCKET_TEST, "s3bucket_test_pkey", S3bucketTest.S3BUCKET_TEST.ID);
+        public static final UniqueKey<TablesRecord> PK_ID = Internal.createUniqueKey(Tables.TABLES, "PK_ID", Tables.TABLES.ID);
         public static final UniqueKey<UsersRecord> USERS_PKEY = Internal.createUniqueKey(Users.USERS, "users_pkey", Users.USERS.ID);
         public static final UniqueKey<UsersRecord> UK_6DOTKOTT2KJSP8VW4D0M25FB7 = Internal.createUniqueKey(Users.USERS, "uk_6dotkott2kjsp8vw4d0m25fb7", Users.USERS.EMAIL);
         public static final UniqueKey<UsersRecord> UK_DU5V5SR43G5BFNJI4VB8HG5S3 = Internal.createUniqueKey(Users.USERS, "uk_du5v5sr43g5bfnji4vb8hg5s3", Users.USERS.PHONE);

@@ -7,6 +7,7 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
 
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,14 @@ public interface ResourceTemplateService {
     List<ResourceTemplateDTO> getAllByUserId(Long id);
 
     /**
-     * Method updates {@link ResourceTemplate} by id.
+     * Method verifies if provided by id {@link ResourceTemplate} could be updated.
      *
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException      if the resource template with provided id is not found
-     * @throws NotUniqueNameException if the resource template name is not unique
+     * @throws NotFoundException                if the resource template with provided id is not found
+     * @throws ResourceTemplateCanNotBeModified if the resource template can not be updated
+     * @throws NotUniqueNameException           if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
     ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
@@ -90,13 +92,13 @@ public interface ResourceTemplateService {
     ResourceTemplate findEntityById(Long id);
 
     /**
-     * Method verifies which action must be handled - publish or unpublish resource template -
-     * by provided boolean value in body.
+     * Method verifies which action must be handled - publish or cancel publish resource template -
+     * by provided boolean value in a map body.
      *
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
      * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    void selectPublishOrUnpublishAction(Long id, Map<String, Object> body);
+    void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body);
 }

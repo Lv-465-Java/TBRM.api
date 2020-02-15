@@ -12,6 +12,7 @@ import com.softserve.rms.jooq.tables.ResourceParameters;
 import com.softserve.rms.jooq.tables.ResourceRelations;
 import com.softserve.rms.jooq.tables.ResourceTemplates;
 import com.softserve.rms.jooq.tables.Roles;
+import com.softserve.rms.jooq.tables.Rooms;
 import com.softserve.rms.jooq.tables.S3bucketTest;
 import com.softserve.rms.jooq.tables.Users;
 
@@ -72,9 +73,19 @@ public class Tables {
     public static final Roles ROLES = Roles.ROLES;
 
     /**
+     * The table <code>public.rooms</code>.
+     */
+    public static final Rooms ROOMS = Rooms.ROOMS;
+
+    /**
      * The table <code>public.s3bucket_test</code>.
      */
     public static final S3bucketTest S3BUCKET_TEST = S3bucketTest.S3BUCKET_TEST;
+
+    /**
+     * The table <code>public.tables</code>.
+     */
+    public static final com.softserve.rms.jooq.tables.Tables TABLES = com.softserve.rms.jooq.tables.Tables.TABLES;
 
     /**
      * The table <code>public.users</code>.

@@ -1,5 +1,6 @@
 package com.softserve.rms.repository.implementation;
 
+import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -21,18 +22,18 @@ public class JooqDDL {
     @Transactional
     public void createResourceContainerTable(ResourceTemplate resourceTemplate) {
         dslContext.createTable(resourceTemplate.getTableName())
-                .column("id", SQLDataType.BIGINT.nullable(false))
-                .column("name", SQLDataType.VARCHAR(255).nullable(false))
-                .column("description", SQLDataType.VARCHAR(255))
-                .column("resource_template_id", SQLDataType.BIGINT.nullable(false))
-                .column("user_id", SQLDataType.BIGINT.nullable(false))
-                .constraints(constraint("PK_ID").primaryKey("id"))
+                .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false))
+                .column(FieldConstants.NAME.getValue(), SQLDataType.VARCHAR(255).nullable(false))
+                .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
+                .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
+                .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
+                .constraints(constraint(resourceTemplate.getTableName().concat("_PK"))
+                        .primaryKey(FieldConstants.ID.getValue()))
                 .execute();
         addColumnsToResourceContainerTable(resourceTemplate);
     }
 
-    @Transactional
-    public void addColumnsToResourceContainerTable(ResourceTemplate resourceTemplate) {
+    private void addColumnsToResourceContainerTable(ResourceTemplate resourceTemplate) {
         List<ResourceParameter> resourceParameterList = resourceTemplate.getResourceParameters();
         for (ResourceParameter parameter : resourceParameterList) {
             if (parameter.getParameterType().equals(ParameterType.POINT_INT) ||
@@ -43,22 +44,17 @@ public class JooqDDL {
             } else if (parameter.getParameterType().equals(ParameterType.RANGE_INT) ||
                     parameter.getParameterType().equals(ParameterType.RANGE_DOUBLE)) {
                 addColumnsWithRangeParameterType(resourceTemplate, parameter);
+            } else if (parameter.getParameterType().equals(ParameterType.POINT_REFERENCE)) {
+                addColumnWithPointReferenceParameterType(resourceTemplate, parameter);
             }
         }
     }
 
     private void addColumnWithPointOrCoordinatesParameterType(ResourceTemplate resourceTemplate,
                                                               ResourceParameter parameter) {
-        if (parameter.getResourceRelations() == null) {
-            dslContext.alterTable(resourceTemplate.getTableName())
-                    .addColumn(parameter.getColumnName(), parameter.getParameterType().getSqlType().nullable(false))
-                    .execute();
-        } else {
-            dslContext.alterTable(resourceTemplate.getTableName())
-                    .addColumn(parameter.getColumnName().concat("_ref"),
-                            parameter.getParameterType().getSqlType().nullable(true))
-                    .execute();
-        }
+        dslContext.alterTable(resourceTemplate.getTableName())
+                .addColumn(parameter.getColumnName(), parameter.getParameterType().getSqlType().nullable(false))
+                .execute();
     }
 
     private void addColumnsWithRangeParameterType(ResourceTemplate resourceTemplate, ResourceParameter parameter) {
@@ -69,6 +65,14 @@ public class JooqDDL {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .addColumn(parameter.getColumnName().concat("_to"),
                         parameter.getParameterType().getSqlType().nullable(false))
+                .execute();
+    }
+
+    private void addColumnWithPointReferenceParameterType(ResourceTemplate resourceTemplate,
+                                                          ResourceParameter parameter) {
+        dslContext.alterTable(resourceTemplate.getTableName())
+                .addColumn(parameter.getColumnName().concat("_ref"),
+                        parameter.getParameterType().getSqlType().nullable(true))
                 .execute();
     }
 }

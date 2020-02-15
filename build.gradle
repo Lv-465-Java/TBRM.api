@@ -80,7 +80,7 @@ jooq {
 //            url = '${DATASOURCE_URL}'
             user = 'postgres'
 //            user = '${DATASOURCE_USER}'
-            password = 'root'
+            password = 'root '
 //            password = '${DATASOURCE_PASSWORD}'
         }
         generator {

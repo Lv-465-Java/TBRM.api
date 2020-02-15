@@ -13,6 +13,7 @@ import com.softserve.rms.jooq.tables.ResourceRelations;
 import com.softserve.rms.jooq.tables.ResourceTemplates;
 import com.softserve.rms.jooq.tables.Roles;
 import com.softserve.rms.jooq.tables.S3bucketTest;
+import com.softserve.rms.jooq.tables.Tables;
 import com.softserve.rms.jooq.tables.Users;
 
 import javax.annotation.Generated;
@@ -54,6 +55,7 @@ public class Indexes {
     public static final Index ROLES_PKEY = Indexes0.ROLES_PKEY;
     public static final Index UNIQUE_UK_5 = Indexes0.UNIQUE_UK_5;
     public static final Index S3BUCKET_TEST_PKEY = Indexes0.S3BUCKET_TEST_PKEY;
+    public static final Index PK_ID = Indexes0.PK_ID;
     public static final Index UK_6DOTKOTT2KJSP8VW4D0M25FB7 = Indexes0.UK_6DOTKOTT2KJSP8VW4D0M25FB7;
     public static final Index UK_DU5V5SR43G5BFNJI4VB8HG5S3 = Indexes0.UK_DU5V5SR43G5BFNJI4VB8HG5S3;
     public static final Index USERS_PKEY = Indexes0.USERS_PKEY;
@@ -78,6 +80,7 @@ public class Indexes {
         public static Index ROLES_PKEY = Internal.createIndex("roles_pkey", Roles.ROLES, new OrderField[] { Roles.ROLES.ID }, true);
         public static Index UNIQUE_UK_5 = Internal.createIndex("unique_uk_5", Roles.ROLES, new OrderField[] { Roles.ROLES.NAME }, true);
         public static Index S3BUCKET_TEST_PKEY = Internal.createIndex("s3bucket_test_pkey", S3bucketTest.S3BUCKET_TEST, new OrderField[] { S3bucketTest.S3BUCKET_TEST.ID }, true);
+        public static Index PK_ID = Internal.createIndex("PK_ID", Tables.TABLES, new OrderField[] { Tables.TABLES.ID }, true);
         public static Index UK_6DOTKOTT2KJSP8VW4D0M25FB7 = Internal.createIndex("uk_6dotkott2kjsp8vw4d0m25fb7", Users.USERS, new OrderField[] { Users.USERS.EMAIL }, true);
         public static Index UK_DU5V5SR43G5BFNJI4VB8HG5S3 = Internal.createIndex("uk_du5v5sr43g5bfnji4vb8hg5s3", Users.USERS, new OrderField[] { Users.USERS.PHONE }, true);
         public static Index USERS_PKEY = Internal.createIndex("users_pkey", Users.USERS, new OrderField[] { Users.USERS.ID }, true);

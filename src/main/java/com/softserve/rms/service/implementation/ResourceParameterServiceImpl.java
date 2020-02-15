@@ -82,21 +82,22 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             throws NotFoundException, NotUniqueNameException {
 
         ResourceParameter resourceParameter = new ResourceParameter();
-        resourceParameter.setName(parameterDTO.getName());
-        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
+        resourceParameter.setName(verifyIfParameterNameIsUniquePerResourceTemplate(parameterDTO.getName(), id));
+        resourceParameter.setColumnName(
+                verifyIfParameterColumnNameIsUniquePerResourceTemplate(parameterDTO.getName(), id));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null ||
                 parameterDTO.getParameterType() == ParameterType.COORDINATES) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
-        resourceParameter.setResourceTemplate(
-                resourceTemplateService.findEntityById(id));
+        resourceParameter.setResourceTemplate(resourceTemplateService.findEntityById(id));
 
         resourceParameterRepository.save(resourceParameter);
 
         if (parameterDTO.getResourceRelationDTO() != null) {
-            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(),
+                    parameterDTO.getResourceRelationDTO()));
         }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
@@ -257,5 +258,39 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
     }
 
+    /**
+     * Method verifies if {@link ResourceParameter} name is unique for specific {@link ResourceTemplate}.
+     *
+     * @param name of {@link ResourceParameter}
+     * @param id   of {@link ResourceTemplate}
+     * @return string of {@link ResourceParameter} name if it is unique
+     * @throws NotUniqueNameException if the resource template already has a parameter with provided name
+     * @author Halyna Yatseniuk
+     */
+    private String verifyIfParameterNameIsUniquePerResourceTemplate(String name, Long id)
+            throws NotUniqueNameException {
+        if (resourceParameterRepository.findByNameAndResourceTemplateId(name, id).isPresent()) {
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_PARAMETER_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return name;
+    }
 
+    /**
+     * Method verifies if generated {@link ResourceParameter} column name is unique for
+     * specific {@link ResourceTemplate}.
+     *
+     * @param name of {@link ResourceParameter}
+     * @param id   of {@link ResourceTemplate}
+     * @return string of generated {@link ResourceParameter} column name if it is unique
+     * @throws NotUniqueNameException if generated resource parameter column name is not unique
+     * @author Halyna Yatseniuk
+     */
+    private String verifyIfParameterColumnNameIsUniquePerResourceTemplate(String name, Long id)
+            throws NotUniqueNameException {
+        String generatedColumnName = validator.generateTableOrColumnName(name);
+        if (resourceParameterRepository.findByColumnNameAndResourceTemplateId(generatedColumnName, id).isPresent()) {
+            throw new NotUniqueNameException(ErrorMessage.RESOURCE_PARAMETER_COLUMN_NAME_IS_NOT_UNIQUE.getMessage());
+        }
+        return generatedColumnName;
+    }
 }
