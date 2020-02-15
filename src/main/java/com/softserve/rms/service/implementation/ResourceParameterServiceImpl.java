@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of {@link ResourceParameterService}
@@ -86,7 +87,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         resourceParameterRepository.save(resourceParameter);
 
         if (parameterDTO.getResourceRelationDTO() != null) {
-            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(),
+            resourceParameter.setResourceRelations(saveParameterRelation(resourceParameter.getId(),
                     parameterDTO.getResourceRelationDTO()));
         }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
@@ -105,28 +106,24 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             return patternGenerator.generateRangeIntegerRegex(pattern);
         } else if (type == ParameterType.COORDINATES) {
             return Validator.COORDINATES_PATTERN;
-        } else if (type == ParameterType.POINT_STRING) {
-            //TODO
-            return "pattern for string";
         }
-        //TODO
-        return "pattern for double";
+        return null;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @author Andrii Bren
-     */
     @Override
     @Transactional
-    public ResourceParameterDTO update(Long id, Long parameterId, ResourceParameterSaveDTO parameterDTO)
-            throws NotFoundException, NotUniqueNameException {
+    public ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO)
+            throws NotFoundException, NotUniqueNameException, ResourceParameterCanNotBeModified {
+        if (resourceTemplateService.findEntityById(templateId).getIsPublished().equals(false)) {
+            ResourceParameter resourceParameter = findById(parameterId);
+            return update(templateId, resourceParameter, parameterSaveDTO);
+        } else throw new ResourceParameterCanNotBeModified(
+                ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_UPDATED.getMessage());
+    }
 
-        resourceTemplateService.findEntityById(id);
-
-        ResourceParameter resourceParameter = findById(parameterId);
-        resourceParameter.setColumnName(validator.generateTableOrColumnName(parameterDTO.getName()));
+    private ResourceParameterDTO update(Long templateId, ResourceParameter resourceParameter,
+                                        ResourceParameterSaveDTO parameterDTO) throws NotUniqueNameException {
+        updateParameterNameAndColumnName(templateId, resourceParameter, parameterDTO);
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
@@ -134,9 +131,28 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
         if (parameterDTO.getResourceRelationDTO() != null) {
             resourceParameterRepository.save(resourceParameter);
-            resourceParameter.setResourceRelations(saveRelation(resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+            resourceParameter.setResourceRelations(updateParameterRelation(
+                    resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
+    }
+
+    private void updateParameterNameAndColumnName(Long templateId, ResourceParameter resourceParameter, ResourceParameterSaveDTO parameterDTO) {
+        if (!resourceParameter.getName().equals(parameterDTO.getName())) {
+            resourceParameter.setName(verifyIfParameterNameIsUniquePerResourceTemplate(
+                    parameterDTO.getName(), templateId));
+            resourceParameter.setColumnName(verifyIfParameterColumnNameIsUniquePerResourceTemplate(
+                    parameterDTO.getName(), templateId));
+        }
+    }
+
+    private ResourceRelation updateParameterRelation(Long parameterId, ResourceRelationDTO relationDTO) {
+        ResourceRelation resourceRelation = resourceRelationRepository.findByResourceParameterId(parameterId);
+        if (resourceRelation != null) {
+            resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
+                    .findEntityById(relationDTO.getRelatedResourceTemplateId())));
+            return resourceRelation;
+        } else return saveParameterRelation(parameterId, relationDTO);
     }
 
     /**
@@ -149,7 +165,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @throws ResourceTemplateIsNotPublishedException if resource template has been already published
      * @author Andrii Bren
      */
-    private ResourceRelation saveRelation(Long parameterId, ResourceRelationDTO relationDTO)
+    private ResourceRelation saveParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
             throws NotFoundException, ResourceTemplateIsNotPublishedException {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
@@ -237,7 +253,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @throws NotDeletedException if the resource parameter with provided id is not deleted
      * @author Andrii Bren
      */
-    public void deleteById(Long parameterId) throws NotDeletedException {
+    private void deleteById(Long parameterId) throws NotDeletedException {
         try {
             resourceParameterRepository.deleteById(parameterId);
         } catch (EmptyResultDataAccessException ex) {

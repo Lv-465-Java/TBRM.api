@@ -208,6 +208,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
+    @Transactional
     public void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body) {
         ResourceTemplate resourceTemplate = findEntityById(id);
         if (body.get(FieldConstants.IS_PUBLISHED.getValue()).equals(true)) {

@@ -1,6 +1,7 @@
 package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.ResourceParameter;
+import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.entities.ResourceTemplate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

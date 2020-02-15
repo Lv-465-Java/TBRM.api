@@ -19,9 +19,9 @@ public enum ErrorMessage {
     RESOURCE_PARAMETER_NAME_IS_NOT_UNIQUE("Resource template already has a parameter with provided name"),
     RESOURCE_PARAMETER_COLUMN_NAME_IS_NOT_UNIQUE("This resource parameter name is not allowed"),
     RESOURCE_PARAMETER_CAN_NOT_BE_UPDATED("Resource parameter can not be updated since resource template " +
-            "has been published."),
+            "has been published"),
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETED("Resource parameter can not be deleted since resource template " +
-            "has been published."),
+            "has been published"),
 
 
     USER_WITH_EMAIL_EXISTS("Account with this email already exists "),

@@ -18,30 +18,30 @@ public interface ResourceParameterService {
     /**
      * Method saves {@link ResourceParameter}.
      *
-     * @param id               {@link ResourceTemplate} id
+     * @param templateId       {@link ResourceTemplate} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return instance of {@link ResourceParameterDTO}
      * @throws NotUniqueNameException if the resource parameter with provided name exists
      * @throws NotFoundException      if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
-    ResourceParameterDTO save(Long id, ResourceParameterSaveDTO parameterSaveDTO);
+    ResourceParameterDTO save(Long templateId, ResourceParameterSaveDTO parameterSaveDTO);
 
     /**
      * Method finds one {@link ResourceParameter} by id.
      *
-     * @param id          {@link ResourceTemplate} id
+     * @param templateId  {@link ResourceTemplate} id
      * @param parameterId {@link ResourceParameterDTO} id
      * @return instance of {@link ResourceParameterDTO}
      * @throws NotFoundException if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
-    ResourceParameterDTO findByIdDTO(Long id, Long parameterId);
+    ResourceParameterDTO findByIdDTO(Long templateId, Long parameterId);
 
     /**
      * Method updates {@link ResourceParameter}.
      *
-     * @param id               {@link ResourceTemplate} id
+     * @param templateId       {@link ResourceTemplate} id
      * @param parameterId      {@link ResourceParameterDTO} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return updated instance of {@link ResourceParameterDTO}
@@ -49,16 +49,16 @@ public interface ResourceParameterService {
      * @throws NotFoundException      if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
-    ResourceParameterDTO update(Long id, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
+    ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
 
     /**
      * Method finds all {@link ResourceParameter} by {@link ResourceTemplate} id.
      *
-     * @param id {@link ResourceTemplate} id
+     * @param templateId {@link ResourceTemplate} id
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> findAllByTemplateId(Long id);
+    List<ResourceParameterDTO> findAllByTemplateId(Long templateId);
 
     /**
      * Method deletes {@link ResourceParameter} by id.
