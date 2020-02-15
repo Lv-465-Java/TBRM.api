@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -20,6 +21,8 @@ public class Resource {
     private ResourceTemplate resourceTemplate;
 
     private User user;
+    private HashMap<String, Object> parameters;
 
-    private List<ResourceParameter> resourceParameters;
+//    private List<ResourceParameter> resourceParameters;
+//    private List<Object> parameters;
 }

@@ -12,6 +12,7 @@ import com.softserve.rms.jooq.tables.ResourceParameters;
 import com.softserve.rms.jooq.tables.ResourceRelations;
 import com.softserve.rms.jooq.tables.ResourceTemplates;
 import com.softserve.rms.jooq.tables.Roles;
+import com.softserve.rms.jooq.tables.Room;
 import com.softserve.rms.jooq.tables.S3bucketTest;
 import com.softserve.rms.jooq.tables.Users;
 
@@ -40,7 +41,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Public extends SchemaImpl {
 
-    private static final long serialVersionUID = -641644419;
+    private static final long serialVersionUID = -1219251334;
 
     /**
      * The reference instance of <code>public</code>
@@ -88,6 +89,11 @@ public class Public extends SchemaImpl {
     public final Roles ROLES = com.softserve.rms.jooq.tables.Roles.ROLES;
 
     /**
+     * The table <code>public.room</code>.
+     */
+    public final Room ROOM = com.softserve.rms.jooq.tables.Room.ROOM;
+
+    /**
      * The table <code>public.s3bucket_test</code>.
      */
     public final S3bucketTest S3BUCKET_TEST = com.softserve.rms.jooq.tables.S3bucketTest.S3BUCKET_TEST;
@@ -127,6 +133,7 @@ public class Public extends SchemaImpl {
             Sequences.RESOURCE_RELATIONS_ID_SEQ,
             Sequences.RESOURCE_TEMPLATES_ID_SEQ,
             Sequences.RESOURCE_TEMPLATES_ID_SEQ1,
+            Sequences.ROOM_ID_SEQ,
             Sequences.S3BUCKET_TEST_ID_SEQ,
             Sequences.USERS_ID_SEQ);
     }
@@ -148,6 +155,7 @@ public class Public extends SchemaImpl {
             ResourceRelations.RESOURCE_RELATIONS,
             ResourceTemplates.RESOURCE_TEMPLATES,
             Roles.ROLES,
+            Room.ROOM,
             S3bucketTest.S3BUCKET_TEST,
             Users.USERS);
     }

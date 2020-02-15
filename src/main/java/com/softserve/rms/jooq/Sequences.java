@@ -64,6 +64,11 @@ public class Sequences {
     public static final Sequence<Long> RESOURCE_TEMPLATES_ID_SEQ1 = new SequenceImpl<Long>("resource_templates_id_seq1", Public.PUBLIC, org.jooq.impl.SQLDataType.BIGINT.nullable(false));
 
     /**
+     * The sequence <code>public.room_id_seq</code>
+     */
+    public static final Sequence<Long> ROOM_ID_SEQ = new SequenceImpl<Long>("room_id_seq", Public.PUBLIC, org.jooq.impl.SQLDataType.BIGINT.nullable(false));
+
+    /**
      * The sequence <code>public.s3bucket_test_id_seq</code>
      */
     public static final Sequence<Long> S3BUCKET_TEST_ID_SEQ = new SequenceImpl<Long>("s3bucket_test_id_seq", Public.PUBLIC, org.jooq.impl.SQLDataType.BIGINT.nullable(false));

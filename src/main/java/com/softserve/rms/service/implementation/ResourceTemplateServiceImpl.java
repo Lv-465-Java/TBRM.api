@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.jooq.impl.DSL.constraint;
+
 /**
  * Implementation of {@link ResourceTemplateService}.
  *
@@ -232,9 +234,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
 
     private void createResourceTable(ResourceTemplate resourceTemplate) {
         dslContext.createTable(resourceTemplate.getTableName())
-                .column("Id", SQLDataType.BIGINT)
-                .column("Name", SQLDataType.VARCHAR(255))
-                .column("Description", SQLDataType.VARCHAR(255))
+                .column("id", SQLDataType.BIGINT)
+                .column("name", SQLDataType.VARCHAR(255))
+                .column("description", SQLDataType.VARCHAR(255))
+                .constraints(
+                        constraint(resourceTemplate.getTableName() + "_pkey").primaryKey("id"))
                 .execute();
     }
 
@@ -246,6 +250,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @author Halyna Yatseniuk
      */
+    @Transactional
     public Boolean unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
         //verifications
         resourceTemplate.setIsPublished(false);

@@ -1,4 +1,4 @@
-import groovy.xml.MarkupBuilder
+
 
 plugins {
     id 'org.springframework.boot' version '2.2.4.RELEASE'
@@ -57,11 +57,7 @@ dependencies {
     compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.10'
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
-//    compile 'org.jooq:jooq'
     jooqRuntime 'postgresql:postgresql:9.1-901.jdbc4'
-//    compile group: 'org.jooq', name: 'jooq', version: '3.12.3'
-//    compile group: 'org.jooq', name: 'jooq-meta', version: '3.12.4'
-//    compile group: 'org.jooq', name: 'jooq-codegen', version: '3.12.4'
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
@@ -85,6 +81,7 @@ jooq {
         }
         generator {
             name = 'org.jooq.codegen.DefaultGenerator'
+//            name = 'org.jooq.codegen.JavaGenerator'
             database {
                 name = 'org.jooq.meta.postgres.PostgresDatabase'
                 inputSchema = 'public'
@@ -102,24 +99,25 @@ jooq {
                 packageName = 'com.softserve.rms.jooq'
                 directory = 'src/main/java'
             }
+
         }
     }
 }
 
-//tasks.generateSampleJooqSchemaSource.with {
-//    def out = new ByteArrayOutputStream()
-//    javaExecSpec = { JavaExecSpec s ->
-//        s.standardOutput = out
-//        s.errorOutput = out
-//        s.ignoreExitValue = true
-//        s.jvmArgs '-Xmx512M'
-//    }
-//    execResultHandler = { ExecResult r ->
-//        if (r.exitValue != 0) {
-//            throw new RuntimeException('jOOQ source code generation failed:\n\n' + out.toString())
-//        }
-//    }
-//}
+tasks.generateSampleJooqSchemaSource.with {
+    def out = new ByteArrayOutputStream()
+    javaExecSpec = { JavaExecSpec s ->
+        s.standardOutput = out
+        s.errorOutput = out
+        s.ignoreExitValue = true
+        s.jvmArgs '-Xmx512M'
+    }
+    execResultHandler = { ExecResult r ->
+        if (r.exitValue != 0) {
+            throw new RuntimeException('jOOQ source code generation failed:\n\n' + out.toString())
+        }
+    }
+}
 
 
 // Run the code generator

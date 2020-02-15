@@ -12,6 +12,7 @@ import com.softserve.rms.jooq.tables.ResourceParameters;
 import com.softserve.rms.jooq.tables.ResourceRelations;
 import com.softserve.rms.jooq.tables.ResourceTemplates;
 import com.softserve.rms.jooq.tables.Roles;
+import com.softserve.rms.jooq.tables.Room;
 import com.softserve.rms.jooq.tables.S3bucketTest;
 import com.softserve.rms.jooq.tables.Users;
 import com.softserve.rms.jooq.tables.records.AclClassRecord;
@@ -22,6 +23,7 @@ import com.softserve.rms.jooq.tables.records.ResourceParametersRecord;
 import com.softserve.rms.jooq.tables.records.ResourceRelationsRecord;
 import com.softserve.rms.jooq.tables.records.ResourceTemplatesRecord;
 import com.softserve.rms.jooq.tables.records.RolesRecord;
+import com.softserve.rms.jooq.tables.records.RoomRecord;
 import com.softserve.rms.jooq.tables.records.S3bucketTestRecord;
 import com.softserve.rms.jooq.tables.records.UsersRecord;
 
@@ -57,6 +59,7 @@ public class Keys {
     public static final Identity<ResourceParametersRecord, Long> IDENTITY_RESOURCE_PARAMETERS = Identities0.IDENTITY_RESOURCE_PARAMETERS;
     public static final Identity<ResourceRelationsRecord, Long> IDENTITY_RESOURCE_RELATIONS = Identities0.IDENTITY_RESOURCE_RELATIONS;
     public static final Identity<ResourceTemplatesRecord, Long> IDENTITY_RESOURCE_TEMPLATES = Identities0.IDENTITY_RESOURCE_TEMPLATES;
+    public static final Identity<RoomRecord, Long> IDENTITY_ROOM = Identities0.IDENTITY_ROOM;
     public static final Identity<S3bucketTestRecord, Long> IDENTITY_S3BUCKET_TEST = Identities0.IDENTITY_S3BUCKET_TEST;
     public static final Identity<UsersRecord, Long> IDENTITY_USERS = Identities0.IDENTITY_USERS;
 
@@ -78,6 +81,7 @@ public class Keys {
     public static final UniqueKey<ResourceTemplatesRecord> UK_1XX1119BT1OJGJS2LFRYL5PCR = UniqueKeys0.UK_1XX1119BT1OJGJS2LFRYL5PCR;
     public static final UniqueKey<RolesRecord> ROLES_PKEY = UniqueKeys0.ROLES_PKEY;
     public static final UniqueKey<RolesRecord> UNIQUE_UK_5 = UniqueKeys0.UNIQUE_UK_5;
+    public static final UniqueKey<RoomRecord> ID = UniqueKeys0.ID;
     public static final UniqueKey<S3bucketTestRecord> S3BUCKET_TEST_PKEY = UniqueKeys0.S3BUCKET_TEST_PKEY;
     public static final UniqueKey<UsersRecord> USERS_PKEY = UniqueKeys0.USERS_PKEY;
     public static final UniqueKey<UsersRecord> UK_6DOTKOTT2KJSP8VW4D0M25FB7 = UniqueKeys0.UK_6DOTKOTT2KJSP8VW4D0M25FB7;
@@ -100,6 +104,7 @@ public class Keys {
         public static Identity<ResourceParametersRecord, Long> IDENTITY_RESOURCE_PARAMETERS = Internal.createIdentity(ResourceParameters.RESOURCE_PARAMETERS, ResourceParameters.RESOURCE_PARAMETERS.ID);
         public static Identity<ResourceRelationsRecord, Long> IDENTITY_RESOURCE_RELATIONS = Internal.createIdentity(ResourceRelations.RESOURCE_RELATIONS, ResourceRelations.RESOURCE_RELATIONS.ID);
         public static Identity<ResourceTemplatesRecord, Long> IDENTITY_RESOURCE_TEMPLATES = Internal.createIdentity(ResourceTemplates.RESOURCE_TEMPLATES, ResourceTemplates.RESOURCE_TEMPLATES.ID);
+        public static Identity<RoomRecord, Long> IDENTITY_ROOM = Internal.createIdentity(Room.ROOM, Room.ROOM.ID);
         public static Identity<S3bucketTestRecord, Long> IDENTITY_S3BUCKET_TEST = Internal.createIdentity(S3bucketTest.S3BUCKET_TEST, S3bucketTest.S3BUCKET_TEST.ID);
         public static Identity<UsersRecord, Long> IDENTITY_USERS = Internal.createIdentity(Users.USERS, Users.USERS.ID);
     }
@@ -119,6 +124,7 @@ public class Keys {
         public static final UniqueKey<ResourceTemplatesRecord> UK_1XX1119BT1OJGJS2LFRYL5PCR = Internal.createUniqueKey(ResourceTemplates.RESOURCE_TEMPLATES, "uk_1xx1119bt1ojgjs2lfryl5pcr", ResourceTemplates.RESOURCE_TEMPLATES.NAME);
         public static final UniqueKey<RolesRecord> ROLES_PKEY = Internal.createUniqueKey(Roles.ROLES, "roles_pkey", Roles.ROLES.ID);
         public static final UniqueKey<RolesRecord> UNIQUE_UK_5 = Internal.createUniqueKey(Roles.ROLES, "unique_uk_5", Roles.ROLES.NAME);
+        public static final UniqueKey<RoomRecord> ID = Internal.createUniqueKey(Room.ROOM, "id", Room.ROOM.ID);
         public static final UniqueKey<S3bucketTestRecord> S3BUCKET_TEST_PKEY = Internal.createUniqueKey(S3bucketTest.S3BUCKET_TEST, "s3bucket_test_pkey", S3bucketTest.S3BUCKET_TEST.ID);
         public static final UniqueKey<UsersRecord> USERS_PKEY = Internal.createUniqueKey(Users.USERS, "users_pkey", Users.USERS.ID);
         public static final UniqueKey<UsersRecord> UK_6DOTKOTT2KJSP8VW4D0M25FB7 = Internal.createUniqueKey(Users.USERS, "uk_6dotkott2kjsp8vw4d0m25fb7", Users.USERS.EMAIL);

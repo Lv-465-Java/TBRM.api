@@ -18,8 +18,14 @@ import javax.sql.DataSource;
 @EnableAutoConfiguration
 public class JooqConfig {
 
-    @Autowired
+
     private DataSource dataSource;
+
+    @Autowired
+    public JooqConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
 
     @Bean
     public DataSourceConnectionProvider connectionProvider() {
