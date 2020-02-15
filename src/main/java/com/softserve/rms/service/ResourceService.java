@@ -13,9 +13,9 @@ public interface ResourceService {
 
     ResourceDTO findById(String resourceName, Long id);
 
-    List<ResourceDTO> findAll(String name);
+    List<ResourceDTO> findAll(String resourceName);
 
-    ResourceDTO updateById(Long id, Map<String, Object> body);
+    ResourceDTO update(Long id, Map<String, Object> body);
 
-    void deleteById(Long id);
+    void delete(String resourceName, Long id);
 }

@@ -62,12 +62,12 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public Resource updateById(Long id, Map<String, Object> body) {
+    public ResourceDTO update(Long id, Map<String, Object> body) {
         return null;
     }
 
     @Override
-    public void deleteById(Long id) {
-
+    public void delete(String resourceName, Long id) {
+        resourceRepository.delete(resourceName, id);
     }
 }

@@ -19,5 +19,5 @@ public interface ResourceRepository {
 
     Resource findById(String resourceName, Long id);
 
-    void delete(Long id);
+    void delete(String resourceName, Long id);
 }

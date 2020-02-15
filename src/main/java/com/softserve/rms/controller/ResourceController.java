@@ -40,4 +40,10 @@ public class ResourceController {
     public ResponseEntity<ResourceDTO> findById(@PathVariable String resourceName, @PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(resourceService.findById(resourceName, id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable String resourceName, @PathVariable Long id) {
+        resourceService.delete(resourceName, id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
