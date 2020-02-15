@@ -13,12 +13,8 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeModified;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
-
-//import static com.softserve.rms.jooq.tables.ResourceParameters.RESOURCE_PARAMETERS;
-//import com.softserve.rms.jooq.tables.records.ResourceParametersRecord;
-
-import com.softserve.rms.jooq.tables.ResourceParameters;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceParameterService;
@@ -46,14 +42,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private final ResourceRelationRepository resourceRelationRepository;
     private final ResourceTemplateService resourceTemplateService;
     private Validator validator = new Validator();
-
-    ResourceParameters resourceParameters = ResourceParameters.RESOURCE_PARAMETERS;
-
-
     private ModelMapper modelMapper = new ModelMapper();
     private RangeIntegerPatternGenerator patternGenerator = new RangeIntegerPatternGenerator();
-
-
     private DSLContext dslContext;
 
     /**
@@ -155,7 +145,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @param parameterId {@link ResourceParameter} id
      * @param relationDTO {@link ResourceRelationDTO}
      * @return instance of {@link ResourceRelation}
-     * @throws NotFoundException                       if the resource template or parameter with provided id is not found
+     * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has been already published
      * @author Andrii Bren
      */
@@ -172,32 +162,21 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * Method verifies if {@link ResourceTemplate} has been published.
      *
      * @param resourceTemplate {@link ResourceTemplate}
-     * @return {@link ResourceTemplateDTO} if provided resource template hasn't been published yet
+     * @return {@link ResourceTemplateDTO} if provided resource template has not been published yet
      * @throws ResourceTemplateIsNotPublishedException if resource template has been already published
      * @author Halyna Yatseniuk
      */
     private ResourceTemplate verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsNotPublishedException {
         if (!resourceTemplate.getIsPublished()) {
-            throw new ResourceTemplateIsNotPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
+            throw new ResourceTemplateIsNotPublishedException(
+                    ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
         }
         return resourceTemplate;
     }
 
-//    /**
-//     * {@inheritDoc}
-//     *
-//     * @author Andrii Bren
-//     */
-//    @Override
-//    public List<ResourceParameterDTO> findAll() {
-//        return modelMapper.map(resourceParameterRepository.findAll(),
-//                new TypeToken<List<ResourceParameterDTO>>() {
-//                }.getType());
-//    }
-
     /**
-     * Method find {@link ResourceParameter} by id.
+     * Method finds {@link ResourceParameter} by id.
      *
      * @param id {@link ResourceParameter} id
      * @return instance of {@link ResourceParameter}
@@ -239,17 +218,26 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * {@inheritDoc}
      *
-     * @author Andrii Bren
+     * @author Halyna Yatseniuk
      */
-//    @Override
-//    @Transactional
-//    public void delete(Long id, Long parameterId) throws NotDeletedException {
-//        dslContext.delete(resourceParameters).where(resourceParameters.ID.eq(parameterId)).execute();
-//    }
     @Override
     @Transactional
-    public void delete(Long id, Long parameterId) throws NotDeletedException {
-        resourceTemplateService.findEntityById(id);
+    public void delete(Long templateId, Long parameterId) throws ResourceParameterCanNotBeModified,
+            NotDeletedException {
+        if (resourceTemplateService.findEntityById(templateId).getIsPublished().equals(false)) {
+            deleteById(parameterId);
+        } else throw new ResourceParameterCanNotBeModified(
+                ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_DELETED.getMessage());
+    }
+
+    /**
+     * Method deletes {@link ResourceParameter} by id.
+     *
+     * @param parameterId {@link ResourceParameter} id
+     * @throws NotDeletedException if the resource parameter with provided id is not deleted
+     * @author Andrii Bren
+     */
+    public void deleteById(Long parameterId) throws NotDeletedException {
         try {
             resourceParameterRepository.deleteById(parameterId);
         } catch (EmptyResultDataAccessException ex) {

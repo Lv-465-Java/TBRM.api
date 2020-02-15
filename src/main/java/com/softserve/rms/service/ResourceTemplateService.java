@@ -64,10 +64,11 @@ public interface ResourceTemplateService {
     ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
 
     /**
-     * Method deletes {@link ResourceTemplate} by id.
+     * Method verifies if provided by id {@link ResourceTemplate} could be deleted.
      *
      * @param id of {@link ResourceTemplateDTO}
-     * @throws NotDeletedException if the resource template with provided id is not deleted
+     * @throws NotFoundException                if the resource template with provided id is not found
+     * @throws ResourceTemplateCanNotBeModified if the resource template can not be deleted
      * @author Halyna Yatseniuk
      */
     void deleteById(Long id);

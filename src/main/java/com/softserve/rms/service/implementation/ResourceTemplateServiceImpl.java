@@ -6,6 +6,7 @@ import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
@@ -123,6 +124,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
+    @Transactional
     public ResourceTemplateDTO updateById(Long id, Map<String, Object> body)
             throws NotFoundException, NotUniqueNameException, ResourceTemplateCanNotBeModified {
         ResourceTemplate resourceTemplate = findEntityById(id);
@@ -163,6 +165,20 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     @Transactional
     public void deleteById(Long id) throws NotFoundException {
+        if (findEntityById(id).getIsPublished().equals(false)) {
+            delete(id);
+        } else throw new ResourceTemplateCanNotBeModified
+                (ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_DELETED.getMessage());
+    }
+
+    /**
+     * Method deletes {@link ResourceTemplate} by id.
+     *
+     * @param id of {@link ResourceTemplateDTO}
+     * @throws NotDeletedException if the resource template with provided id is not deleted
+     * @author Halyna Yatseniuk
+     */
+    public void delete(Long id) {
         try {
             resourceTemplateRepository.deleteById(id);
             Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();

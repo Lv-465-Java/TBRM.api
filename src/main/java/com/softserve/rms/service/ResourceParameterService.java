@@ -11,13 +11,14 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeModified;
 
 public interface ResourceParameterService {
 
     /**
      * Method saves {@link ResourceParameter}.
      *
-     * @param id {@link ResourceTemplate} id
+     * @param id               {@link ResourceTemplate} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return instance of {@link ResourceParameterDTO}
      * @throws NotUniqueNameException if the resource parameter with provided name exists
@@ -29,7 +30,7 @@ public interface ResourceParameterService {
     /**
      * Method finds one {@link ResourceParameter} by id.
      *
-     * @param id {@link ResourceTemplate} id
+     * @param id          {@link ResourceTemplate} id
      * @param parameterId {@link ResourceParameterDTO} id
      * @return instance of {@link ResourceParameterDTO}
      * @throws NotFoundException if the resource parameter with provided id is not found
@@ -40,7 +41,7 @@ public interface ResourceParameterService {
     /**
      * Method updates {@link ResourceParameter}.
      *
-     * @param id {@link ResourceTemplate} id
+     * @param id               {@link ResourceTemplate} id
      * @param parameterId      {@link ResourceParameterDTO} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
      * @return updated instance of {@link ResourceParameterDTO}
@@ -49,14 +50,6 @@ public interface ResourceParameterService {
      * @author Andrii Bren
      */
     ResourceParameterDTO update(Long id, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
-
-//    /**
-//     * Method finds all {@link ResourceParameter}.
-//     *
-//     * @return list of {@link ResourceParameterDTO}
-//     * @author Andrii Bren
-//     */
-//    List<ResourceParameterDTO> findAll();
 
     /**
      * Method finds all {@link ResourceParameter} by {@link ResourceTemplate} id.
@@ -70,10 +63,11 @@ public interface ResourceParameterService {
     /**
      * Method deletes {@link ResourceParameter} by id.
      *
-     * @param id {@link ResourceTemplate} id
+     * @param templateId  {@link ResourceTemplate} id
      * @param parameterId {@link ResourceParameter} id
-     * @throws NotDeletedException if the resource parameter with provided id is not deleted
-     * @author Andrii Bren
+     * @throws NotDeletedException               if the resource parameter with provided id is not deleted
+     * @throws ResourceParameterCanNotBeModified if the resource template is published
+     * @author Halyna Yatseniuk
      */
-    void delete(Long id, Long parameterId);
+    void delete(Long templateId, Long parameterId);
 }
