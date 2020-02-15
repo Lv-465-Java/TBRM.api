@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates", "groups"})
+@ToString(exclude = {"resourceTemplates"})
 public class User {
 
     @Id
@@ -45,11 +45,7 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "groups_members",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
-    )
-    private List<Group> groups;
+    public List<Group> getGroups() {
+        return new ArrayList<>();
+    }
 }

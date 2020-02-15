@@ -4,7 +4,6 @@ import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
-import com.softserve.rms.entities.Group;
 import com.softserve.rms.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

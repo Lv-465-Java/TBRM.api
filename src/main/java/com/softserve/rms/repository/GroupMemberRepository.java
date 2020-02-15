@@ -1,15 +1,37 @@
 package com.softserve.rms.repository;
 
-import com.softserve.rms.dto.group.MemberOperationDto;
-import com.softserve.rms.entities.GroupMember;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
-@Repository
-public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
-    GroupMember save(Long userId, Long groupId);
+@Component
+public class GroupMemberRepository {
+    private JdbcTemplate jdbcTemplate;
 
-    //void delete(GroupMember groupMember);
+    @Autowired
+    public GroupMemberRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
+    public void save(Long userId, Long groupId) {
+        jdbcTemplate.update(
+                "INSERT INTO groups_members (user_id, group_id) VALUES (?, ?)",
+                userId, groupId
+        );
+    }
+
+
+    public void delete(Long userId, Long groupId) {
+        jdbcTemplate.update(
+                "DELETE FROM groups_members WHERE user_id = ? AND group_id = ?",
+                userId, groupId
+        );
+    }
+
+    public void deleteGroup(String groupName) {
+        jdbcTemplate.update(
+          "DELETE FROM groups WHERE name = ? RETURNING *",
+                groupName
+        );
+    }
 }

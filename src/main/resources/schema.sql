@@ -60,7 +60,6 @@ create table if not exists groups
 
 create table if not exists groups_members
 (
-    id       bigserial primary key,
     user_id  bigint not null,
     group_id bigint not null,
     constraint unique_uk_7 unique (user_id, group_id),
