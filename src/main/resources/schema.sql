@@ -58,15 +58,6 @@ create table if not exists groups
     constraint unique_uk_6 unique (name)
 );
 
-create table if not exists groups_members
-(
-    user_id  bigint not null,
-    group_id bigint not null,
-    constraint unique_uk_7 unique (user_id, group_id),
-    constraint foreign_fk_7 foreign key (group_id) references groups (id),
-    constraint foreign_fk_8 foreign key (user_id) references users (id)
-);
-
 BEGIN;
 INSERT INTO public.roles (id, name)
 SELECT role.id, role.name

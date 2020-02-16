@@ -1,14 +1,8 @@
 package com.softserve.rms.entities;
 
 import lombok.Data;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.util.ArrayList;
+import javax.persistence.*;
 import java.util.List;
 
 @Data
@@ -20,7 +14,11 @@ public class Group {
     String name;
     String description;
 
-    public List<User> getMembers() {
-        return new ArrayList<>();
-    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "groups_members",
+            joinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
+    )
+    private List<User> users;
 }

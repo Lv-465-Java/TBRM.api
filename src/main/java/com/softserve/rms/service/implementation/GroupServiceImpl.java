@@ -6,6 +6,7 @@ import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
 import com.softserve.rms.entities.Group;
+import com.softserve.rms.entities.GroupsMember;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.GroupMemberRepository;
@@ -15,6 +16,7 @@ import com.softserve.rms.service.GroupService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +60,10 @@ public class GroupServiceImpl  implements GroupService {
                 () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
         );
         Group group = groupRepository.findByName(memberSaveDto.getGroupName());
-        groupMemberRepository.save(user.getId(), group.getId());
+        GroupsMember groupsMember = new GroupsMember();
+        groupsMember.setUser(user);
+        groupsMember.setGroup(group);
+        groupMemberRepository.save(groupsMember);
         return new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName(), group.getName());
     }
 
@@ -78,6 +83,8 @@ public class GroupServiceImpl  implements GroupService {
                 () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
         );
         Group group = groupRepository.findByName(memberDeleteDto.getGroupName());
-        groupMemberRepository.delete(user.getId(), group.getId());
+        try {
+            groupMemberRepository.deleteMember(user.getId(), group.getId());
+        } catch (Exception ignored){}
     }
 }

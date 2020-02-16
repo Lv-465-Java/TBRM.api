@@ -1,39 +1,12 @@
 package com.softserve.rms.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import com.softserve.rms.entities.GroupsMember;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class GroupMemberRepository {
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public GroupMemberRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public void save(Long userId, Long groupId) {
-        jdbcTemplate.update(
-                "INSERT INTO groups_members (user_id, group_id) VALUES (?, ?)",
-                userId, groupId
-        );
-    }
-
-
-    public void delete(Long userId, Long groupId) {
-        jdbcTemplate.update(
-                "DELETE FROM groups_members WHERE user_id = ? AND group_id = ?",
-                userId, groupId
-        );
-    }
-
-    public void deleteGroup(String groupName) {
-        jdbcTemplate.update(
-                " DELETE FROM groups_members WHERE group_id in (" +
-                        " SELECT id FROM groups WHERE name = ?)",
-                groupName
-        );
-        jdbcTemplate.update("DELETE FROM groups WHERE name = ?", groupName);
-    }
+@Repository
+public interface GroupMemberRepository extends JpaRepository<GroupsMember, Long> {
+    @Query(value = "delete from groups_members e where user_id = :userId and group_id = :groupId", nativeQuery = true)
+    void deleteMember(Long userId, Long groupId);
 }

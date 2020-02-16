@@ -12,8 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates"})
+@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
+@ToString(exclude = {"resourceTemplates", "groups"})
 public class User {
 
     @Id
@@ -45,7 +45,11 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
-    public List<Group> getGroups() {
-        return new ArrayList<>();
-    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "groups_members",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
+    )
+    private List<Group> groups;
 }
