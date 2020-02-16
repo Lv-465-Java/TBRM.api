@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Entity(name = "groups")
+@Entity
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

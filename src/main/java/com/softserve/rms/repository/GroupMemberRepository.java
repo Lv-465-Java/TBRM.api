@@ -30,8 +30,10 @@ public class GroupMemberRepository {
 
     public void deleteGroup(String groupName) {
         jdbcTemplate.update(
-          "DELETE FROM groups WHERE name = ? RETURNING *",
+                " DELETE FROM groups_members WHERE group_id in (" +
+                        " SELECT id FROM groups WHERE name = ?)",
                 groupName
         );
+        jdbcTemplate.update("DELETE FROM groups WHERE name = ?", groupName);
     }
 }
