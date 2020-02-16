@@ -186,7 +186,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             throws ResourceTemplateIsNotPublishedException {
         if (!resourceTemplate.getIsPublished()) {
             throw new ResourceTemplateIsNotPublishedException(
-                    ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
+                    ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_HAVE_RELATIONS.getMessage());
         }
         return resourceTemplate;
     }

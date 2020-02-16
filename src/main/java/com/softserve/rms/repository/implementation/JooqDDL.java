@@ -5,12 +5,14 @@ import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import org.jooq.DSLContext;
+import org.jooq.Result;
 import org.jooq.impl.SQLDataType;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.count;
 
 public class JooqDDL {
     private DSLContext dslContext;
@@ -73,6 +75,17 @@ public class JooqDDL {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .addColumn(parameter.getColumnName().concat("_ref"),
                         parameter.getParameterType().getSqlType().nullable(true))
+                .execute();
+    }
+
+    public int countTableRecords(ResourceTemplate resourceTemplate) {
+        return dslContext.selectCount()
+                .from(resourceTemplate.getTableName())
+                .fetchOne(0, int.class);
+    }
+
+    public void dropResourceContainerTable(ResourceTemplate resourceTemplate) {
+        dslContext.dropTable(resourceTemplate.getTableName())
                 .execute();
     }
 }

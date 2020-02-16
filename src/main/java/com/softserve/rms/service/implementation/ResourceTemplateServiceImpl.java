@@ -9,9 +9,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
+import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
@@ -20,6 +18,8 @@ import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
 import org.jooq.*;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,6 +45,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private ModelMapper modelMapper = new ModelMapper();
     private DSLContext dslContext;
     private JooqDDL jooqDDL;
+
+    private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
     /**
      * Constructor with parameters.
@@ -244,10 +246,21 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     private void unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
-        //verifications
-        resourceTemplate.setIsPublished(false);
-        resourceTemplateRepository.save(resourceTemplate);
-        //drop table
+        jooqDDL = new JooqDDL(dslContext);
+        if (verifyIfResourceTemplateIsPublished(resourceTemplate) &&
+                verifyIfResourceTableIsEmpty(resourceTemplate)) {
+            jooqDDL.dropResourceContainerTable(resourceTemplate);
+            resourceTemplate.setIsPublished(false);
+            resourceTemplateRepository.save(resourceTemplate);
+        }
+    }
+
+    public Boolean verifyIfResourceTableIsEmpty(ResourceTemplate resourceTemplate) {
+        if (jooqDDL.countTableRecords(resourceTemplate) > 0) {
+            throw new ResourceTemplateCanNotBeUnPublished(
+                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROP.getMessage());
+        }
+        return true;
     }
 
     /**
@@ -307,6 +320,15 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (resourceTemplate.getIsPublished()) {
             throw new ResourceTemplateIsPublishedException
                     (ErrorMessage.RESOURCE_TEMPLATE_IS_ALREADY_PUBLISHED.getMessage());
+        }
+        return true;
+    }
+
+    private Boolean verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateIsNotPublishedException {
+        if (!resourceTemplate.getIsPublished()) {
+            throw new ResourceTemplateIsNotPublishedException(
+                    ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
         }
         return true;
     }
