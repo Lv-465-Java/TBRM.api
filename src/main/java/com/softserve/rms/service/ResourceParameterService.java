@@ -39,15 +39,13 @@ public interface ResourceParameterService {
     ResourceParameterDTO findByIdDTO(Long templateId, Long parameterId);
 
     /**
-     * Method updates {@link ResourceParameter}.
+     * Method verifies if {@link ResourceParameter} could be updates.
      *
      * @param templateId       {@link ResourceTemplate} id
-     * @param parameterId      {@link ResourceParameterDTO} id
+     * @param parameterId      {@link ResourceParameter} id
      * @param parameterSaveDTO {@link ResourceParameterSaveDTO}
-     * @return updated instance of {@link ResourceParameterDTO}
-     * @throws NotUniqueNameException if the resource parameter with provided name exists
-     * @throws NotFoundException      if the resource parameter with provided id is not found
-     * @author Andrii Bren
+     * @throws ResourceParameterCanNotBeModified if the resource template is published
+     * @author Halyna Yatseniuk
      */
     ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
 
@@ -61,7 +59,7 @@ public interface ResourceParameterService {
     List<ResourceParameterDTO> findAllByTemplateId(Long templateId);
 
     /**
-     * Method deletes {@link ResourceParameter} by id.
+     * Method verifies if {@link ResourceParameter} could be deleted.
      *
      * @param templateId  {@link ResourceTemplate} id
      * @param parameterId {@link ResourceParameter} id

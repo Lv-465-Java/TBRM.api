@@ -1,18 +1,13 @@
 package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.FieldConstants;
-import com.softserve.rms.entities.ParameterType;
-import com.softserve.rms.entities.ResourceParameter;
-import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.entities.*;
 import org.jooq.DSLContext;
-import org.jooq.Result;
 import org.jooq.impl.SQLDataType;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.count;
 
 public class JooqDDL {
     private DSLContext dslContext;
@@ -21,7 +16,13 @@ public class JooqDDL {
         this.dslContext = dslContext;
     }
 
-    @Transactional
+    /**
+     * Method creates {@link Resource} container table based on {@link ResourceTemplate} table name
+     * with static columns.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     public void createResourceContainerTable(ResourceTemplate resourceTemplate) {
         dslContext.createTable(resourceTemplate.getTableName())
                 .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false))
@@ -35,6 +36,12 @@ public class JooqDDL {
         addColumnsToResourceContainerTable(resourceTemplate);
     }
 
+    /**
+     * Method checks {@link ResourceTemplate} parameter types and invokes appropriate for type alter table method.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     private void addColumnsToResourceContainerTable(ResourceTemplate resourceTemplate) {
         List<ResourceParameter> resourceParameterList = resourceTemplate.getResourceParameters();
         for (ResourceParameter parameter : resourceParameterList) {
@@ -52,6 +59,12 @@ public class JooqDDL {
         }
     }
 
+    /**
+     * Method alters {@link Resource} container table and adds a new column based on Point or Coordinate parameter types.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     private void addColumnWithPointOrCoordinatesParameterType(ResourceTemplate resourceTemplate,
                                                               ResourceParameter parameter) {
         dslContext.alterTable(resourceTemplate.getTableName())
@@ -59,6 +72,12 @@ public class JooqDDL {
                 .execute();
     }
 
+    /**
+     * Method alters {@link Resource} container table and adds new columns based on Range parameter type.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     private void addColumnsWithRangeParameterType(ResourceTemplate resourceTemplate, ResourceParameter parameter) {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .addColumn(parameter.getColumnName().concat("_from"),
@@ -70,20 +89,43 @@ public class JooqDDL {
                 .execute();
     }
 
+    /**
+     * Method alters {@link Resource} container table and adds a new column with constraint foreign key based on
+     * Point Reference parameter type.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     private void addColumnWithPointReferenceParameterType(ResourceTemplate resourceTemplate,
                                                           ResourceParameter parameter) {
+        ResourceRelation resourceRelation = parameter.getResourceRelations();
         dslContext.alterTable(resourceTemplate.getTableName())
-                .addColumn(parameter.getColumnName().concat("_ref"),
-                        parameter.getParameterType().getSqlType().nullable(true))
+                .addColumn(parameter.getColumnName().concat("_ref"), parameter.getParameterType().getSqlType().nullable(true))
+                .execute();
+        dslContext.alterTable(resourceTemplate.getTableName())
+                .add(constraint(parameter.getColumnName().concat("_FK"))
+                        .foreignKey("id").references(resourceRelation.getRelatedResourceTemplate().getTableName()))
                 .execute();
     }
 
+    /**
+     * Method counts {@link Resource} container table records amount.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     public int countTableRecords(ResourceTemplate resourceTemplate) {
         return dslContext.selectCount()
                 .from(resourceTemplate.getTableName())
                 .fetchOne(0, int.class);
     }
 
+    /**
+     * Method drops {@link Resource} container table.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
     public void dropResourceContainerTable(ResourceTemplate resourceTemplate) {
         dslContext.dropTable(resourceTemplate.getTableName())
                 .execute();

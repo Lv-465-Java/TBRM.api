@@ -110,6 +110,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Halyna Yatseniuk
+     */
     @Override
     @Transactional
     public ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO)
@@ -121,8 +126,20 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                 ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_UPDATED.getMessage());
     }
 
+    /**
+     * Method updates {@link ResourceParameter}.
+     *
+     * @param templateId        {@link ResourceTemplate} id
+     * @param resourceParameter {@link ResourceParameter}
+     * @param parameterDTO      {@link ResourceParameterSaveDTO}
+     * @return updated instance of {@link ResourceParameterDTO}
+     * @throws NotUniqueNameException if the resource parameter with provided name exists
+     * @throws NotFoundException      if the resource parameter with provided id is not found
+     * @author Andrii Bren
+     */
     private ResourceParameterDTO update(Long templateId, ResourceParameter resourceParameter,
-                                        ResourceParameterSaveDTO parameterDTO) throws NotUniqueNameException {
+                                        ResourceParameterSaveDTO parameterDTO)
+            throws NotUniqueNameException, NotFoundException {
         updateParameterNameAndColumnName(templateId, resourceParameter, parameterDTO);
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null) {
@@ -137,7 +154,17 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
-    private void updateParameterNameAndColumnName(Long templateId, ResourceParameter resourceParameter, ResourceParameterSaveDTO parameterDTO) {
+    /**
+     * Method updates {@link ResourceParameter} name and column name.
+     *
+     * @param templateId        {@link ResourceTemplate} id
+     * @param resourceParameter {@link ResourceParameter}
+     * @param parameterDTO      {@link ResourceParameterSaveDTO}
+     * @throws NotUniqueNameException if the resource template or parameter is not found
+     * @author Halyna Yatseniuk
+     */
+    private void updateParameterNameAndColumnName(Long templateId, ResourceParameter resourceParameter,
+                                                  ResourceParameterSaveDTO parameterDTO) {
         if (!resourceParameter.getName().equals(parameterDTO.getName())) {
             resourceParameter.setName(verifyIfParameterNameIsUniquePerResourceTemplate(
                     parameterDTO.getName(), templateId));
@@ -146,7 +173,18 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
         }
     }
 
-    private ResourceRelation updateParameterRelation(Long parameterId, ResourceRelationDTO relationDTO) {
+    /**
+     * Method updates {@link ResourceRelation}.
+     *
+     * @param parameterId {@link ResourceParameter} id
+     * @param relationDTO {@link ResourceRelationDTO}
+     * @return instance of {@link ResourceRelation}
+     * @throws NotFoundException                       if the resource template or parameter is not found
+     * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
+     * @author Halyna Yatseniuk
+     */
+    private ResourceRelation updateParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
+            throws NotFoundException {
         ResourceRelation resourceRelation = resourceRelationRepository.findByResourceParameterId(parameterId);
         if (resourceRelation != null) {
             resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
@@ -162,7 +200,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @param relationDTO {@link ResourceRelationDTO}
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
-     * @throws ResourceTemplateIsNotPublishedException if resource template has been already published
+     * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
      * @author Andrii Bren
      */
     private ResourceRelation saveParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)

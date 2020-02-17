@@ -255,6 +255,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         }
     }
 
+    /**
+     * Method verifies if {@link ResourceTemplate} table contains records.
+     *
+     * @param resourceTemplate of {@link ResourceTemplate}
+     * @return true value if {@link ResourceTemplate} table is empty
+     * @throws ResourceTemplateCanNotBeUnPublished if {@link ResourceTemplate} table contains records
+     * @author Halyna Yatseniuk
+     */
     public Boolean verifyIfResourceTableIsEmpty(ResourceTemplate resourceTemplate) {
         if (jooqDDL.countTableRecords(resourceTemplate) > 0) {
             throw new ResourceTemplateCanNotBeUnPublished(
@@ -324,6 +332,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return true;
     }
 
+    /**
+     * Method verifies if {@link ResourceTemplate} has been published.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @return boolean true if {@link ResourceTemplateDTO} is published
+     * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
+     * @author Halyna Yatseniuk
+     */
     private Boolean verifyIfResourceTemplateIsPublished(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsNotPublishedException {
         if (!resourceTemplate.getIsPublished()) {
