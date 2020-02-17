@@ -7,6 +7,9 @@ import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public interface UserService {
     /**
@@ -57,4 +60,5 @@ public interface UserService {
      * @author Mariia Shchur
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
+    List<Map<String, Object>> getData(Long id);
 }

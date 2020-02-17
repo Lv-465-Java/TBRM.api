@@ -16,9 +16,18 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -26,6 +35,7 @@ public class UserServiceImpl implements UserService, Message {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Constructor with parameters
@@ -34,9 +44,11 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           DataSource dataSource) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 
@@ -55,6 +67,25 @@ public class UserServiceImpl implements UserService, Message {
             throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
         }
     }
+
+
+    final static String SQL = "select u, r.revtstmp from users_aud u ,revinfo r where  u.rev=r.rev and u.id = ? ";
+    public List<Map<String, Object>> getData(Long id) {
+        Calendar calendar = Calendar.getInstance();
+        String dateFormat = "dd-MM-yyyy hh:mm";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+        List<Map<String, Object>> q = jdbcTemplate.queryForList(SQL, id);
+        for(int i=0;i<q.size();i++){
+            for(Map.Entry<String,Object> w : q.get(i).entrySet()){
+                if (w.getKey().equals("revtstmp")){
+                    calendar.setTimeInMillis((Long) w.getValue());
+                    w.setValue(simpleDateFormat.format(calendar.getTime()));
+                }
+            }
+        }
+        return q;
+    }
+
 
     /**
      * {@inheritDoc }
