@@ -25,6 +25,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import springfox.documentation.builders.PathSelectors;
@@ -34,6 +40,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 
 /**
  * Config for security
@@ -167,19 +174,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean corsFilter() {
+    CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedOrigin("*");
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedMethod("*");
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("RefreshToken");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.addExposedHeader("Authorization");
-        config.addExposedHeader("RefreshToken");
-        source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
-}
 
+
+}
