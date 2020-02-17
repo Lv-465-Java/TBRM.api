@@ -4,12 +4,9 @@ import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
-import com.softserve.rms.entities.Group;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface GroupService {
     List<GroupDto> getAll();
 
@@ -19,7 +16,7 @@ public interface GroupService {
 
     MemberDto addMember(MemberOperationDto memberSaveDto);
 
-    void update(Group group);
+    GroupDto update(String name, GroupSaveDto groupSaveDto);
 
     void deleteCroup(String groupName);
 

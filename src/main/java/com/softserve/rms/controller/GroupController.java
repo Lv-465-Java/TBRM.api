@@ -1,10 +1,13 @@
 package com.softserve.rms.controller;
 
+import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
 import com.softserve.rms.service.GroupService;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,37 +25,85 @@ public class GroupController {
         this.groupService = groupService;
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
     @GetMapping
     public ResponseEntity<List<GroupDto>> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(groupService.getAll());
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
     @GetMapping("/{name}")
     public ResponseEntity<GroupDto> getByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(groupService.getByName(name));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
     @PostMapping
     public ResponseEntity<GroupDto> createGroup(@RequestBody GroupSaveDto groupSaveDto) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(groupService.createGroup(groupSaveDto));
     }
 
-    @PostMapping("/addMember")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @PostMapping("/member")
     public ResponseEntity<MemberDto> addMember(@RequestBody MemberOperationDto member) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(groupService.addMember(member));
     }
 
-    @DeleteMapping
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @PutMapping("/{name}")
+    public ResponseEntity<GroupDto> editGroup(@PathVariable String name, @RequestBody GroupSaveDto groupSaveDto) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(groupService.update(name, groupSaveDto));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @DeleteMapping("/{name}")
     public ResponseEntity<Object> deleteGroup(@PathVariable String name) {
         groupService.deleteCroup(name);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @DeleteMapping("/deleteMember")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @DeleteMapping("/member")
     public ResponseEntity<Object> deleteMember(@RequestBody MemberOperationDto memberDeleteDto) {
         groupService.deleteMember(memberDeleteDto);
         return ResponseEntity.status(HttpStatus.OK).build();

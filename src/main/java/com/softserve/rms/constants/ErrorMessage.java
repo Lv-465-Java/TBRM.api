@@ -24,8 +24,10 @@ public enum ErrorMessage {
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
     PERMISSION_NOT_FOUND("Could not find such permission."),
-    USER_DO_NOT_EXISTS("Sorry such user don`t exists (");
-
+    USER_DO_NOT_EXISTS("Sorry such user don`t exists ("),
+    GROUP_DO_NOT_EXISTS("Sorry such group don`t exists ("),
+    GROUP_ALREADY_EXIST("Sorry such group already exists (:"),
+    GROUP_MEMBER_ALREADY_EXISTS("Sorry,but user that you want to add is member of this group");
     private String message;
 
     ErrorMessage(String message) {

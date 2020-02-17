@@ -10,7 +10,6 @@ import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -89,8 +88,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         sid = permissionDto.isPrincipal()
                 ? new PrincipalSid(permissionDto.getRecipient()) :  new GrantedAuthoritySid(permissionDto.getRecipient());
 
-        permission = permissionDto.getPermission().equalsIgnoreCase("read")
-                ? BasePermission.READ : BasePermission.WRITE;
+        permission = permissionMapper.getMask(permissionDto.getPermission());
 
         ObjectIdentity oid = new ObjectIdentityImpl(ResourceTemplate.class, permissionDto.getResTempId());
 
@@ -118,7 +116,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      */
     @Transactional
     @Override
-    public void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal) {
+    public void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal) throws PermissionException {
         MutableAcl acl;
         Sid sid = permissionDto.isPrincipal()
                 ? new PrincipalSid(permissionDto.getRecipient()) : new GrantedAuthoritySid(permissionDto.getRecipient());
@@ -126,7 +124,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         int acePosition = 0;
         try {
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
-            if(!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())) {
+            if (!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())) {
                 throw new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage());
             }
             List<AccessControlEntry> aces = acl.getEntries();
@@ -148,18 +146,17 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      * Method deletes ACL for certain resource template.
      *
      * @param resourceId id of resource template
-     * @param principal authenticated user
-     *
+     * @param principal  authenticated user
      * @author Artur Sydor
      */
     @Transactional
     @Override
-    public void closeAllPermissionsToResource(Long resourceId, Principal principal) {
+    public void closeAllPermissionsToResource(Long resourceId, Principal principal) throws PermissionException {
         MutableAcl acl;
         try {
             ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, resourceId);
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
-            if(!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())) {
+            if (!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())) {
                 throw new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage());
             }
             mutableAclService.deleteAcl(objectIdentity, false);

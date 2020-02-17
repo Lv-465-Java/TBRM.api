@@ -56,4 +56,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
 
     @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
     ResourceTemplate save(ResourceTemplate resourceTemplate);
+
+    @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
+    ResourceTemplate saveAndFlush(ResourceTemplate resourceTemplate);
 }
