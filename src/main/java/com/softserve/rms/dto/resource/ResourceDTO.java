@@ -18,6 +18,4 @@ public class ResourceDTO {
     private Long resourceTemplateId;
     private Long userId;
     private HashMap<String, Object> parameters;
-//    private List<Object> parameters;
-//    private List<ResourceParameter> resourceParameters;
 }

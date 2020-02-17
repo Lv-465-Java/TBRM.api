@@ -90,6 +90,8 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
+    ResourceTemplate findByName(String name);
+
     /**
      * Method makes {@link ResourceTemplate} be published.
      * <p>

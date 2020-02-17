@@ -1,5 +1,4 @@
 
-
 plugins {
     id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
@@ -62,70 +61,6 @@ dependencies {
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
 }
-
-// Use your favourite XML builder to construct the code generation configuration file
-// ----------------------------------------------------------------------------------
-//def writer = new StringWriter()
-//def xml = new MarkupBuilder(writer)
-//        .configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.12.0.xsd') {
-jooq {
-    sample(sourceSets.main) {
-        jdbc {
-            driver = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://localhost:5432/tbrm'
-//            url = '${DATASOURCE_URL}'
-            user = 'lviv465'
-//            user = '${DATASOURCE_USER}'
-            password = 'secret'
-//            password = '${DATASOURCE_PASSWORD}'
-        }
-        generator {
-            name = 'org.jooq.codegen.DefaultGenerator'
-//            name = 'org.jooq.codegen.JavaGenerator'
-            database {
-                name = 'org.jooq.meta.postgres.PostgresDatabase'
-                inputSchema = 'public'
-            }
-
-            // Watch out for this caveat when using MarkupBuilder with "reserved names"
-            // - https://github.com/jOOQ/jOOQ/issues/4797
-            // - http://stackoverflow.com/a/11389034/521799
-            // - https://groups.google.com/forum/#!topic/jooq-user/wi4S9rRxk4A
-            generate {
-                pojos = true
-                daos = true
-            }
-            target {
-                packageName = 'com.softserve.rms.jooq'
-                directory = 'src/main/java'
-            }
-
-        }
-    }
-}
-
-tasks.generateSampleJooqSchemaSource.with {
-    def out = new ByteArrayOutputStream()
-    javaExecSpec = { JavaExecSpec s ->
-        s.standardOutput = out
-        s.errorOutput = out
-        s.ignoreExitValue = true
-        s.jvmArgs '-Xmx512M'
-    }
-    execResultHandler = { ExecResult r ->
-        if (r.exitValue != 0) {
-            throw new RuntimeException('jOOQ source code generation failed:\n\n' + out.toString())
-        }
-    }
-}
-
-
-// Run the code generator
-// ----------------------
-//org.jooq.codegen.GenerationTool.generate(writer.toString())
-//org.jooq.util.GenerationTool.generate(
-//        javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
-//)
 
 test {
     useJUnit()

@@ -11,10 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/resource-template/resource/{resourceName}")
+@RequestMapping("/resource-template/resource/{tableName}")
 public class ResourceController {
     private ResourceService resourceService;
     private static final Logger LOG = LoggerFactory.getLogger(ResourceController.class);
@@ -25,25 +27,32 @@ public class ResourceController {
     }
 
     @PostMapping
-    public HttpStatus save(@RequestBody ResourceSaveDTO resourceDTO){
+    public HttpStatus save(@PathVariable String tableName, @RequestBody ResourceSaveDTO resourceDTO){
         LOG.info("Create a new Resource");
-        resourceService.save(resourceDTO);
+        resourceService.save(tableName, resourceDTO);
         return HttpStatus.OK;
     }
 
     @GetMapping
-    public ResponseEntity<List<ResourceDTO>> findAll(@PathVariable String resourceName) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceService.findAll(resourceName));
+    public ResponseEntity<List<ResourceDTO>> findAll(@PathVariable String tableName) {
+        return ResponseEntity.status(HttpStatus.OK).body(resourceService.findAll(tableName));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResourceDTO> findById(@PathVariable String resourceName, @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceService.findById(resourceName, id));
+    public ResponseEntity<ResourceDTO> findById(@PathVariable String tableName, @PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(resourceService.findByIdDTO(tableName, id));
+    }
+
+    @PatchMapping("/{id}")
+    public HttpStatus update(@PathVariable String tableName, @PathVariable Long id,
+                             @RequestBody Map<String, HashMap<String, Object>> body) {
+        resourceService.update(tableName, id, body);
+        return HttpStatus.OK;
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable String resourceName, @PathVariable Long id) {
-        resourceService.delete(resourceName, id);
+    public ResponseEntity<Object> delete(@PathVariable String tableName, @PathVariable Long id) {
+        resourceService.delete(tableName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

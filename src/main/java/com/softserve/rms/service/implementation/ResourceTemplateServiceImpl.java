@@ -199,6 +199,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
+    @Override
+    public ResourceTemplate findByName(String name) {
+        return resourceTemplateRepository.findByName(name)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE.getMessage() + name));
+    }
+
 
 //    /**
 //     * Method makes {@link ResourceTemplate} be published.
