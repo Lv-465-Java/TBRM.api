@@ -191,7 +191,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     public ResourceTemplate findEntityById(Long id) throws NotFoundException {
         try {
-            return resourceTemplateRepository.findById(id).get();
+            return resourceTemplateRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
         }catch (AccessDeniedException e){
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
