@@ -62,7 +62,7 @@ public class LoginController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/authentication")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response){
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response){
 
         JwtDto jwtDto=authenticationService.loginUser(loginUser);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX+ jwtDto.getAccessToken());
@@ -81,7 +81,7 @@ public class LoginController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
+    public ResponseEntity<Object> refresh(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
 
         JwtDto newToken = tokenManagementService.refreshTokens(refresh);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX + newToken.getAccessToken());

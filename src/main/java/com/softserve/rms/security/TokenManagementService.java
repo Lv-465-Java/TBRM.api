@@ -2,6 +2,7 @@ package com.softserve.rms.security;
 
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.exceptions.JwtAuthenticationException;
+import com.softserve.rms.exceptions.JwtExpiredTokenException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
 import io.jsonwebtoken.*;
@@ -43,25 +44,27 @@ public class TokenManagementService implements Message {
 
     /**
      * constructor
+     *
      * @param userPrincipalDetailsService {@link UserPrincipalDetailsService}
      */
     @Autowired
-    public TokenManagementService(UserPrincipalDetailsService userPrincipalDetailsService){
-        this.userPrincipalDetailsService=userPrincipalDetailsService;
+    public TokenManagementService(UserPrincipalDetailsService userPrincipalDetailsService) {
+        this.userPrincipalDetailsService = userPrincipalDetailsService;
     }
 
     /**
      * Generates a JWT access and refresh tokens containing userId as claim. These properties are taken from the specified
-     *  User object. Access token validity is 2 min, refresh token validity 60 days.
+     * User object. Access token validity is 2 min, refresh token validity 60 days.
+     *
      * @param email {@link String}
      * @return JwtDto - it is access and refresh tokens
      */
     public JwtDto generateTokenPair(String email) {
 
-        long nowMillis=System.currentTimeMillis();
-        long expirationTime =Long.parseLong(expireTimeAccessToken);
-        Date expiryDate = new Date(nowMillis+expirationTime);
-        SignatureAlgorithm signatureAlgorithm=SignatureAlgorithm.HS256;
+        long nowMillis = System.currentTimeMillis();
+        long expirationTime = Long.parseLong(expireTimeAccessToken);
+        Date expiryDate = new Date(nowMillis + expirationTime);
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         byte[] decodeSecretKey = TextCodec.BASE64.decode(secretKey);
 
         String token = Jwts.builder()
@@ -72,10 +75,10 @@ public class TokenManagementService implements Message {
 
 
         long expirationTimeRefresh = Long.parseLong(expireTimeRefreshToken);
-        String refreshToken=Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(nowMillis+expirationTimeRefresh))
+                .setExpiration(new Date(nowMillis + expirationTimeRefresh))
                 .signWith(signatureAlgorithm, decodeSecretKey).compact();
 
         return new JwtDto(token, refreshToken);
@@ -83,20 +86,20 @@ public class TokenManagementService implements Message {
 
     /**
      * Refresh access and refresh tokens, using refresh token
+     *
      * @param refreshToken {@link String}
      * @return JwtDto
      */
 
-    public JwtDto refreshTokens(String  refreshToken) {
-        if (refreshToken!=null && validateToken(refreshToken)) {
+    public JwtDto refreshTokens(String refreshToken) {
+        if (refreshToken != null && validateToken(refreshToken)) {
             try {
-                String email=getUserEmail(refreshToken);
-                JwtDto jwtDto= generateTokenPair(email);
-                LOGGER.info("tokens refreshed successfully!");
+                String email = getUserEmail(refreshToken);
+                JwtDto jwtDto = generateTokenPair(email);
+                LOGGER.info("Tokens refreshed successfully!");
 
                 return jwtDto;
-            }
-            catch (JwtException e) {
+            } catch (JwtException e) {
                 throw new RefreshTokenException(REFRESH_TOKEN_EXCEPTION);
             }
         } else {
@@ -119,30 +122,43 @@ public class TokenManagementService implements Message {
 
     /**
      * Gets email from token and throws an error if token is expired.
+     *
      * @param token {@link String}
      * @return email {@link String}
      */
     public String getUserEmail(String token) {
-            return Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey))
-                    .parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey))
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
 
     /**
      * Method verify whether the token has expired or not.
+     *
      * @param token {@link String}
      * @return boolean
      */
     public boolean validateToken(String token) {
         boolean isValid = false;
-        try{
-            Jws<Claims> claimsJws=Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
-            if (!claimsJws.getBody().getExpiration().before(new Date())){
-                isValid=true;
+        try {
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
+            if (!claimsJws.getBody().getExpiration().before(new Date())) {
+                isValid = true;
             }
-        }catch(IllegalArgumentException | UnsupportedJwtException | MalformedJwtException | SignatureException ex){
+        } catch (JwtException ex) {
             LOGGER.info("Token is not valid!");
-        }
+           // throw new JwtExpiredTokenException("eeeff");
+//    }catch(
+//       SignatureException e)
+//
+//    {
+//        LOGGER.info("Signature exc");
+    }
+
+      catch (IllegalArgumentException ex) {
+          LOGGER.info("an error occured during getting username from token");
+      }
+
         return isValid;
     }
 

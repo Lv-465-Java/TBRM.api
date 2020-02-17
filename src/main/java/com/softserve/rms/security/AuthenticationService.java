@@ -53,7 +53,7 @@ public class AuthenticationService implements Message {
 
         if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
             if (!user.isEnabled()){
-                throw new DisabledException("Your account is not active");
+                throw new DisabledException(NON_ACTIVE_ACCOUNT_EXCEPTION);
             }
             return tokenManagementService.generateTokenPair(loginUser.getEmail());
 

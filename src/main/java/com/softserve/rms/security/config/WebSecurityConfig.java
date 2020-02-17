@@ -2,11 +2,16 @@ package com.softserve.rms.security.config;
 
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.filter.JwtAuthorizationFilter;
+import com.softserve.rms.security.oauth.CustomAuthenticationSuccessHandler;
+import com.softserve.rms.security.oauth.CustomOidcUserService;
+import com.softserve.rms.security.oauth.JwtAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,7 +19,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -29,17 +41,32 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Configuration
 @EnableWebSecurity
+@EnableResourceServer
+//@EnableGlobalMethodSecurity(
+//        securedEnabled = true,
+//        jsr250Enabled = true,
+//        prePostEnabled = true
+//)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private TokenManagementService tokenManagementService;
+    private CustomOidcUserService customOidcUserService;
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
 
     /**
      * constructor
      * @param tokenManagementService {@link TokenManagementService}
      */
     @Autowired
-    public WebSecurityConfig(TokenManagementService tokenManagementService){
+    public WebSecurityConfig(TokenManagementService tokenManagementService,
+                             CustomOidcUserService customOidcUserService,
+                             CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint){
         this.tokenManagementService=tokenManagementService;
+        this.customOidcUserService=customOidcUserService;
+        this.customAuthenticationSuccessHandler=customAuthenticationSuccessHandler;
+        this.unauthorizedHandler=jwtAuthenticationEntryPoint;
     }
 
 
@@ -70,13 +97,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.cors().and().csrf().disable()
+        http//.cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .csrf().disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(
-                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                 )
+               .authenticationEntryPoint(unauthorizedHandler)
+//                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+//                 )
                 .and()
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -86,12 +114,41 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
+                .oauth2Login();
+               // .loginPage("/login/oauth2")
+//                .defaultSuccessUrl("/",true)
+//                .failureUrl("/oauth_login")
+//                .permitAll()
+//            .and()
+//                .logout()
+//                    .logoutUrl("/")
+//                    .logoutSuccessUrl("/oauth_login").permitAll()
+//        .redirectionEndpoint()
+//        .baseUri("/oauth2/callback/*")
+//        .and()
+//        .userInfoEndpoint()
+//        .oidcUserService(customOidcUserService)
+//                .and()
+//        .authorizationEndpoint()
+//                .baseUri("/oauth2/authorize")
+//                .authorizationRequestRepository(customAuthorizationRequestRepository())
+//        .and()
+//        .successHandler(customAuthenticationSuccessHandler);
+
+                http
                 .addFilterBefore(new JwtAuthorizationFilter(tokenManagementService), UsernamePasswordAuthenticationFilter.class);
+
+
     }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthorizationRequestRepository customAuthorizationRequestRepository() {
+        return new HttpSessionOAuth2AuthorizationRequestRepository();
     }
 
     /**
@@ -108,4 +165,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/webjars/**");
     }
+
+    @Bean
+    public FilterRegistrationBean corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("RefreshToken");
+        source.registerCorsConfiguration("/**", config);
+        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        bean.setOrder(0);
+        return bean;
+    }
 }
+

@@ -4,6 +4,7 @@ import com.softserve.rms.exceptions.JwtAuthenticationException;
 import com.softserve.rms.exceptions.JwtExpiredTokenException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.security.TokenManagementService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +65,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
                     LOGGER.info("User successfully authenticate - {}", authentication.getPrincipal());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (JwtExpiredTokenException e) {
+//                else {
+//                    throw new JwtExpiredTokenException("tttt expire");
+//                }
+            } catch (ExpiredJwtException e) {
                 LOGGER.info("Token has expired: " + accessToken);
+                throw new JwtExpiredTokenException("exp");
 
-            } catch (JwtAuthenticationException e) {
+            }
+            catch (Exception e) {
                 LOGGER.info("JWT Authentication failed");
             }
 

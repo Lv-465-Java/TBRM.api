@@ -5,22 +5,21 @@ import com.softserve.rms.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Class that implements UserDetails interface.
  *
  * @author Artur Sydor
  */
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails{
     /**
      * Represents User entity.
      */
     private User user;
+    private Map<String, Object> attributes;
 
     /**
      * Constructor with parameters.
@@ -30,6 +29,11 @@ public class UserPrincipal implements UserDetails {
     public UserPrincipal(User user) {
         this.user = user;
     }
+//
+//    @Override
+//    public Map<String, Object> getAttributes() {
+//        return attributes;
+//    }
 
     /**
      * Get role from User object
@@ -129,4 +133,9 @@ public class UserPrincipal implements UserDetails {
     public int hashCode() {
         return user != null ? user.hashCode() : 0;
     }
+
+//    @Override
+//    public String getName() {
+//        return String.valueOf(user.getId());
+//    }
 }
