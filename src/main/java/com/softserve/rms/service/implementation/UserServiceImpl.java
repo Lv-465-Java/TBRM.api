@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 
+
 @Service
 public class UserServiceImpl implements UserService, Message {
     private UserRepository userRepository;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService, Message {
                            PasswordEncoder passwordEncoder,
                            DataSource dataSource) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.passwordEncoder = passwordEncoder;
         jdbcTemplate = new JdbcTemplate(dataSource);
     }

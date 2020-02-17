@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
 @RestController
 public class ResourceTemplateController {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceTemplateController.class);

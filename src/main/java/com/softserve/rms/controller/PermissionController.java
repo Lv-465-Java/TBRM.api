@@ -3,6 +3,7 @@ package com.softserve.rms.controller;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.dto.PermissionDto;
@@ -45,6 +46,17 @@ public class PermissionController {
     @PostMapping
     public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(@RequestBody PermissionDto permissionDto, Principal principal){
         permissionManagerService.addPermissionForResourceTemplate(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/owner")
+    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal){
+        permissionManagerService.changeOwnerForResourceTemplate(changeOwnerDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

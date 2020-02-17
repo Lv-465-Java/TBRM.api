@@ -99,7 +99,6 @@ public class UserController {
         //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
     @GetMapping("{id}/history")
     public ResponseEntity<List<Map<String, Object>>> getUserHistory(@PathVariable long id){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getData(id));
