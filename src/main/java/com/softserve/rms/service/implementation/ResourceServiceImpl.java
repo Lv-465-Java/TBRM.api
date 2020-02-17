@@ -58,8 +58,8 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setName(resourceDTO.getName());
         resource.setDescription(resourceDTO.getDescription());
         resource.setResourceTemplate(resourceTemplateService.findEntityById(resourceDTO.getResourceTemplateId()));
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findUserByEmail(principal.getName()).get();
+//        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.getOne(resourceDTO.getUserId());
         resource.setUser(user);
         resource.setParameters(resourceDTO.getParameters());
         resourceRepository.save(tableName, resource);
@@ -76,15 +76,11 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     /**
-     * Method finds dynamic {@link Resource} by id.
+     * {@inheritDoc}
      *
-     * @param tableName {@link ResourceTemplate} tableName
-     * @param id        {@link Resource} id
-     * @return instance of {@link Resource}
-     * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */
-    private Resource findById(String tableName, Long id) throws NotFoundException {
+    public Resource findById(String tableName, Long id) throws NotFoundException {
         resourceTemplateService.findByName(tableName);
         return resourceRepository.findById(tableName, id)
                 .orElseThrow(() -> new NotFoundException(
@@ -111,7 +107,7 @@ public class ResourceServiceImpl implements ResourceService {
      * @author Andrii Bren
      */
     @Override
-    public void update(String tableName, Long id, Map<String, HashMap<String, Object>> body)
+    public void update(String tableName, Long id, Map<String, Object> body)
             throws NotFoundException {
         resourceTemplateService.findByName(tableName);
         Resource resource = findById(tableName, id);
@@ -122,7 +118,7 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setDescription(body.get("description").toString());
         }
         if (body.get("parameters") != null) {
-            resource.setParameters(body.get("parameters"));
+            resource.setParameters((HashMap<String, Object>) body.get("parameters"));
         }
         resourceRepository.update(tableName, id, resource);
     }

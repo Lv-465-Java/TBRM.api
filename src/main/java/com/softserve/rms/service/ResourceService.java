@@ -2,6 +2,7 @@ package com.softserve.rms.service;
 
 import com.softserve.rms.dto.resource.ResourceDTO;
 import com.softserve.rms.dto.resource.ResourceSaveDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.Resource;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -30,12 +31,24 @@ public interface ResourceService {
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param id {@link Resource} id
+     * @param id {@link ResourceDTO} id
      * @return {@link ResourceDTO}
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
     ResourceDTO findByIdDTO(String tableName, Long id);
+
+    /**
+     * Method finds dynamic {@link Resource} by provided id in a table specified
+     * by the reсorder.
+     *
+     * @param tableName {@link ResourceTemplate} tableName
+     * @param id of {@link ResourceDTO}
+     * @return {@link Resource}
+     * @throws NotFoundException if the resource with provided id is not found
+     * @author Andrii Bren
+     */
+    Resource findById(String tableName, Long id);
 
     /**
      * Method finds all dynamic {@link ResourceDTO} in a table specified
@@ -59,7 +72,7 @@ public interface ResourceService {
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    void update(String tableName, Long id, Map<String, HashMap<String, Object>> body);
+    void update(String tableName, Long id, Map<String, Object> body);
 
     /**
      * Method deletes dynamic {@link ResourceDTO} by id.

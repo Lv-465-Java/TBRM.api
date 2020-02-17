@@ -45,7 +45,7 @@ public class ResourceController {
 
     @PatchMapping("/{id}")
     public HttpStatus update(@PathVariable String tableName, @PathVariable Long id,
-                             @RequestBody Map<String, HashMap<String, Object>> body) {
+                             @RequestBody Map<String, Object> body) {
         resourceService.update(tableName, id, body);
         return HttpStatus.OK;
     }
