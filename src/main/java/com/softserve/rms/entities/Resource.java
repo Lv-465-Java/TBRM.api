@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -11,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Resource {
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -20,6 +24,8 @@ public class Resource {
     private ResourceTemplate resourceTemplate;
 
     private User user;
+    private HashMap<String, Object> parameters;
 
-    private List<ResourceParameter> resourceParameters;
+//    private List<ResourceParameter> resourceParameters;
+//    private List<Object> parameters;
 }

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.jooq.impl.DSL.constraint;
+
 /**
  * Implementation of {@link ResourceTemplateService}.
  *
@@ -226,6 +228,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         } else {
             unPublishResourceTemplate(resourceTemplate);
         }
+    }
+
+
+    @Override
+    public ResourceTemplate findByName(String name) {
+        return resourceTemplateRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE.getMessage() + name));
     }
 
     /**

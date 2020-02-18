@@ -25,7 +25,7 @@ public class JooqDDL {
      */
     public void createResourceContainerTable(ResourceTemplate resourceTemplate) {
         dslContext.createTable(resourceTemplate.getTableName())
-                .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false))
+                .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false).identity(true))
                 .column(FieldConstants.NAME.getValue(), SQLDataType.VARCHAR(255).nullable(false))
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
                 .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
@@ -103,11 +103,18 @@ public class JooqDDL {
                 .addColumn(parameter.getColumnName().concat("_ref"),
                         parameter.getParameterType().getSqlType().nullable(true))
                 .execute();
+        addConstraint(resourceTemplate, parameter, resourceRelation);
+    }
+
+    //java doc
+    private void addConstraint(ResourceTemplate resourceTemplate,
+                               ResourceParameter parameter, ResourceRelation resourceRelation) {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .add(constraint(parameter.getColumnName().concat("_FK"))
-                        .foreignKey("id").references(resourceRelation.getRelatedResourceTemplate().getTableName()))
+                        .foreignKey(parameter.getColumnName().concat("_ref")).references(resourceRelation.getRelatedResourceTemplate().getTableName()))
                 .execute();
     }
+
 
     /**
      * Method counts {@link Resource} container table records amount.

@@ -91,6 +91,8 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
+    ResourceTemplate findByName(String name);
+
     /**
      * Method verifies which action must be handled - publish or cancel publish resource template -
      * by provided boolean value in a map body.

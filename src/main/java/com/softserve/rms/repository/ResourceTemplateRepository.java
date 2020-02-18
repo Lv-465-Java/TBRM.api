@@ -69,6 +69,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @author Halyna Yatseniuk
      */
     Optional<ResourceTemplate> findByName(String name);
+    Optional<ResourceTemplate> findByNameIgnoreCase(String name);
 
     /**
      * Method finds {@link Optional<ResourceTemplate>} by table name.
