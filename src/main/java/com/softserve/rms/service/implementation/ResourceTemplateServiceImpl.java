@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private final ResourceTemplateRepository resourceTemplateRepository;
-    private final UserRepository userRepository;
+    private UserServiceImpl userService;
     private PermissionManagerService permissionManagerService;
     private Validator validator = new Validator();
     private ModelMapper modelMapper = new ModelMapper();
@@ -55,10 +55,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
-                                       UserRepository userRepository, PermissionManagerService permissionManagerService,
+                                       UserServiceImpl userService, PermissionManagerService permissionManagerService,
                                        DSLContext dslContext) {
         this.resourceTemplateRepository = resourceTemplateRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.permissionManagerService = permissionManagerService;
         this.dslContext = dslContext;
     }
@@ -76,12 +76,20 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
-        resourceTemplate.setUser(userRepository.findUserByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("dd")));
+        String prName = principal.getName();
+        resourceTemplate.setUser(userService.getUserByEmail(principal.getName()));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
-        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, principal.getName(), "write", true), principal);
-        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
+        setAccessToTemplate(resTempId, principal);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
+    }
+
+    // javadoc
+    public void setAccessToTemplate(Long resTempId, Principal principal) {
+        permissionManagerService.addPermissionForResourceTemplate(
+                new PermissionDto(resTempId, principal.getName(), "write", true), principal);
+        permissionManagerService.addPermissionForResourceTemplate(
+                new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
     }
 
     /**
@@ -144,7 +152,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
-    public ResourceTemplateDTO updateResourceTemplateFields(ResourceTemplate resourceTemplate, Map<String, Object> body)
+    private ResourceTemplateDTO updateResourceTemplateFields(ResourceTemplate resourceTemplate, Map<String, Object> body)
             throws NotUniqueNameException {
         if (body.get(FieldConstants.NAME.getValue()) != null) {
             resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(
@@ -228,7 +236,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-    private void publishResourceTemplate(ResourceTemplate resourceTemplate)
+    public void publishResourceTemplate(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
         jooqDDL = new JooqDDL(dslContext);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) &&

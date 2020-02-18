@@ -100,7 +100,8 @@ public class JooqDDL {
                                                           ResourceParameter parameter) {
         ResourceRelation resourceRelation = parameter.getResourceRelations();
         dslContext.alterTable(resourceTemplate.getTableName())
-                .addColumn(parameter.getColumnName().concat("_ref"), parameter.getParameterType().getSqlType().nullable(true))
+                .addColumn(parameter.getColumnName().concat("_ref"),
+                        parameter.getParameterType().getSqlType().nullable(true))
                 .execute();
         dslContext.alterTable(resourceTemplate.getTableName())
                 .add(constraint(parameter.getColumnName().concat("_FK"))
