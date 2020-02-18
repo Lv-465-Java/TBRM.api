@@ -4,7 +4,6 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resource.ResourceDTO;
 import com.softserve.rms.dto.resource.ResourceSaveDTO;
 import com.softserve.rms.entities.Resource;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRepository;
@@ -13,10 +12,8 @@ import com.softserve.rms.service.ResourceService;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

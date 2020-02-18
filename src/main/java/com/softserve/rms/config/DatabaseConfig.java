@@ -9,8 +9,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-public class Source {
-
+public class DatabaseConfig {
     @Value("${spring.datasource.url}")
     private String postgresUrl;
     @Value("${spring.datasource.driver-class-name}")
