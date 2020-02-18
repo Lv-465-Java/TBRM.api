@@ -14,7 +14,5 @@ public interface S3BucketTestRepository extends JpaRepository<S3BucketTest, Long
     S3BucketTest save(S3BucketTest s3BucketTest);
 
     Optional<S3BucketTest> findById(Long id);
-    int deleteByFileName(String fileName);
-
 
 }

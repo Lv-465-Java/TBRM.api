@@ -1,6 +1,5 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.FileStorageDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,9 +17,9 @@ public interface FileStorageService {
     /**
      * Method for deleting a file.
      *
-     * @param fileStorageDto for deleting.
+     * @param recourseId for deleting.
      */
-    void deleteFile(FileStorageDto fileStorageDto, Long recourseId);
+    void deleteFile( Long recourseId);
 
     /**
      * Method for updating a file.

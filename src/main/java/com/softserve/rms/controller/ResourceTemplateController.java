@@ -185,23 +185,4 @@ public class ResourceTemplateController {
         resourceTemplateService.selectPublishOrCancelPublishAction(id, body);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-//    /**
-//     * The controller which cancels {@link ResourceTemplateDTO} publication by id.
-//     *
-//     * @param id of {@link ResourceTemplateDTO}
-//     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-//     * @author Halyna Yatseniuk
-//     */
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 200,message = HttpStatuses.OK),
-//            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-//            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-//            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-//    })
-//    @PostMapping("/unpublish-resource-template/{id}")
-//    public ResponseEntity<Boolean> unPublishResourceTemplate(@PathVariable Long id) {
-//        LOG.info("Canceling a Resource Template publish by ID: " + id);
-//        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
-//    }
 }

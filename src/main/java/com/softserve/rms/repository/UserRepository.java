@@ -39,4 +39,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @author Mariia Shchur
      */
     boolean existsUserByPhone(String phone);
+
 }
