@@ -91,7 +91,6 @@ public class ResourceTemplateServiceTest {
                 permissionManagerService, dslContext));
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
-        doNothing().when(jooqDDL).createResourceContainerTable(any(ResourceTemplate.class));
     }
 
     //    @Test
