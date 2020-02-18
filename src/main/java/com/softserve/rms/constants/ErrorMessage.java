@@ -27,7 +27,8 @@ public enum ErrorMessage {
     USER_DO_NOT_EXISTS("Sorry such user don`t exists ("),
     GROUP_DO_NOT_EXISTS("Sorry such group don`t exists ("),
     GROUP_ALREADY_EXIST("Sorry such group already exists (:"),
-    GROUP_MEMBER_ALREADY_EXISTS("Sorry,but user that you want to add is member of this group");
+    GROUP_MEMBER_ALREADY_EXISTS("Sorry,but user that you want to add is member of this group"),
+    WRONG_PASSWORD("Wrong password");
     private String message;
 
     ErrorMessage(String message) {

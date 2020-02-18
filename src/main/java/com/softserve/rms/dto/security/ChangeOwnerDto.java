@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class ChangeOwnerDto {
 
-    private Long resTempId;
+    private Long id;
     private String recipient;
 }

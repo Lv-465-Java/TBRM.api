@@ -2,6 +2,8 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -73,9 +75,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         resourceTemplate.setUser(userRepository.getOne(resourceTemplateSaveDTO.getUserId()));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
-        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
-        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, principal.getName(), "write", true), principal);
-        permissionManagerService.addPermissionForResourceTemplate(new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        addPermissionToResourceTemplate(new PermissionDto(resTempId, principal.getName(), "write", true), principal);
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
@@ -158,8 +159,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public void deleteById(Long id) throws NotFoundException {
         try {
             resourceTemplateRepository.deleteById(id);
-            Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
-            permissionManagerService.closeAllPermissionsToResource(id, principal);
+            Principal principal = SecurityContextHolder.getContext().getAuthentication();
+            permissionManagerService.closeAllPermissions(id, principal, ResourceTemplate.class);
         } catch (EmptyResultDataAccessException ex) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
@@ -232,6 +233,26 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return !findEntityById(id).getIsPublished();
     }
 
+    @Override
+    public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
+        return permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+    }
+
+    @Override
+    public void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.addPermission(permissionDto, principal, ResourceTemplate.class);
+    }
+
+    @Override
+    public void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) {
+        permissionManagerService.changeOwner(changeOwnerDto, principal, ResourceTemplate.class);
+    }
+
+    @Override
+    public void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.closePermissionForCertainUser(permissionDto, principal, ResourceTemplate.class);
+    }
+
     /**
      * Method verifies if {@link ResourceTemplate} name is unique.
      *
@@ -280,4 +301,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         }
         return true;
     }
+
+
 }

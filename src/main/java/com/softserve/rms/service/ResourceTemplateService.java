@@ -1,5 +1,8 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -10,6 +13,7 @@ import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -109,4 +113,12 @@ public interface ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     Boolean unPublishResourceTemplate(Long id);
+
+    List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id);
+
+    void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal);
+
+    void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal);
+
+    void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal);
 }

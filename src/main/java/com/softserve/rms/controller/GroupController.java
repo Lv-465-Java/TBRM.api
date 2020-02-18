@@ -1,10 +1,12 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.service.GroupService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -57,7 +60,7 @@ public class GroupController {
     })
     @PostMapping
     public ResponseEntity<GroupDto> createGroup(@RequestBody GroupSaveDto groupSaveDto) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupService.createGroup(groupSaveDto));
     }
 
@@ -69,8 +72,21 @@ public class GroupController {
     })
     @PostMapping("/member")
     public ResponseEntity<MemberDto> addMember(@RequestBody MemberOperationDto member) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupService.addMember(member));
+    }
+
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @PostMapping("/permission")
+    public ResponseEntity<Object> addPermission(@RequestBody PermissionDto permissionDto, Principal principal) {
+        groupService.addWritePermission(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @ApiResponses(value = {
@@ -83,6 +99,18 @@ public class GroupController {
     public ResponseEntity<GroupDto> editGroup(@PathVariable String name, @RequestBody GroupSaveDto groupSaveDto) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(groupService.update(name, groupSaveDto));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @PutMapping("/owner")
+    public ResponseEntity<Object> editGroup(Principal principal, @RequestBody ChangeOwnerDto changeOwnerDto) {
+        groupService.changeGroupOwner(changeOwnerDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ApiResponses(value = {

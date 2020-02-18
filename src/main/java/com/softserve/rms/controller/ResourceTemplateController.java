@@ -1,6 +1,9 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.User;
@@ -14,8 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+@RequestMapping("/resource-template")
 @RestController
 public class ResourceTemplateController {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceTemplateController.class);
@@ -200,5 +205,49 @@ public class ResourceTemplateController {
     public ResponseEntity<Boolean> unPublishResourceTemplate(@PathVariable Long id) {
         LOG.info("Canceling a Resource Template publish by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/permission/{id}")
+    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id)));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/permission")
+    public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(@RequestBody PermissionDto permissionDto, Principal principal){
+        resourceTemplateService.addPermissionToResourceTemplate(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/permission/owner")
+    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal){
+        resourceTemplateService.changeOwnerForResourceTemplate(changeOwnerDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/permission")
+    public ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal) {
+        resourceTemplateService.closePermissionForCertainUser(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

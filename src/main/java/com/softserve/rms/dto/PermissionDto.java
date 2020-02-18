@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class PermissionDto {
 
-    private Long resTempId;
+    private Long id;
     private String recipient;
     private String permission;
     private boolean principal;

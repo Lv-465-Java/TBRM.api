@@ -61,7 +61,7 @@ public class PermissionManagerServiceImplTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         permissionManagerService = PowerMockito.spy(new PermissionManagerServiceImpl
-                (mutableAclService, permissionMapper, formatter, userRepository));
+                (mutableAclService, permissionMapper, formatter, userRepository, groupRepository));
         AclAuthorizationStrategyImpl authorizationStrategy = PowerMockito.mock(AclAuthorizationStrategyImpl.class);
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, 1L);
         principal = new UserPrincipal("owner");

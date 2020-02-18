@@ -1,10 +1,12 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
 import com.softserve.rms.entities.User;
@@ -15,6 +17,7 @@ import com.softserve.rms.repository.GroupMemberRepository;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.GroupService;
+import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.MutableAclService;
@@ -31,17 +34,17 @@ public class GroupServiceImpl  implements GroupService {
     private UserRepository userRepository;
     private GroupRepository groupRepository;
     private GroupMemberRepository groupMemberRepository;
-    private MutableAclService mutableAclService;
+    private PermissionManagerService permissionManagerService;
     private ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     public GroupServiceImpl(UserRepository userRepository, GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
-                            MutableAclService mutableAclService) {
+                            PermissionManagerService permissionManagerService) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
-        this.mutableAclService = mutableAclService;
+        this.permissionManagerService = permissionManagerService;
     }
 
     @Override
@@ -61,13 +64,12 @@ public class GroupServiceImpl  implements GroupService {
     @Override
     public GroupDto createGroup(GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
         verifyIfGroupNameIsUnique(groupSaveDto.getName());
-        Group newGroup = groupRepository.save(modelMapper.map(groupSaveDto, Group.class));
+        Group newGroup = groupRepository.saveAndFlush(modelMapper.map(groupSaveDto, Group.class));
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findUserByEmail(principal.getName()).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
         );
-        GroupsMember groupsMember = new GroupsMember(user, newGroup);
-        groupMemberRepository.save(groupsMember);
+        permissionManagerService.addPermission(new PermissionDto(newGroup.getId(), user.getEmail(), "write", true), principal, Group.class);
         return modelMapper.map(newGroup, GroupDto.class);
     }
 
@@ -85,6 +87,16 @@ public class GroupServiceImpl  implements GroupService {
         return new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
     }
 
+    @Override
+    public void addWritePermission(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.addPermission(permissionDto, principal, Group.class);
+    }
+
+    @Override
+    public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
+        permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
+    }
+
     @Transactional
     @Override
     public GroupDto update(String name, GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
@@ -93,7 +105,7 @@ public class GroupServiceImpl  implements GroupService {
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
         if (groupSaveDto.getName() != null) {
-            //groupRepository.updateAclSid(group.getName(), groupSaveDto.getName());
+            groupRepository.updateAclSid(group.getName(), groupSaveDto.getName());
             group.setName(groupSaveDto.getName());
         }
         if (groupSaveDto.getDescription() != null) {
@@ -122,6 +134,8 @@ public class GroupServiceImpl  implements GroupService {
         );
         groupMemberRepository.deleteMember(user.getId(), group.getId());
     }
+
+
 
     /**
      * Method verifies if {@link Group} name is unique.
