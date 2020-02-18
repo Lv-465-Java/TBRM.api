@@ -45,6 +45,4 @@ public class CustomUserPrincipal implements OidcUser {
     public String getName() {
         return null;
     }
-
-//forward all calls onto the included oidcUser
 }

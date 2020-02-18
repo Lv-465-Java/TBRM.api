@@ -15,8 +15,8 @@
 //@Configuration
 //public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 //
-//    private String clientid = "733965756435-vub54974irojnqi040c3cp6c2t1n8ofb.apps.googleusercontent.com";
-//    private String clientSecret = "Qm_SNNrp41tHncRX-EdkVQtp";
+//    private String clientid = "";
+//    private String clientSecret = "";
 //    private String privateKey = "private key";
 //    private String publicKey = "public key";
 //

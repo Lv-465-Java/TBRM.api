@@ -65,16 +65,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
                     LOGGER.info("User successfully authenticate - {}", authentication.getPrincipal());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-//                else {
-//                    throw new JwtExpiredTokenException("tttt expire");
-//                }
             } catch (ExpiredJwtException e) {
-                LOGGER.info("Token has expired: " + accessToken);
+                LOGGER.error("Token has expired: " + accessToken);///////////////////
                 throw new JwtExpiredTokenException("exp");
 
             }
             catch (Exception e) {
-                LOGGER.info("JWT Authentication failed");
+                LOGGER.error("JWT Authentication failed");/////////////
             }
 
         }

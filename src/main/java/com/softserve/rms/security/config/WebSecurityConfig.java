@@ -21,26 +21,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 
 /**
  * Config for security
@@ -48,7 +32,6 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableWebSecurity
-@EnableResourceServer
 //@EnableGlobalMethodSecurity(
 //        securedEnabled = true,
 //        jsr250Enabled = true,
@@ -104,14 +87,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http//.cors().and()
+        http.cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .csrf().disable()
                 .exceptionHandling()
                .authenticationEntryPoint(unauthorizedHandler)
-//                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-//                 )
                 .and()
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -121,26 +102,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .oauth2Login();
-               // .loginPage("/login/oauth2")
-//                .defaultSuccessUrl("/",true)
-//                .failureUrl("/oauth_login")
-//                .permitAll()
-//            .and()
+                .oauth2Login()
+                .loginPage("/login/oauth2")
+                .defaultSuccessUrl("/",true)
+                .failureUrl("/oauth_login")
+                .permitAll()
+           // .and()
 //                .logout()
 //                    .logoutUrl("/")
 //                    .logoutSuccessUrl("/oauth_login").permitAll()
-//        .redirectionEndpoint()
-//        .baseUri("/oauth2/callback/*")
-//        .and()
-//        .userInfoEndpoint()
-//        .oidcUserService(customOidcUserService)
-//                .and()
-//        .authorizationEndpoint()
-//                .baseUri("/oauth2/authorize")
-//                .authorizationRequestRepository(customAuthorizationRequestRepository())
-//        .and()
-//        .successHandler(customAuthenticationSuccessHandler);
+        .redirectionEndpoint()
+        .baseUri("/oauth2/callback/*")
+        .and()
+        .userInfoEndpoint()
+        .oidcUserService(customOidcUserService)
+                .and()
+        .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+                .authorizationRequestRepository(customAuthorizationRequestRepository())
+        .and()
+        .successHandler(customAuthenticationSuccessHandler);
 
                 http
                 .addFilterBefore(new JwtAuthorizationFilter(tokenManagementService), UsernamePasswordAuthenticationFilter.class);
@@ -186,6 +167,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 }

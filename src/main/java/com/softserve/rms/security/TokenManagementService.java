@@ -146,7 +146,7 @@ public class TokenManagementService implements Message {
                 isValid = true;
             }
         } catch (JwtException ex) {
-            LOGGER.info("Token is not valid!");
+            LOGGER.error("Token is not valid!");////////////
            // throw new JwtExpiredTokenException("eeeff");
 //    }catch(
 //       SignatureException e)
@@ -156,7 +156,7 @@ public class TokenManagementService implements Message {
     }
 
       catch (IllegalArgumentException ex) {
-          LOGGER.info("an error occured during getting username from token");
+          LOGGER.error("an error occured during getting username from token");//////////
       }
 
         return isValid;
