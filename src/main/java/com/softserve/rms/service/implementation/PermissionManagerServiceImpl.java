@@ -3,8 +3,10 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.PermissionException;
+import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
@@ -28,6 +30,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     private final MutableAclService mutableAclService;
     private final PermissionMapper permissionMapper;
     private final Formatter formatter;
+    private final UserRepository userRepository;
 
     /**
      * Constructor with parameters.
@@ -39,10 +42,11 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      * @author Artur Sydor
      */
     @Autowired
-    public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper, Formatter formatter) {
+    public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper, Formatter formatter, UserRepository userRepository) {
         this.mutableAclService = mutableAclService;
         this.permissionMapper = permissionMapper;
         this.formatter = formatter;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -103,6 +107,39 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         }
         acl.insertAce(acl.getEntries().size(), permission, sid, true);
         mutableAclService.updateAcl(acl);
+    }
+
+    /**
+     * Method changes owner for {@link ResourceTemplate}
+     *
+     * @param changeOwnerDto {@link ChangeOwnerDto}
+     * @param principal authenticated user
+     * @throws PermissionException
+     * @author Marian Dutchyn
+     */
+    @Transactional
+    @Override
+    public void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) throws PermissionException {
+        MutableAcl acl;
+        PermissionDto permissionDto = new PermissionDto(changeOwnerDto.getResTempId(), principal.getName(), "write", true);
+        userRepository.findUserByEmail(changeOwnerDto.getRecipient())
+                .orElseThrow(() -> new com.softserve.rms.exceptions.NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage()));
+
+        Sid sid = new PrincipalSid(changeOwnerDto.getRecipient());
+
+        ObjectIdentity oid = new ObjectIdentityImpl(ResourceTemplate.class, changeOwnerDto.getResTempId());
+        try {
+            acl = (MutableAcl) mutableAclService.readAclById(oid);
+            if (!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())){
+                throw new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage());
+            }
+            closePermissionForCertainUser(permissionDto, principal);
+            acl.setOwner(sid);
+            acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid, true);
+            mutableAclService.updateAcl(acl);
+        } catch (NotFoundException e){
+            throw new PermissionException(ErrorMessage.PERMISSION_NOT_FOUND.getMessage());
+        }
     }
 
     /**
