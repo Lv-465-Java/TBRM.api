@@ -1,4 +1,4 @@
-package com.softserve.rms.repository.impl;
+package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.Resource;

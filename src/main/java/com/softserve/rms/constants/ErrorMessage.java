@@ -37,7 +37,7 @@ public enum ErrorMessage {
     PERMISSION_NOT_FOUND("Could not find such permission."),
     USER_DO_NOT_EXISTS("Sorry such user don`t exists ("),
 
-    CAN_NOT_FIND_A_RESOURCE("There is no such a table: "),
+    CAN_NOT_FIND_A_RESOURCE_TABLE("There is no such a table: "),
     CAN_NOT_FIND_A_RESOURCE_BY_ID("There is no such a resource with id: "),
     RESOURCE_CAN_NOT_BE_DELETED_BY_ID("Resource does not deleted with id: ");
 

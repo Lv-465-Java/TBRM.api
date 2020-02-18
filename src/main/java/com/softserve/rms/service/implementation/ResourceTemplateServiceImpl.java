@@ -11,7 +11,6 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
-import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
@@ -230,11 +229,17 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         }
     }
 
-
+    /**
+     * Method finds {@link ResourceTemplate} by name.
+     *
+     * @param name of {@link ResourceTemplate}
+     * @throws NotFoundException if resource template is not found
+     * @author Andrii Bren
+     */
     @Override
     public ResourceTemplate findByName(String name) {
         return resourceTemplateRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE.getMessage() + name));
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + name));
     }
 
     /**

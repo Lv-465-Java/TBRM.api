@@ -3,7 +3,7 @@
 //import com.softserve.rms.entities.Resource;
 //import com.softserve.rms.entities.ResourceTemplate;
 //import com.softserve.rms.entities.User;
-//import com.softserve.rms.repository.impl.ResourceRepositoryImpl;
+//import com.softserve.rms.repository.implementation.ResourceRepositoryImpl;
 //import com.softserve.rms.service.ResourceTemplateService;
 //import com.softserve.rms.service.UserService;
 //import org.jooq.DSLContext;

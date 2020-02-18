@@ -69,6 +69,14 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @author Halyna Yatseniuk
      */
     Optional<ResourceTemplate> findByName(String name);
+
+    /**
+     * Method finds {@link Optional<ResourceTemplate>} by name with case ignore.
+     *
+     * @param name of {@link ResourceTemplate}
+     * @return {@link Optional<ResourceTemplate>}
+     * @author Halyna Yatseniuk
+     */
     Optional<ResourceTemplate> findByNameIgnoreCase(String name);
 
     /**
