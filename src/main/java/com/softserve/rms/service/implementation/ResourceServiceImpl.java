@@ -81,7 +81,7 @@ public class ResourceServiceImpl implements ResourceService {
         resourceTemplateService.findByName(tableName);
         return resourceRepository.findById(tableName, id)
                 .orElseThrow(() -> new NotFoundException(
-                        ErrorMessage.CAN_NOT_FIND_A_RESOURCE.getMessage() + id));
+                        ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + id));
     }
 
     /**
