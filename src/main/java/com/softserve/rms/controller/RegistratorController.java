@@ -1,7 +1,6 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.FileStorageDto;
 import com.softserve.rms.service.implementation.FileStorageServiceImpl;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -64,7 +63,7 @@ public class RegistratorController {
     /**
      * Method for deleting files.
      *
-     * @param fileStorageDto file's url to delete.
+     * @param resourceId
      */
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = HttpStatuses.OK),
@@ -73,9 +72,8 @@ public class RegistratorController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("{resourceId}/deleteFile")
-    public ResponseEntity deleteFile(@RequestBody FileStorageDto fileStorageDto,
-                                     @PathVariable long resourceId) {
-        fileStorageService.deleteFile(fileStorageDto, resourceId);
+    public ResponseEntity deleteFile(@PathVariable long resourceId) {
+        fileStorageService.deleteFile(resourceId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

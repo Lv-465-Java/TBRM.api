@@ -1,22 +1,24 @@
 package com.softserve.rms.exceptions.handler;
 
-import com.softserve.rms.exceptions.NotDeletedException;
-import com.softserve.rms.exceptions.NotFoundException;
-import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.*;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.exceptions.NotFoundException;
-import com.softserve.rms.exceptions.PermissionException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+public class  CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Method which handles {@link RuntimeException} exception.
@@ -25,11 +27,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-//    @ExceptionHandler(RuntimeException.class)
-//    public ResponseEntity<Object> handleRuntimeException
-//    (RuntimeException exception) {
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
-//    }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleRuntimeException
+    (RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    }
 
     /**
      * Method with handles {@link PermissionException} exception.
@@ -93,6 +95,26 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleNameIsNotUniqueException
     (NotUniqueNameException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    }
+
+    /**
+     * Method which handles {@link MethodArgumentNotValidException} exception.
+     *
+     * @param exception  {@link MethodArgumentNotValidException}
+     * @return ResponseEntity which contains error messages
+     * @author Mariia Shchur
+     */
+    @Override
+    public ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException exception,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        List<ValidationExceptionDto> collect =
+                exception.getBindingResult().getFieldErrors().stream()
+                        .map(ValidationExceptionDto::new)
+                        .collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(collect);
     }
 
     /**
