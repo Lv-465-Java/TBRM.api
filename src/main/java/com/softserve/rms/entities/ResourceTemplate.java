@@ -1,7 +1,6 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.List;
@@ -10,11 +9,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-//@EqualsAndHashCode(
-//        exclude = {"person"})
-//@ToString(
-//        exclude = {"person"})
 public class ResourceTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +30,12 @@ public class ResourceTemplate {
     @ToString.Exclude
     private User user;
 
-    @OneToMany(mappedBy = "resourceTemplate", cascade=CascadeType.REMOVE)
+    @OneToMany(mappedBy = "resourceTemplate", cascade = CascadeType.REMOVE)
     private List<ResourceParameter> resourceParameters;
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
+
+//    @OneToMany(mappedBy = "resourceTemplate")
+//    private Resource resources;
 }
