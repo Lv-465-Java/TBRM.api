@@ -6,6 +6,7 @@ import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.GroupSaveDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.group.MemberOperationDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
 import com.softserve.rms.entities.Role;
@@ -68,25 +69,21 @@ public class GroupServiceImplTest {
     @InjectMocks
     private GroupServiceImpl groupService;
 
-    private Group group;
-    private List<Group> groups;
-    private GroupDto groupDto;
-    private GroupSaveDto groupSaveDto;
-    private User user;
-    private PermissionDto permissionDto;
+    private Group group = new Group(1L, "group", "description", null);
+    private List<Group> groups = Collections.singletonList(group);
+    private GroupDto groupDto = new GroupDto(group.getName(), group.getDescription(), null);
+    private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
+    private Role role = new Role(2L, "ROLE_MANAGER");
+    private User user = new User(1L, "first", "last", "mail", "08000000000",
+            "password", true, role, null, null);
+    private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
+    private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
+    private ChangeOwnerDto changeOwnerDto = new ChangeOwnerDto(1L, "recipient");
 
     @Before
     public void init() {
         groupService = PowerMockito.spy(new GroupServiceImpl(userRepository, groupRepository,
                 groupMemberRepository, permissionManagerService, modelMapper));
-        group = new Group(1L, "group", "description", null);
-        groups = Collections.singletonList(group);
-        groupDto = new GroupDto(group.getName(), group.getDescription(), null);
-        groupSaveDto = new GroupSaveDto("group", "");
-        Role role = new Role(2L, "ROLE_MANAGER");
-        user = new User(1L, "first", "last", "mail", "08000000000",
-                "password", true, role, null, null);
-        permissionDto = new PermissionDto(1L, "mail", "write", true);
     }
 
     @Test
@@ -109,13 +106,13 @@ public class GroupServiceImplTest {
     @Test(expected = NotFoundException.class)
     public void getByNameFail() {
         doReturn(Optional.empty()).when(groupRepository).findByName(anyString());
-        GroupDto actual = groupService.getByName("group");
+        groupService.getByName("group");
     }
 
     @Test
     public void createGroupOk() throws Exception {
         String email = "mail";
-        PowerMockito.doNothing().when(groupService, verifyIfGroupNameIsUnique, anyString());
+        doNothing().when(groupService, verifyIfGroupNameIsUnique, anyString());
         doReturn(group).when(modelMapper).map(any(GroupSaveDto.class), any(Class.class));
         doReturn(group).when(groupRepository).saveAndFlush(any(Group.class));
         SecurityContextHolder.setContext(securityContext);
@@ -132,12 +129,6 @@ public class GroupServiceImplTest {
     public void createGroupNotUniqueName() throws Exception {
         doThrow(new NotUniqueNameException(ErrorMessage.GROUP_ALREADY_EXIST.getMessage()))
                 .when(groupService, verifyIfGroupNameIsUnique, anyString());
-//        doReturn(group).when(groupRepository).saveAndFlush(any(Group.class));
-//        SecurityContextHolder.setContext(securityContext);
-//        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
-//        doReturn(Optional.of(user)).when(userRepository).findUserByEmail("mail");
-//        doNothing().when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
-//        doReturn(groupDto).when(modelMapper).map(any(Group.class), any(Class.class));
         groupService.createGroup(new GroupSaveDto("group", ""));
     }
 
@@ -149,59 +140,38 @@ public class GroupServiceImplTest {
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doNothing().when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
         doReturn(new GroupsMember()).when(groupMemberRepository).save(any(GroupsMember.class));
-        MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
         MemberDto actual = groupService.addMember(memberOperationDto);
         assertEquals(actual, expected);
     }
 
     @Test(expected = NotFoundException.class)
     public void addMemberGroupNotExist() {
-        MemberDto expected = new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
-        MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
         doThrow(new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())).when(groupRepository).findByName(anyString());
-//        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
-//        PowerMockito.doNothing().when(groupService, verifyGroupPermission, anyString());
-//        PowerMockito.doNothing().when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
-//        doReturn(new GroupsMember()).when(groupMemberRepository).save(any(GroupsMember.class));
         groupService.addMember(memberOperationDto);
     }
 
     @Test(expected = NotFoundException.class)
     public void addMemberUserNotExist() {
-        MemberDto expected = new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
-        MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
         doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
         doThrow(new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())).when(userRepository).findUserByEmail(anyString());
-//        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
-//        PowerMockito.doNothing().when(groupService, verifyGroupPermission, anyString());
-//        PowerMockito.doNothing().when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
-//        doReturn(new GroupsMember()).when(groupMemberRepository).save(any(GroupsMember.class));
         groupService.addMember(memberOperationDto);
     }
 
     @Test(expected = PermissionException.class)
     public void addMemberFailGroupPermission() throws Exception {
-        MemberDto expected = new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
-        MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
         doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
         doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
         doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage())).when(groupService, verifyGroupPermission, anyString());
-//        doNothing().when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
-//        doReturn(new GroupsMember()).when(groupMemberRepository).save(any(GroupsMember.class));
         groupService.addMember(memberOperationDto);
     }
 
     @Test(expected = NotUniqueMemberException.class)
     public void addMemberNotUniqueMember() throws Exception {
-        MemberDto expected = new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
-        MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
         doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
         doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doThrow(new NotUniqueMemberException(ErrorMessage.GROUP_MEMBER_ALREADY_EXISTS.getMessage()))
                 .when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
-        //        doNothing().when(groupService, verifyIfGroupMemberIsUnique, anyLong(), anyLong());
-//        doReturn(new GroupsMember()).when(groupMemberRepository).save(any(GroupsMember.class));
         groupService.addMember(memberOperationDto);
     }
 
@@ -215,7 +185,6 @@ public class GroupServiceImplTest {
     @Test(expected = PermissionException.class)
     public void addWritePermissionIsNotOwner() throws Exception {
         doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage())).when(groupService, verifyGroupPermission, anyString());
-        //doNothing().when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
         groupService.addWritePermission(permissionDto, principal);
     }
 
@@ -228,19 +197,109 @@ public class GroupServiceImplTest {
     }
 
     @Test
-    public void changeGroupOwner() {
+    public void changeGroupOwnerOk() {
+        doNothing().when(permissionManagerService).changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        groupService.changeGroupOwner(changeOwnerDto, principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void changeGroupOwnerFail() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage()))
+                .when(permissionManagerService).changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        groupService.changeGroupOwner(changeOwnerDto, principal);
     }
 
     @Test
-    public void update() {
+    public void updateOk() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doNothing().when(groupService, verifyGroupPermission, anyString());
+        doNothing().when(groupService, verifyIfGroupNameIsUnique, anyString());
+        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
+        doNothing().when(groupRepository).updateAclSid(anyString(), anyString());
+        doReturn(group).when(groupRepository).save(any(Group.class));
+        doReturn(groupDto).when(modelMapper).map(any(Group.class), any(Class.class));
+        GroupDto actual = groupService.update("group", groupSaveDto);
+        assertEquals(actual, groupDto);
+    }
 
+    @Test(expected = NotFoundException.class)
+    public void updateGroupNotExist() {
+        doThrow(new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage()))
+                .when(groupRepository).findByName(anyString());
+        groupService.update("group", groupSaveDto);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void updateGroupPermissionFail() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage()))
+                .when(groupService, verifyGroupPermission, anyString());
+        groupService.update("group", groupSaveDto);
+    }
+
+    @Test(expected = NotUniqueNameException.class)
+    public void updateGroupNotUniqueGroupName() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doNothing().when(groupService, verifyGroupPermission, anyString());
+        doThrow(new NotUniqueNameException(ErrorMessage.GROUP_ALREADY_EXIST.getMessage()))
+                .when(groupService, verifyIfGroupNameIsUnique, anyString());
+        groupService.update("group", groupSaveDto);
     }
 
     @Test
-    public void deleteCroup() {
+    public void deleteCroupOk() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doNothing().when(groupService, verifyGroupPermission, anyString());
+        doNothing().when(groupMemberRepository).deleteByGroupId(anyLong());
+        doNothing().when(groupRepository).deleteByName(anyString());
+        groupService.deleteCroup("group");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deleteCroupGroupNotExist() {
+        doThrow(new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage()))
+                .when(groupRepository).findByName(anyString());
+        groupService.deleteCroup("group");
+    }
+
+    @Test(expected = PermissionException.class)
+    public void deleteCroupFailGroupPermission() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage()))
+                .when(groupService, verifyGroupPermission, anyString());
+        groupService.deleteCroup("group");
     }
 
     @Test
-    public void deleteMember() {
+    public void deleteMemberOk() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doNothing().when(groupService, verifyGroupPermission, anyString());
+        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
+        doNothing().when(groupMemberRepository).deleteMember(anyLong(), anyLong());
+        groupService.deleteMember(memberOperationDto);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deleteMemberGroupNotExist() {
+        doThrow(new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage()))
+                .when(groupRepository).findByName(anyString());
+        groupService.deleteMember(memberOperationDto);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void deleteMemberGroupPermissionFail() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage()))
+                .when(groupService, verifyGroupPermission, anyString());
+        groupService.deleteMember(memberOperationDto);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deleteMember() throws Exception {
+        doReturn(Optional.of(group)).when(groupRepository).findByName(anyString());
+        doNothing().when(groupService, verifyGroupPermission, anyString());
+        doThrow(new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage()))
+                .when(userRepository).findUserByEmail(anyString());
+        groupService.deleteMember(memberOperationDto);
     }
 }

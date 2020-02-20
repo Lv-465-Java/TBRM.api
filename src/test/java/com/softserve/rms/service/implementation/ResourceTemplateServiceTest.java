@@ -1,10 +1,13 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
@@ -24,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.security.Principal;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -46,6 +50,8 @@ public class ResourceTemplateServiceTest {
     Authentication authentication;
     @Mock
     SecurityContext securityContext;
+    @Mock
+    Principal principal;
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, role, Collections.emptyList(), Collections.emptyList());
@@ -255,5 +261,19 @@ public class ResourceTemplateServiceTest {
     public void testUnPublishOfResourceTemplateWithValueFalse() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         assertTrue(resourceTemplateService.unPublishResourceTemplate(resourceTemplate.getId()));
+    }
+
+    @Test
+    public void closePermissionForCertainUserOk() {
+        doNothing().when(permissionManagerService)
+                .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void closePermissionForCertainUserFailAccess() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
     }
 }

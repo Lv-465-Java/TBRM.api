@@ -100,7 +100,6 @@ public class GroupServiceImpl  implements GroupService {
         permissionManagerService.addPermission(permissionDto, principal, Group.class);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
@@ -109,11 +108,11 @@ public class GroupServiceImpl  implements GroupService {
     @Transactional
     @Override
     public GroupDto update(String name, GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
-        verifyIfGroupNameIsUnique(groupSaveDto.getName());
         Group group = groupRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
         verifyGroupPermission(group.getId().toString());
+        verifyIfGroupNameIsUnique(groupSaveDto.getName());
         if (groupSaveDto.getName() != null) {
             groupRepository.updateAclSid(group.getName(), groupSaveDto.getName());
             group.setName(groupSaveDto.getName());
