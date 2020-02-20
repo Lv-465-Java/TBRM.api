@@ -145,8 +145,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
+        resourceParameterRepository.save(resourceParameter);
         if (parameterDTO.getResourceRelationDTO() != null) {
-            resourceParameterRepository.save(resourceParameter);
             resourceParameter.setResourceRelations(updateParameterRelation(
                     resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         }
