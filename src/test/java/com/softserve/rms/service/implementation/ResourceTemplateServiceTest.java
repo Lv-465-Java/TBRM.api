@@ -1,6 +1,5 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
@@ -24,11 +22,8 @@ import org.powermock.api.mockito.PowerMockito;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -135,7 +130,7 @@ public class ResourceTemplateServiceTest {
     public void testUpdateResourceTemplateWithPublishFalse() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         resourceTemplate.setIsPublished(true);
-        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.updateById(anyLong(), map);
+        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.checkIfTemplateCanBeUpdated(anyLong(), map);
         assertEquals(resourceTempDTO, resultResourceTemplate);
     }
 
@@ -147,7 +142,7 @@ public class ResourceTemplateServiceTest {
         map = new HashMap<>();
         map.put("name", "updated name");
         map.put("description", "updated description");
-        ResourceTemplateDTO temDto = resourceTemplateService.updateById(anyLong(), map);
+        ResourceTemplateDTO temDto = resourceTemplateService.checkIfTemplateCanBeUpdated(anyLong(), map);
         assertEquals(updatedDTO, temDto);
     }
 
@@ -176,7 +171,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testDeleteByIdTrue() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-        resourceTemplateService.deleteById(resourceTemplate.getId());
+        resourceTemplateService.checkIfTemplateCanBeDeleted(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
 
@@ -185,7 +180,7 @@ public class ResourceTemplateServiceTest {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         resourceTemplate.setIsPublished(true);
         verify(resourceTemplateRepository, times(0)).deleteById(resourceTemplate.getId());
-        resourceTemplateService.deleteById(resourceTemplate.getId());
+        resourceTemplateService.checkIfTemplateCanBeDeleted(resourceTemplate.getId());
     }
 
     @Test
@@ -193,14 +188,14 @@ public class ResourceTemplateServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
-        resourceTemplateService.delete(resourceTemplate.getId());
+        resourceTemplateService.deleteById(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
 
     @Test(expected = NotFoundException.class)
     public void testDeleteByIdFailed() {
         doThrow(new EmptyResultDataAccessException(1)).when(resourceTemplateRepository).deleteById(resourceTemplate.getId());
-        resourceTemplateService.delete(resourceTemplate.getId());
+        resourceTemplateService.deleteById(resourceTemplate.getId());
     }
 
     @Test

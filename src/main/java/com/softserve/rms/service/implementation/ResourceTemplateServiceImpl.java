@@ -134,11 +134,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Override
     @Transactional
-    public ResourceTemplateDTO updateById(Long id, Map<String, Object> body)
+    public ResourceTemplateDTO checkIfTemplateCanBeUpdated(Long id, Map<String, Object> body)
             throws NotFoundException, NotUniqueNameException, ResourceTemplateCanNotBeModified {
         ResourceTemplate resourceTemplate = findEntityById(id);
         if (resourceTemplate.getIsPublished().equals(false)) {
-            return updateResourceTemplateFields(resourceTemplate, body);
+            return updateById(resourceTemplate, body);
         } else
             throw new ResourceTemplateCanNotBeModified(ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_UPDATED.getMessage());
     }
@@ -151,7 +151,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws NotUniqueNameException if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
-    private ResourceTemplateDTO updateResourceTemplateFields(ResourceTemplate resourceTemplate, Map<String, Object> body)
+    private ResourceTemplateDTO updateById(ResourceTemplate resourceTemplate, Map<String, Object> body)
             throws NotUniqueNameException {
         if (body.get(FieldConstants.NAME.getValue()) != null) {
             resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(
@@ -173,9 +173,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     @Override
     @Transactional
-    public void deleteById(Long id) throws NotFoundException {
+    public void checkIfTemplateCanBeDeleted(Long id) throws NotFoundException {
         if (findEntityById(id).getIsPublished().equals(false)) {
-            delete(id);
+            deleteById(id);
         } else throw new ResourceTemplateCanNotBeModified
                 (ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_DELETED.getMessage());
     }
@@ -187,7 +187,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws NotDeletedException if the resource template with provided id is not deleted
      * @author Halyna Yatseniuk
      */
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         try {
             resourceTemplateRepository.deleteById(id);
             Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();

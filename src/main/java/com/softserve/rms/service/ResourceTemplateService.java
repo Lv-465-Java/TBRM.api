@@ -60,7 +60,7 @@ public interface ResourceTemplateService {
      * @throws NotUniqueNameException           if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
+    ResourceTemplateDTO checkIfTemplateCanBeUpdated(Long id, Map<String, Object> body);
 
     /**
      * Method verifies if {@link ResourceTemplate} could be deleted.
@@ -70,7 +70,7 @@ public interface ResourceTemplateService {
      * @throws ResourceTemplateCanNotBeModified if the resource template can not be deleted
      * @author Halyna Yatseniuk
      */
-    void deleteById(Long id);
+    void checkIfTemplateCanBeDeleted(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
