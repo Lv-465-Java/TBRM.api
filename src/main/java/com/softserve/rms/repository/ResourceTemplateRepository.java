@@ -15,7 +15,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
 
 
     @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'read') " +
-            "or hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'write')")
+            "or hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'write') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findById(Long id);
 
     @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'write')")

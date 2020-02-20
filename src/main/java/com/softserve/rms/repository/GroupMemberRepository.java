@@ -4,6 +4,7 @@ import com.softserve.rms.entities.GroupsMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,4 +24,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupsMember, Long>
 
     @Query(value = "select * from groups_members where user_id = :userId and  group_id = :groupId", nativeQuery = true)
     Optional<GroupsMember> findOne(Long userId, Long groupId);
+
+
 }

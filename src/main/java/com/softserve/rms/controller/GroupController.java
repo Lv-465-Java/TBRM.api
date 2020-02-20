@@ -108,13 +108,13 @@ public class GroupController {
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @PutMapping("/owner")
-    public ResponseEntity<Object> editGroup(Principal principal, @RequestBody ChangeOwnerDto changeOwnerDto) {
+    public ResponseEntity<Object> changeOwner(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal) {
         groupService.changeGroupOwner(changeOwnerDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 204, message = HttpStatuses.OK),
+            @ApiResponse(code = 204, message = HttpStatuses.NO_CONTENT),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
@@ -122,11 +122,11 @@ public class GroupController {
     @DeleteMapping("/{name}")
     public ResponseEntity<Object> deleteGroup(@PathVariable String name) {
         groupService.deleteCroup(name);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 204, message = HttpStatuses.OK),
+            @ApiResponse(code = 204, message = HttpStatuses.NO_CONTENT),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
@@ -134,6 +134,6 @@ public class GroupController {
     @DeleteMapping("/member")
     public ResponseEntity<Object> deleteMember(@RequestBody MemberOperationDto memberDeleteDto) {
         groupService.deleteMember(memberDeleteDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

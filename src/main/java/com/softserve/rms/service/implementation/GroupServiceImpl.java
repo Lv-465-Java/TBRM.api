@@ -13,6 +13,7 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueMemberException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.repository.GroupMemberRepository;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
@@ -20,7 +21,8 @@ import com.softserve.rms.service.GroupService;
 import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.MutableAclService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,22 +31,24 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PreAuthorize("hasRole('MANAGER')")
 @Service
 public class GroupServiceImpl  implements GroupService {
     private UserRepository userRepository;
     private GroupRepository groupRepository;
     private GroupMemberRepository groupMemberRepository;
     private PermissionManagerService permissionManagerService;
-    private ModelMapper modelMapper = new ModelMapper();
+    private ModelMapper modelMapper;
 
     @Autowired
     public GroupServiceImpl(UserRepository userRepository, GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
-                            PermissionManagerService permissionManagerService) {
+                            PermissionManagerService permissionManagerService, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.permissionManagerService = permissionManagerService;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -66,21 +70,24 @@ public class GroupServiceImpl  implements GroupService {
         verifyIfGroupNameIsUnique(groupSaveDto.getName());
         Group newGroup = groupRepository.saveAndFlush(modelMapper.map(groupSaveDto, Group.class));
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findUserByEmail(principal.getName()).orElseThrow(
+        String mail = principal.getName();
+        User user = userRepository.findUserByEmail(mail).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
         );
-        permissionManagerService.addPermission(new PermissionDto(newGroup.getId(), user.getEmail(), "write", true), principal, Group.class);
+        permissionManagerService.addPermission(new PermissionDto(newGroup.getId(), user.getEmail(), "write", true),
+                principal, Group.class);
         return modelMapper.map(newGroup, GroupDto.class);
     }
 
     @Override
     public MemberDto addMember(MemberOperationDto memberSaveDto) throws NotFoundException, NotUniqueMemberException {
-        User user = userRepository.findUserByEmail(memberSaveDto.getEmail()).orElseThrow(
-                () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
-        );
         Group group = groupRepository.findByName(memberSaveDto.getGroupName()).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
+        User user = userRepository.findUserByEmail(memberSaveDto.getEmail()).orElseThrow(
+                () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
+        );
+        verifyGroupPermission(group.getId().toString());
         verifyIfGroupMemberIsUnique(user.getId(), group.getId());
         GroupsMember groupsMember = new GroupsMember(user, group);
         groupMemberRepository.save(groupsMember);
@@ -89,9 +96,11 @@ public class GroupServiceImpl  implements GroupService {
 
     @Override
     public void addWritePermission(PermissionDto permissionDto, Principal principal) {
+        verifyGroupPermission(permissionDto.getId().toString());
         permissionManagerService.addPermission(permissionDto, principal, Group.class);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
@@ -104,6 +113,7 @@ public class GroupServiceImpl  implements GroupService {
         Group group = groupRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
+        verifyGroupPermission(group.getId().toString());
         if (groupSaveDto.getName() != null) {
             groupRepository.updateAclSid(group.getName(), groupSaveDto.getName());
             group.setName(groupSaveDto.getName());
@@ -118,23 +128,25 @@ public class GroupServiceImpl  implements GroupService {
     @Transactional
     @Override
     public void deleteCroup(String groupName) throws NotFoundException {
-        groupMemberRepository.deleteByGroupId(groupRepository.findByName(groupName).orElseThrow(
+        Group group = groupRepository.findByName(groupName).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
-        ).getId());
+        );
+        verifyGroupPermission(group.getId().toString());
+        groupMemberRepository.deleteByGroupId(group.getId());
         groupRepository.deleteByName(groupName);
     }
 
     @Override
     public void deleteMember(MemberOperationDto memberDeleteDto) throws NotFoundException {
-        User user = userRepository.findUserByEmail(memberDeleteDto.getEmail()).orElseThrow(
-                () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
-        );
         Group group = groupRepository.findByName(memberDeleteDto.getGroupName()).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
+        verifyGroupPermission(group.getId().toString());
+        User user = userRepository.findUserByEmail(memberDeleteDto.getEmail()).orElseThrow(
+                () -> new NotFoundException(ErrorMessage.USER_DO_NOT_EXISTS.getMessage())
+        );
         groupMemberRepository.deleteMember(user.getId(), group.getId());
     }
-
 
 
     /**
@@ -145,11 +157,10 @@ public class GroupServiceImpl  implements GroupService {
      * @throws NotUniqueNameException if the group name is not unique
      * @author Artur Sydor
      */
-    private String verifyIfGroupNameIsUnique(String name) throws NotUniqueNameException {
+    private void verifyIfGroupNameIsUnique(String name) {
         if (groupRepository.findByName(name).isPresent()) {
             throw new NotUniqueNameException(ErrorMessage.GROUP_ALREADY_EXIST.getMessage());
         }
-        return name;
     }
 
     /**
@@ -160,9 +171,17 @@ public class GroupServiceImpl  implements GroupService {
      * @throws NotUniqueMemberException if user is member of group
      * @author Artur Sydor
      */
-    private void verifyIfGroupMemberIsUnique(Long userId, Long groupId) throws NotUniqueMemberException {
+    private void verifyIfGroupMemberIsUnique(Long userId, Long groupId) {
         if (groupMemberRepository.findOne(userId, groupId).isPresent()) {
             throw new NotUniqueMemberException(ErrorMessage.GROUP_MEMBER_ALREADY_EXISTS.getMessage());
+        }
+    }
+
+    private void verifyGroupPermission(String groupId) {
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        Integer mask = groupRepository.getPermission(principal.getName(), groupId);
+        if (mask == null || mask != BasePermission.WRITE.getMask()) {
+            throw new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage());
         }
     }
 }

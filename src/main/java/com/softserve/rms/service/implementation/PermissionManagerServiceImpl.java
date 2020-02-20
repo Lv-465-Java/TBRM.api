@@ -11,6 +11,7 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
@@ -41,7 +42,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      * @param mutableAclService perform crud operations with acl
      * @param permissionMapper  map string permission to integer mask
      * @param formatter         format permission string retrieved from Sid object
-     * @param groupRepository
+     * @param groupRepository   perform crud operations with groups
      * @author Artur Sydor
      */
     @Autowired
@@ -192,7 +193,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     public void closeAllPermissions(Long id, Principal principal, Class clazz) {
         MutableAcl acl;
         try {
-            ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, id);
+            ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
             if (!formatter.sidFormatter(acl.getOwner().toString()).equals(principal.getName())) {
                 throw new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage());

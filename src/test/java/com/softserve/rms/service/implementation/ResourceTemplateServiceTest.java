@@ -48,7 +48,7 @@ public class ResourceTemplateServiceTest {
     SecurityContext securityContext;
 
     private Role role = new Role(2L, "MANAGER");
-    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, role, Collections.emptyList());
+    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, role, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name", "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description", user.getId());
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, user.getId(), null);
@@ -132,7 +132,7 @@ public class ResourceTemplateServiceTest {
     public void testDeleteById() {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
-        doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
+        doNothing().when(permissionManagerService).closeAllPermissions(anyLong(), any(), any(Class.class));
         resourceTemplateService.deleteById(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
