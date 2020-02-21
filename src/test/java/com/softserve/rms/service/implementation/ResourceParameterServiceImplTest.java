@@ -7,9 +7,11 @@ import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeModified;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.service.ResourceTemplateService;
@@ -21,11 +23,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +38,7 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceParameterServiceImpl.class)
@@ -82,8 +87,11 @@ public class ResourceParameterServiceImplTest {
             new ResourceParameter(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, resourceTemplate, null));
 
     @Before
-    public void init() {
-        resourceParameterService = PowerMockito.spy(new ResourceParameterServiceImpl(resourceParameterRepository, resourceTemplateService, resourceRelationRepository, dslContext));
+    public void initializeMock() {
+        resourceParameterService = PowerMockito.spy(new ResourceParameterServiceImpl(resourceParameterRepository,
+                resourceTemplateService, resourceRelationRepository, dslContext));
+        ResourceRelationRepository resourceRelationRepository = PowerMockito.mock(ResourceRelationRepository.class);
+
     }
 
     @Test
@@ -151,30 +159,6 @@ public class ResourceParameterServiceImplTest {
     }
 
     @Test
-    public void updateParameterNameAndColumnNameSuccess() throws Exception {
-        PowerMockito.doReturn("resourceParameter").when(resourceParameterService, "verifyIfParameterNameIsUniquePerResourceTemplate", anyString(), anyLong());
-        PowerMockito.doReturn("resource_parameter").when(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", anyString(), anyLong());
-        Whitebox.invokeMethod(resourceParameterService, "updateParameterNameAndColumnName", resourceTemplate.getId(), resourceParameter, resourceParameterSaveDTOUpdate);
-    }
-
-    @Test
-    public void updateParameterRelationIfResourceRelationNotNull() throws Exception {
-        when(resourceRelationRepository.findByResourceParameterId(anyLong())).thenReturn(resourceRelation);
-        doReturn(resourceTemplate).when(resourceTemplateService).findEntityById(anyLong());
-        PowerMockito.doReturn(resourceTemplate).when(resourceParameterService, "verifyIfResourceTemplateIsPublished", any(ResourceTemplate.class));
-        ResourceRelation actual = Whitebox.invokeMethod(resourceParameterService, "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
-        assertEquals(resourceRelation, actual);
-    }
-
-    @Test
-    public void updateParameterRelationIfResourceRelationIsNull() throws Exception {
-        when(resourceRelationRepository.findByResourceParameterId(anyLong())).thenReturn(null);
-        PowerMockito.doReturn(resourceRelation).when(resourceParameterService, "saveParameterRelation", anyLong(), any(ResourceRelationDTO.class));
-        ResourceRelation actual = Whitebox.invokeMethod(resourceParameterService, "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
-        assertEquals(resourceRelation, actual);
-    }
-
-    @Test
     public void saveParameterRelationSuccess() throws Exception {
         doReturn(resourceParameter).when(resourceParameterService).findById(anyLong());
         doReturn(resourceTemplate).when(resourceTemplateService).findEntityById(anyLong());
@@ -202,34 +186,123 @@ public class ResourceParameterServiceImplTest {
         assertEquals(columnName, actual);
     }
 
+    @Test
+    public void testIfParameterCanBeDeletedTrue() {
+        when(resourceTemplateService.findEntityById(any(Long.class))).thenReturn(resourceTemplate);
+        resourceParameterService.checkIfParameterCanBeDeleted(resourceTemplate.getId(), resourceParameter.getId());
+        verify(resourceParameterRepository, times(1)).deleteById(anyLong());
+    }
 
+    @Test(expected = ResourceParameterCanNotBeModified.class)
+    public void testIfParameterCanBeDeletedFalse() {
+        when(resourceTemplateService.findEntityById(any(Long.class))).thenReturn(resourceTemplate);
+        resourceTemplate.setIsPublished(true);
+        resourceParameterService.checkIfParameterCanBeDeleted(resourceTemplate.getId(), resourceParameter.getId());
+        verify(resourceParameterRepository, times(0)).deleteById(anyLong());
+    }
 
+    @Test
+    public void deleteResourceParameterSuccess() {
+        resourceParameterRepository.deleteById(anyLong());
+        verify(resourceParameterRepository, times(1)).deleteById(anyLong());
+    }
 
+    @Test(expected = NotDeletedException.class)
+    public void deleteResourceParameterFail() throws Exception {
+        doThrow(new EmptyResultDataAccessException(1)).when(resourceParameterRepository).deleteById(anyLong());
+        Whitebox.invokeMethod(resourceParameterService, "deleteById", anyLong());
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("deleteById", any(Long.class));
+    }
 
-//    @Test
-//    public void saveResourceParameterSaveDTOSuccess() {
-////        when(modelMapper.map(resourceParameterSaveDTO, ResourceParameter.class)).thenReturn(resourceParameter);
-//
-//        when(resourceParameterRepository.save(resourceParameter)).thenReturn(resourceParameter);
-//        assertEquals(resourceParameterDTO, resourceParameterService.save(resourceParameterSaveDTO));
-//    }
+    @Test
+    public void testUpdateOfParameterNameOrColumnName() throws Exception {
+        PowerMockito.doReturn("resource parameter").when(resourceParameterService,
+                "verifyIfParameterNameIsUniquePerResourceTemplate",
+                Mockito.any(String.class), Mockito.any(Long.class));
+        PowerMockito.doReturn("resource_parameter").when(resourceParameterService,
+                "verifyIfParameterColumnNameIsUniquePerResourceTemplate",
+                Mockito.any(String.class), Mockito.any(Long.class));
+        Whitebox.invokeMethod(resourceParameterService, "updateParameterNameAndColumnName",
+                resourceTemplate.getId(), resourceParameter, resourceParameterSaveDTO);
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("updateParameterNameAndColumnName", Mockito.any(Long.class),
+                        Mockito.any(ResourceParameter.class), Mockito.any(ResourceParameterSaveDTO.class));
+    }
 
+    @Test
+    public void testUpdateOfParameterNameOrColumnNameFail() throws Exception {
+        resourceParameter.setName("resource_parameter");
+        Whitebox.invokeMethod(resourceParameterService, "updateParameterNameAndColumnName",
+                resourceTemplate.getId(), resourceParameter, resourceParameterSaveDTO);
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("updateParameterNameAndColumnName", Mockito.any(Long.class),
+                        Mockito.any(ResourceParameter.class), Mockito.any(ResourceParameterSaveDTO.class));
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("verifyIfParameterNameIsUniquePerResourceTemplate", Mockito.any(String.class),
+                        Mockito.any(Long.class));
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("verifyIfParameterColumnNameIsUniquePerResourceTemplate", Mockito.any(String.class),
+                        Mockito.any(Long.class));
+    }
 
-//    @Test
-//    public void saveResourceRelationSuccess() {
-//        when(resourceRelationRepository.save(resourceRelation)).thenReturn(resourceRelation);
-//        assertEquals(resourceRelation, resourceRelationRepository.save(resourceRelation));
-//    }
+    @Test
+    public void testVerificationOfResourceTemplatePublishTrue() throws Exception {
+        resourceTemplate.setIsPublished(true);
+        ResourceTemplate result = Whitebox.invokeMethod(resourceParameterService,
+                "verifyIfResourceTemplateIsPublished", resourceTemplate);
+        assertEquals(resourceTemplate, result);
+    }
 
-//    @Test
-//    public void deleteResourceParameterSuccess() {
-//        resourceParameterService.delete(anyLong(), anyLong());
-//        verify(resourceParameterRepository, times(1)).deleteById(anyLong());
-//    }
+    @Test(expected = ResourceTemplateIsNotPublishedException.class)
+    public void testVerificationOfResourceTemplatePublishFail() throws Exception {
+        resourceTemplate.setIsPublished(false);
+        Whitebox.invokeMethod(resourceParameterService,
+                "verifyIfResourceTemplateIsPublished", resourceTemplate);
+    }
 
-//    @Test(expected = NotDeletedException.class)
-//    public void deleteResourceParameterFailed() {
-//       doThrow(new EmptyResultDataAccessException(1)).when(resourceParameterRepository).deleteById(anyLong());
-//       resourceParameterService.delete(anyLong());
-//    }
+    @Test
+    public void testVerificationOfParameterNameUniquenessTrue() throws Exception {
+        when(resourceParameterRepository.findByNameAndResourceTemplateId(Mockito.any(String.class),
+                Mockito.any(Long.class))).thenReturn(Optional.empty());
+        String result = Whitebox.invokeMethod(resourceParameterService,
+                "verifyIfParameterNameIsUniquePerResourceTemplate", resourceParameter.getName(),
+                resourceParameter.getId());
+        assertEquals(resourceParameter.getName(), result);
+    }
+
+    @Test(expected = NotUniqueNameException.class)
+    public void testVerificationOfParameterNameUniquenessFail() throws Exception {
+        when(resourceParameterRepository.findByNameAndResourceTemplateId(Mockito.any(String.class),
+                Mockito.any(Long.class))).thenReturn(Optional.of(resourceParameter));
+        String result = Whitebox.invokeMethod(resourceParameterService,
+                "verifyIfParameterNameIsUniquePerResourceTemplate", resourceParameter.getName(),
+                resourceParameter.getId());
+    }
+
+    @Test
+    public void testUpdateParameterRelationTrue() throws Exception {
+        Mockito.doReturn(resourceRelation).when(resourceRelationRepository)
+                .findByResourceParameterId(Mockito.any(Long.class));
+        when(resourceTemplateService.findEntityById(Mockito.any(Long.class))).thenReturn(resourceTemplate);
+        PowerMockito.doReturn(resourceTemplate).when(resourceParameterService,
+                "verifyIfResourceTemplateIsPublished", resourceTemplate);
+        ResourceRelation result = Whitebox.invokeMethod(resourceParameterService,
+                "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+        verifyPrivate(resourceParameterService, times(1)).
+                invoke("verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
+        assertEquals(resourceRelation, result);
+    }
+
+    @Test
+    public void testUpdateParameterRelationFalse() throws Exception {
+        Mockito.doReturn(null).when(resourceRelationRepository)
+                .findByResourceParameterId(Mockito.any(Long.class));
+        PowerMockito.doReturn(resourceRelation).when(resourceParameterService,
+                "saveParameterRelation", Mockito.any(Long.class), Mockito.any(ResourceRelationDTO.class));
+        Whitebox.invokeMethod(resourceParameterService,
+                "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+        verifyPrivate(resourceParameterService, times(0)).
+                invoke("verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
+    }
 }

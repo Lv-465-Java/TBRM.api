@@ -55,11 +55,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserServiceImpl userService, PermissionManagerService permissionManagerService,
-                                       DSLContext dslContext) {
+                                       DSLContext dslContext, JooqDDL jooqDDL) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userService = userService;
         this.permissionManagerService = permissionManagerService;
         this.dslContext = dslContext;
+        this.jooqDDL = jooqDDL;
     }
 
     /**
@@ -248,9 +249,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-    public void publishResourceTemplate(ResourceTemplate resourceTemplate)
+    private void publishResourceTemplate(ResourceTemplate resourceTemplate)
             throws ResourceTemplateIsPublishedException, ResourceTemplateParameterListIsEmpty {
-        jooqDDL = new JooqDDL(dslContext);
         if (verifyIfResourceTemplateIsNotPublished(resourceTemplate) &&
                 verifyIfResourceTemplateHasParameters(resourceTemplate)) {
             jooqDDL.createResourceContainerTable(resourceTemplate);
@@ -266,7 +266,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     private void unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
-        jooqDDL = new JooqDDL(dslContext);
         if (verifyIfResourceTemplateIsPublished(resourceTemplate) &&
                 verifyIfResourceTableIsEmpty(resourceTemplate)) {
             jooqDDL.dropResourceContainerTable(resourceTemplate);
@@ -377,7 +376,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
      * @author Halyna Yatseniuk
      */
-    private Boolean verifyIfResourceTemplateHasParameters(ResourceTemplate resourceTemplate)
+    public Boolean verifyIfResourceTemplateHasParameters(ResourceTemplate resourceTemplate)
             throws ResourceTemplateParameterListIsEmpty {
         if (resourceTemplate.getResourceParameters().isEmpty()) {
             throw new ResourceTemplateParameterListIsEmpty
