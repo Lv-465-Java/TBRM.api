@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Implementation of {@link ResourceParameterService}
@@ -117,11 +116,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     @Transactional
-    public ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO)
+    public ResourceParameterDTO checkIfParameterCanBeUpdated(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO)
             throws NotFoundException, NotUniqueNameException, ResourceParameterCanNotBeModified {
         if (resourceTemplateService.findEntityById(templateId).getIsPublished().equals(false)) {
             ResourceParameter resourceParameter = findById(parameterId);
-            return update(templateId, resourceParameter, parameterSaveDTO);
+            return updateById(templateId, resourceParameter, parameterSaveDTO);
         } else throw new ResourceParameterCanNotBeModified(
                 ErrorMessage.RESOURCE_PARAMETER_CAN_NOT_BE_UPDATED.getMessage());
     }
@@ -137,8 +136,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @throws NotFoundException      if the resource parameter with provided id is not found
      * @author Andrii Bren
      */
-    private ResourceParameterDTO update(Long templateId, ResourceParameter resourceParameter,
-                                        ResourceParameterSaveDTO parameterDTO)
+    private ResourceParameterDTO updateById(Long templateId, ResourceParameter resourceParameter,
+                                            ResourceParameterSaveDTO parameterDTO)
             throws NotUniqueNameException, NotFoundException {
         updateParameterNameAndColumnName(templateId, resourceParameter, parameterDTO);
         resourceParameter.setParameterType(parameterDTO.getParameterType());
@@ -146,8 +145,8 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
+        resourceParameterRepository.save(resourceParameter);
         if (parameterDTO.getResourceRelationDTO() != null) {
-            resourceParameterRepository.save(resourceParameter);
             resourceParameter.setResourceRelations(updateParameterRelation(
                     resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
         }
@@ -276,7 +275,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     @Transactional
-    public void delete(Long templateId, Long parameterId) throws ResourceParameterCanNotBeModified,
+    public void checkIfParameterCanBeDeleted(Long templateId, Long parameterId) throws ResourceParameterCanNotBeModified,
             NotDeletedException {
         if (resourceTemplateService.findEntityById(templateId).getIsPublished().equals(false)) {
             deleteById(parameterId);

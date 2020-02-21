@@ -6,7 +6,13 @@ public enum FieldConstants {
     IS_PUBLISHED("isPublished"),
     DESCRIPTION("description"),
     RESOURCE_TEMPLATE_ID("resource_template_id"),
-    USER_ID("user_id");
+    USER_ID("user_id"),
+
+    PRIMARY_KEY("_PK"),
+    FOREIGN_KEY("_FK"),
+    FROM("from"),
+    TO("to"),
+    REFERENCE("_ref");
 
     private String value;
 

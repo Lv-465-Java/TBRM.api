@@ -124,7 +124,7 @@ public class ResourceTemplateController {
     @PatchMapping("/{id}")
     public ResponseEntity<ResourceTemplateDTO> updateById(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Updating Resource Template by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, body));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.checkIfTemplateCanBeUpdated(id, body));
     }
 
     /**
@@ -143,7 +143,7 @@ public class ResourceTemplateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable Long id) {
         LOG.info("Deleting Resource Template by ID: " + id);
-        resourceTemplateService.deleteById(id);
+        resourceTemplateService.checkIfTemplateCanBeDeleted(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

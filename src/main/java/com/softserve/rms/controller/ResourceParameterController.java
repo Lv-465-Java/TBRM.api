@@ -109,7 +109,7 @@ public class ResourceParameterController {
                                                        @PathVariable Long parameterId,
                                                        @RequestBody ResourceParameterSaveDTO parameterDTO) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceParameterService.updateById(templateId, parameterId, parameterDTO));
+                .body(resourceParameterService.checkIfParameterCanBeUpdated(templateId, parameterId, parameterDTO));
     }
 
     /**
@@ -128,7 +128,7 @@ public class ResourceParameterController {
     })
     @DeleteMapping("/{parameterId}")
     public ResponseEntity<Object> delete(@PathVariable Long templateId, @PathVariable Long parameterId) {
-        resourceParameterService.delete(templateId, parameterId);
+        resourceParameterService.checkIfParameterCanBeDeleted(templateId, parameterId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

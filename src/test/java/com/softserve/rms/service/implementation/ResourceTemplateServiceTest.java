@@ -1,6 +1,5 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
@@ -17,31 +16,31 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
-@RunWith(MockitoJUnitRunner.class)
-//@PrepareForTest(JooqDDL.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ResourceTemplateServiceImpl.class)
 public class ResourceTemplateServiceTest {
     @InjectMocks
     private ResourceTemplateServiceImpl resourceTemplateService;
@@ -58,20 +57,13 @@ public class ResourceTemplateServiceTest {
     @Mock
     private DSLContext dslContext;
     @Mock
-    Authentication authentication;
+    private Authentication authentication;
     @Mock
-    Principal principal;
+    private Principal principal;
     @Mock
-    SecurityContext securityContext;
+    private SecurityContext securityContext;
     @Mock
-    private JooqDDL jooqDDL;
-//    private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
-
-    @Mock
-    private ResourceTemplateServiceImpl mockMock;
-
-
-    private ResourceTemplateServiceImpl mocks;
+    private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
@@ -87,16 +79,15 @@ public class ResourceTemplateServiceTest {
 
     @Before
     public void initializeMock() {
-        mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext));
+        resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
+                permissionManagerService, dslContext, jooqDDL));
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
+        JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
-    //    @Test
+//        @Test
 //    public void testSaveResourceTemplate() {
-//
-//
 //        SecurityContextHolder.setContext(securityContext);
 //        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
 //        Principal mockPrincipal = Mockito.mock(Principal.class);
@@ -105,7 +96,7 @@ public class ResourceTemplateServiceTest {
 //        when(resourceTemplateRepository.saveAndFlush(any())).thenReturn(resourceTemplate);
 //        assertEquals(resourceTemplateDTO, resourceTemplateService.save(resourceTemplateSaveDTO));
 //    }
-//
+
     @Test
     public void testFindDTOById() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
@@ -135,7 +126,7 @@ public class ResourceTemplateServiceTest {
     public void testUpdateResourceTemplateWithPublishFalse() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         resourceTemplate.setIsPublished(true);
-        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.updateById(anyLong(), map);
+        ResourceTemplateDTO resultResourceTemplate = resourceTemplateService.checkIfTemplateCanBeUpdated(1L, map);
         assertEquals(resourceTempDTO, resultResourceTemplate);
     }
 
@@ -147,7 +138,7 @@ public class ResourceTemplateServiceTest {
         map = new HashMap<>();
         map.put("name", "updated name");
         map.put("description", "updated description");
-        ResourceTemplateDTO temDto = resourceTemplateService.updateById(anyLong(), map);
+        ResourceTemplateDTO temDto = resourceTemplateService.checkIfTemplateCanBeUpdated(1L, map);
         assertEquals(updatedDTO, temDto);
     }
 
@@ -158,7 +149,7 @@ public class ResourceTemplateServiceTest {
         map = new HashMap<>();
         map.put("description", "updated description");
         ResourceTemplateDTO resultResourceTemplate = Whitebox.invokeMethod(
-                mocks, "updateResourceTemplateFields", resourceTemplate, map);
+                resourceTemplateService, "updateById", resourceTemplate, map);
         assertEquals(updatedDTO, resultResourceTemplate);
     }
 
@@ -169,14 +160,14 @@ public class ResourceTemplateServiceTest {
         map = new HashMap<>();
         map.put("name", "updated name");
         ResourceTemplateDTO resultResourceTemplate = Whitebox.invokeMethod(
-                mocks, "updateResourceTemplateFields", resourceTemplate, map);
+                resourceTemplateService, "updateById", resourceTemplate, map);
         assertEquals(updatedDTO, resultResourceTemplate);
     }
 
     @Test
     public void testDeleteByIdTrue() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-        resourceTemplateService.deleteById(resourceTemplate.getId());
+        resourceTemplateService.checkIfTemplateCanBeDeleted(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
 
@@ -185,7 +176,7 @@ public class ResourceTemplateServiceTest {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         resourceTemplate.setIsPublished(true);
         verify(resourceTemplateRepository, times(0)).deleteById(resourceTemplate.getId());
-        resourceTemplateService.deleteById(resourceTemplate.getId());
+        resourceTemplateService.checkIfTemplateCanBeDeleted(resourceTemplate.getId());
     }
 
     @Test
@@ -193,14 +184,14 @@ public class ResourceTemplateServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
-        resourceTemplateService.delete(resourceTemplate.getId());
+        resourceTemplateService.deleteById(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
 
     @Test(expected = NotFoundException.class)
     public void testDeleteByIdFailed() {
         doThrow(new EmptyResultDataAccessException(1)).when(resourceTemplateRepository).deleteById(resourceTemplate.getId());
-        resourceTemplateService.delete(resourceTemplate.getId());
+        resourceTemplateService.deleteById(resourceTemplate.getId());
     }
 
     @Test
@@ -224,35 +215,139 @@ public class ResourceTemplateServiceTest {
         assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
     }
 
+    @Test
+    public void testSelectPublishOrUnPublishTrue() throws Exception {
+        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
+        map = new HashMap<>();
+        map.put("isPublished", true);
+        PowerMockito.doNothing().when(resourceTemplateService, "publishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        resourceTemplateService.selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
+        verify(resourceTemplateRepository, times(1)).findById(resourceTemplate.getId());
+        verify(resourceTemplateService, times(1)).selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
+    }
 
-//    @Test
-//    public void testSelectPublishOrUnPublish() throws Exception {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        map = new HashMap<>();
-//        map.put("isPublished", true);
-//        doNothing().when(mockMock).publishResourceTemplate(any());
-//        doNothing().when(Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateHasParameters", resourceTemplate));
-//        resourceTemplateService.selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
-//        verify(mockMock, times(1)).selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
-//        verify(mockMock, times(1)).publishResourceTemplate(resourceTemplate);
-//    }
+    @Test
+    public void testSelectPublishOrUnPublishFalse() throws Exception {
+        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
+        map = new HashMap<>();
+        map.put("isPublished", false);
+        PowerMockito.doNothing().when(resourceTemplateService, "unPublishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        resourceTemplateService.selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
+        verify(resourceTemplateRepository, times(1)).findById(resourceTemplate.getId());
+        verify(resourceTemplateService, times(1)).selectPublishOrCancelPublishAction(resourceTemplate.getId(), map);
+    }
 
-//    @Override
-//    @Transactional
-//    public void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body) {
-//        ResourceTemplate resourceTemplate = findEntityById(id);
-//        if (body.get(FieldConstants.IS_PUBLISHED.getValue()).equals(true)) {
-//            publishResourceTemplate(resourceTemplate);
-//        } else {
-//            unPublishResourceTemplate(resourceTemplate);
-//        }
-//    }
+    @Test
+    public void testPublishResourceTemplateSuccess() throws Exception {
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateHasParameters", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsNotPublished", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doNothing().when(
+                jooqDDL, "createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "publishResourceTemplate", resourceTemplate);
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("publishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(1)).
+                invoke("createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test
+    public void testPublishResourceTemplateFalse() throws Exception {
+        PowerMockito.doReturn(false).when(resourceTemplateService,
+                "verifyIfResourceTemplateHasParameters", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsNotPublished", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doNothing().when(
+                jooqDDL, "createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "publishResourceTemplate", resourceTemplate);
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("publishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(0)).
+                invoke("createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test(expected = ResourceTemplateIsPublishedException.class)
+    public void testPublishResourceTemplateFail() throws Exception {
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateHasParameters", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doThrow(new ResourceTemplateIsPublishedException("dd")).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsNotPublished", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doNothing().when(
+                jooqDDL, "createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+        try {
+            Whitebox.invokeMethod(resourceTemplateService, "publishResourceTemplate", resourceTemplate);
+        } catch (InvocationTargetException e) {
+            e.getTargetException();
+            e.getStackTrace();
+        }
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("publishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(0)).
+                invoke("createResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test
+    public void testUnPublishResourceTemplateSuccess() throws Exception {
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doNothing().when(
+                jooqDDL, "dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("unPublishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(1)).
+                invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test
+    public void testUnPublishResourceTemplateFalse() throws Exception {
+        PowerMockito.doReturn(false).when(resourceTemplateService,
+                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("unPublishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(0)).
+                invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test
+    public void testUnPublishResourceTemplateFail() throws Exception {
+        PowerMockito.doReturn(true).when(resourceTemplateService,
+                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(false).when(resourceTemplateService,
+                "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
+        verifyPrivate(resourceTemplateService, times(1)).
+                invoke("unPublishResourceTemplate", Mockito.any(ResourceTemplate.class));
+        verifyPrivate(jooqDDL, times(0)).
+                invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
+    }
+
+    @Test
+    public void testIfResourceTableIsEmptySuccess() throws Exception {
+        PowerMockito.doReturn(0).when(jooqDDL,
+                "countTableRecords", Mockito.any(ResourceTemplate.class));
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+        assertTrue(result);
+    }
+
+    @Test(expected = ResourceTemplateCanNotBeUnPublished.class)
+    public void testIfResourceTableIsEmptyFail() throws Exception {
+        PowerMockito.doReturn(1).when(jooqDDL,
+                "countTableRecords", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+    }
 
     @Test
     public void testVerificationOfResourceTemplateName() throws Exception {
         String name = "name";
         when(resourceTemplateRepository.findByName(name)).thenReturn(Optional.empty());
-        String result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateNameIsUnique", name);
+        String result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateNameIsUnique", name);
         assertEquals(name, result);
     }
 
@@ -260,7 +355,7 @@ public class ResourceTemplateServiceTest {
     public void testVerificationOfResourceTemplateNameFail() throws Exception {
         String name = "name";
         when(resourceTemplateRepository.findByName(name)).thenReturn(Optional.of(resourceTemplate));
-        Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateNameIsUnique", name);
+        Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateNameIsUnique", name);
     }
 
     @Test
@@ -268,7 +363,7 @@ public class ResourceTemplateServiceTest {
         String name = "new name";
         String tableName = "new_name";
         when(resourceTemplateRepository.findByTableName(tableName)).thenReturn(Optional.empty());
-        String result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateTableNameIsUnique", name);
+        String result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateTableNameIsUnique", name);
         assertEquals(tableName, result);
     }
 
@@ -277,13 +372,13 @@ public class ResourceTemplateServiceTest {
         String name = "new name";
         String tableName = "new_name";
         when(resourceTemplateRepository.findByTableName(tableName)).thenReturn(Optional.of(resourceTemplate));
-        String result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateTableNameIsUnique", name);
+        String result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateTableNameIsUnique", name);
     }
 
     @Test
     public void testVerificationOfResourceTemplatePublish() throws Exception {
         resourceTemplate.setIsPublished(false);
-        Boolean result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateIsNotPublished",
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateIsNotPublished",
                 resourceTemplate);
         assertTrue(result);
     }
@@ -291,7 +386,7 @@ public class ResourceTemplateServiceTest {
     @Test(expected = ResourceTemplateIsPublishedException.class)
     public void testVerificationOfResourceTemplatePublishFail() throws Exception {
         resourceTemplate.setIsPublished(true);
-        Boolean result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateIsNotPublished",
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateIsNotPublished",
                 resourceTemplate);
         assertFalse(result);
     }
@@ -299,7 +394,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testVerificationOfResourceTemplatePublishTrue() throws Exception {
         resourceTemplate.setIsPublished(true);
-        Boolean result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateIsPublished",
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateIsPublished",
                 resourceTemplate);
         assertTrue(result);
     }
@@ -307,7 +402,7 @@ public class ResourceTemplateServiceTest {
     @Test(expected = ResourceTemplateIsNotPublishedException.class)
     public void testVerificationOfResourceTemplatePublishFalse() throws Exception {
         resourceTemplate.setIsPublished(false);
-        Boolean result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateIsPublished",
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateIsPublished",
                 resourceTemplate);
         assertTrue(result);
     }
@@ -315,81 +410,27 @@ public class ResourceTemplateServiceTest {
     @Test(expected = ResourceTemplateParameterListIsEmpty.class)
     public void testVerificationOfResourceTemplateHavingParametersFail() throws Exception {
         resourceTemplate.setResourceParameters(Collections.emptyList());
-        Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateHasParameters", resourceTemplate);
+        Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateHasParameters", resourceTemplate);
     }
 
     @Test
     public void testVerificationOfResourceTemplateHavingParameters() throws Exception {
         resourceTemplate.setResourceParameters(Collections.singletonList(new ResourceParameter(null, "name",
                 "name", ParameterType.COORDINATES, null, resourceTemplate, null)));
-        Boolean result = Whitebox.invokeMethod(mocks, "verifyIfResourceTemplateHasParameters",
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateHasParameters",
                 resourceTemplate);
         assertTrue(result);
     }
 
-//    @Test
-//    public void testIfResourceTableIsEmptyTrue() {
-//        when(jooqDDL.countTableRecords(resourceTemplate)).thenReturn(0);
-//        Boolean result = resourceTemplateService.verifyIfResourceTableIsEmpty(resourceTemplate);
-//        assertTrue(result);
-//    }
+    @Test(expected = NotFoundException.class)
+    public void testFindByName() {
+        when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.empty());
+        resourceTemplateService.findByName(resourceTemplate.getName());
+    }
 
-//    public Boolean verifyIfResourceTableIsEmpty(ResourceTemplate resourceTemplate) {
-//        if (jooqDDL.countTableRecords(resourceTemplate) > 0) {
-//            throw new ResourceTemplateCanNotBeUnPublished(
-//                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROP.getMessage());
-//        }
-//        return true;
-//    }
-
-//    @Test
-//    public void testPublishOfResourceTemplatePassed() throws Exception {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setResourceParameters(Collections.singletonList(new ResourceParameter(null, "name",
-//                "name", ParameterType.COORDINATES, null, resourceTemplate, null)));
-//  //      doNothing().when(dslContext).createTable(anyString());
-//        whenNew(JooqDDL.class).withArguments(Mockito.any(DSLContext.class)).thenReturn(jooqDDL);
-//
-////        doNothing().when(jooqDDL).createResourceContainerTable(any(ResourceTemplate.class));
-//        resourceTemplateService.publishResourceTemplate(resourceTemplate);
-//        verify(mockMock, times(1)).publishResourceTemplate(resourceTemplate);
-////        assertTrue(result);
-//    }
-
-//    @Test(expected = ResourceTemplateIsPublishedException.class)
-//    public void testPublishOfResourceTemplatePublishedExceptionFailed() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setIsPublished(true);
-//        resourceTemplate.setResourceParameters(Collections.singletonList(new ResourceParameter(null, "name",
-//                "name", ParameterType.AREA_DOUBLE, null, resourceTemplate, null)));
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
-//    }
-//
-//    @Test(expected = ResourceTemplateParameterListIsEmpty.class)
-//    public void testPublishOfResourceTemplateParameterListIsEmptyFail() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setResourceParameters(Collections.emptyList());
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
-//    }
-//
-//    @Test(expected = ResourceTemplateIsPublishedException.class)
-//    public void testPublishOfResourceTemplateException() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setIsPublished(true);
-//        resourceTemplate.setResourceParameters(Collections.emptyList());
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
-//    }
-//
-//    @Test
-//    public void testUnPublishOfResourceTemplateWithValueTrue() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setIsPublished(true);
-//        assertTrue(resourceTemplateService.unPublishResourceTemplate(resourceTemplate.getId()));
-//    }
-//
-//    @Test
-//    public void testUnPublishOfResourceTemplateWithValueFalse() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        assertTrue(resourceTemplateService.unPublishResourceTemplate(resourceTemplate.getId()));
-//    }
+    @Test
+    public void testFindByNameEmpty() {
+        when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.of(resourceTemplate));
+        resourceTemplateService.findByName(resourceTemplate.getName());
+    }
 }
