@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,8 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates"})
+@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
+@ToString(exclude = {"resourceTemplates", "groups"})
 public class User {
 
     @Id
@@ -44,6 +45,11 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
-//    @OneToMany(mappedBy = "user", orphanRemoval = true)
-//    private List<Resource> resources;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "groups_members",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
+    )
+    private List<Group> groups;
 }

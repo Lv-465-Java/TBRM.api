@@ -1,12 +1,18 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
-import com.softserve.rms.exceptions.resourseTemplate.*;
+import com.softserve.rms.exceptions.PermissionException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.util.Validator;
@@ -40,15 +46,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-//@PrepareForTest(JooqDDL.class)
+@RunWith(PowerMockRunner.class)
 public class ResourceTemplateServiceTest {
     @InjectMocks
     private ResourceTemplateServiceImpl resourceTemplateService;
-    @Mock
-    private ModelMapper modelMapper = new ModelMapper();
-    @Mock
-    private Validator validator = new Validator();
     @Mock
     private ResourceTemplateRepository resourceTemplateRepository;
     @Mock
@@ -75,7 +76,7 @@ public class ResourceTemplateServiceTest {
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
-            "any", false, role, Collections.emptyList());
+            "any", false, role, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name",
             "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description");
@@ -89,23 +90,19 @@ public class ResourceTemplateServiceTest {
     public void initializeMock() {
         mocks = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
                 permissionManagerService, dslContext));
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
     }
 
-    //    @Test
-//    public void testSaveResourceTemplate() {
-//
-//
-//        SecurityContextHolder.setContext(securityContext);
-//        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
-//        Principal mockPrincipal = Mockito.mock(Principal.class);
-//        Mockito.when(mockPrincipal.getName()).thenReturn(user.getEmail());
-//        when(userService.getUserByEmail(anyString())).thenReturn(user);
-//        when(resourceTemplateRepository.saveAndFlush(any())).thenReturn(resourceTemplate);
-//        assertEquals(resourceTemplateDTO, resourceTemplateService.save(resourceTemplateSaveDTO));
-//    }
-//
+    @Test
+    public void testSaveResourceTemplate() {
+        when(resourceTemplateRepository.saveAndFlush(any())).thenReturn(resourceTemplate);
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("");
+        when(userService.getUserByEmail(anyString())).thenReturn(user);
+        PowerMockito.doNothing().when(mockMock).setAccessToTemplate(anyLong(), any(Principal.class));
+        assertEquals(resourceTemplateDTO, resourceTemplateService.save(resourceTemplateSaveDTO));
+    }
+
     @Test
     public void testFindDTOById() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
@@ -192,7 +189,7 @@ public class ResourceTemplateServiceTest {
     public void testDeleteById() {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
-        doNothing().when(permissionManagerService).closeAllPermissionsToResource(anyLong(), any());
+        doNothing().when(permissionManagerService).closeAllPermissions(anyLong(), any(), any(Class.class));
         resourceTemplateService.delete(resourceTemplate.getId());
         verify(resourceTemplateRepository, times(1)).deleteById(resourceTemplate.getId());
     }
@@ -355,29 +352,13 @@ public class ResourceTemplateServiceTest {
 //        verify(mockMock, times(1)).publishResourceTemplate(resourceTemplate);
 ////        assertTrue(result);
 //    }
-
-//    @Test(expected = ResourceTemplateIsPublishedException.class)
-//    public void testPublishOfResourceTemplatePublishedExceptionFailed() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setIsPublished(true);
-//        resourceTemplate.setResourceParameters(Collections.singletonList(new ResourceParameter(null, "name",
-//                "name", ParameterType.AREA_DOUBLE, null, resourceTemplate, null)));
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
-//    }
-//
-//    @Test(expected = ResourceTemplateParameterListIsEmpty.class)
-//    public void testPublishOfResourceTemplateParameterListIsEmptyFail() {
-//        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
-//        resourceTemplate.setResourceParameters(Collections.emptyList());
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
-//    }
 //
 //    @Test(expected = ResourceTemplateIsPublishedException.class)
 //    public void testPublishOfResourceTemplateException() {
 //        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
 //        resourceTemplate.setIsPublished(true);
 //        resourceTemplate.setResourceParameters(Collections.emptyList());
-//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate.getId());
+//        Boolean result = resourceTemplateService.publishResourceTemplate(resourceTemplate);
 //    }
 //
 //    @Test
@@ -392,4 +373,46 @@ public class ResourceTemplateServiceTest {
 //        when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
 //        assertTrue(resourceTemplateService.unPublishResourceTemplate(resourceTemplate.getId()));
 //    }
+
+    @Test
+    public void addPermissionToResourceTemplateSuccess() {
+        doNothing().when(permissionManagerService)
+                .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void addPermissionToResourceTemplateFail() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void changeOwnerToResourceTemplateSuccess() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.changeOwnerForResourceTemplate(new ChangeOwnerDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void changeOwnerToResourceTemplateFail() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.changeOwnerForResourceTemplate(new ChangeOwnerDto(), principal);
+    }
+
+    @Test
+    public void closePermissionForCertainUserOk() {
+        doNothing().when(permissionManagerService)
+                .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void closePermissionForCertainUserFailAccess() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
+    }
 }

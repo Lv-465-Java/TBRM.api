@@ -27,7 +27,6 @@ create table if not exists acl_object_identity
     constraint foreign_fk_3 foreign key (owner_sid) references acl_sid (id)
 );
 
-
 create table if not exists acl_entry
 (
     id                  bigserial primary key,
@@ -48,6 +47,14 @@ create table if not exists roles
     id   bigint       not null primary key,
     name varchar(100) not null,
     constraint unique_uk_5 unique (name)
+);
+
+create table if not exists groups
+(
+    id          bigserial primary key,
+    name        varchar(100) not null,
+    description varchar(255) not null,
+    constraint unique_uk_6 unique (name)
 );
 
 BEGIN;
