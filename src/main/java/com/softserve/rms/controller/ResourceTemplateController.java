@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-@RequestMapping("/resource-template")
+
 @RestController
 public class ResourceTemplateController {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceTemplateController.class);

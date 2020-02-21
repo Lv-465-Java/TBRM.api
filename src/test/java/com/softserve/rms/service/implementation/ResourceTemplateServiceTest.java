@@ -2,6 +2,7 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.*;
@@ -261,6 +262,34 @@ public class ResourceTemplateServiceTest {
     public void testUnPublishOfResourceTemplateWithValueFalse() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         assertTrue(resourceTemplateService.unPublishResourceTemplate(resourceTemplate.getId()));
+    }
+
+    @Test
+    public void addPermissionToResourceTemplateSuccess() {
+        doNothing().when(permissionManagerService)
+                .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void addPermissionToResourceTemplateFail() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void changeOwnerToResourceTemplateSuccess() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.changeOwnerForResourceTemplate(new ChangeOwnerDto(), principal);
+    }
+
+    @Test(expected = PermissionException.class)
+    public void changeOwnerToResourceTemplateFail() {
+        doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage())).when(permissionManagerService)
+                .changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        resourceTemplateService.changeOwnerForResourceTemplate(new ChangeOwnerDto(), principal);
     }
 
     @Test
