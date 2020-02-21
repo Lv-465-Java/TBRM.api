@@ -290,7 +290,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @throws NotDeletedException if the resource parameter with provided id is not deleted
      * @author Andrii Bren
      */
-    private void deleteById(Long parameterId) throws NotDeletedException {
+    public void deleteById(Long parameterId) throws NotDeletedException {
         try {
             resourceParameterRepository.deleteById(parameterId);
         } catch (EmptyResultDataAccessException ex) {

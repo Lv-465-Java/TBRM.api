@@ -1,6 +1,5 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
@@ -15,7 +14,6 @@ import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeM
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceParameterRepository;
 import com.softserve.rms.repository.ResourceRelationRepository;
-import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.RangeIntegerPatternGenerator;
 import com.softserve.rms.util.Validator;
@@ -26,23 +24,18 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
@@ -50,6 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceParameterServiceImpl.class)
 public class ResourceParameterServiceImplTest {
+
     @InjectMocks
     private ResourceParameterServiceImpl resourceParameterService;
 
@@ -69,16 +63,21 @@ public class ResourceParameterServiceImplTest {
     private Validator validator;
 
     @Mock
-    private RangeIntegerPatternGenerator patternGenerator;
-    @Mock
     private DSLContext dslContext;
 
+    @Mock
+    private RangeIntegerPatternGenerator patternGenerator;
+
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "template", "resource_template", "some description", false, null, null, null);
-    private ResourceParameter resourceParameter = new ResourceParameter(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, null, null, null);
-    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, null, null, null);
-    private ResourceRelationDTO resourceRelationDTO = new ResourceRelationDTO(1L);
-    private ResourceParameterSaveDTO resourceParameterSaveDTO = new ResourceParameterSaveDTO("resource_parameter", ParameterType.POINT_INT, null, resourceRelationDTO);
+    private ResourceParameter resourceParameter = new ResourceParameter(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", resourceTemplate, null);
+    private ResourceParameter resourceParameterUpdate = new ResourceParameter(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", resourceTemplate, null);
+    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, null);
+    private ResourceParameterDTO resourceParameterDTOUpdate = new ResourceParameterDTO(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", 1L, null);
+    private ResourceParameterSaveDTO resourceParameterSaveDTO = new ResourceParameterSaveDTO("resourceParameter", ParameterType.POINT_INT, "regex", null);
+    private ResourceParameterSaveDTO resourceParameterSaveDTOUpdate = new ResourceParameterSaveDTO("resourceParameterUpdate", ParameterType.POINT_INT, "regex", null);
     private ResourceRelation resourceRelation = new ResourceRelation(1L, resourceParameter, resourceTemplate);
+    private ResourceRelationDTO resourceRelationDTO = new ResourceRelationDTO(1L);
+    private ResourceParameterDTO resourceParameterDTOWithRelation = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, resourceRelationDTO);
     private List<ResourceParameterDTO> parameterDTOS = Arrays.asList(
             new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null),
             new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null));
@@ -108,42 +107,83 @@ public class ResourceParameterServiceImplTest {
         assertEquals(resourceParameter, resourceParameterService.findById(resourceParameter.getId()));
     }
 
-//    @Test(expected = NotFoundException.class)
-//    public void getResourceParameterByIdFailed() {
-//        resourceParameterService.findById(anyLong());
-//    }
-//
-//    @Test
-//    public void getResourceParameterByIdDTOSuccess() {
-//        when(resourceParameterRepository.findById(anyLong())).thenReturn(Optional.of(resourceParameter));
-//        assertEquals(resourceParameterDTO, resourceParameterService.findByIdDTO(anyLong(), anyLong()));
-//    }
-//
-//    @Test(expected = NotFoundException.class)
-//    public void getResourceParameterDTOByIdFailed() {
-//        resourceParameterService.findByIdDTO(anyLong(), anyLong());
-//    }
-//
-//    //TODO
-//    @Test
-//    public void saveResourceParameterSuccess() {
-//        when(resourceParameterRepository.save(resourceParameter)).thenReturn(resourceParameter);
-//        assertEquals(resourceParameter, resourceParameterRepository.save(resourceParameter));
-//    }
-//
-//    @Test
-//    public void saveResourceRelationSuccess() {
-//        when(resourceRelationRepository.save(resourceRelation)).thenReturn(resourceRelation);
-//        assertEquals(resourceRelation, resourceRelationRepository.save(resourceRelation));
-//    }
+    @Test(expected = NotFoundException.class)
+    public void getResourceParameterByIdFailed() {
+        resourceParameterService.findById(anyLong());
+    }
 
+    @Test
+    public void getResourceParameterByIdDTOSuccess() {
+        when(resourceParameterRepository.findById(anyLong())).thenReturn(Optional.of(resourceParameter));
+        assertEquals(resourceParameterDTO, resourceParameterService.findByIdDTO(resourceTemplate.getId(), resourceParameter.getId()));
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void getResourceParameterDTOByIdFailed() {
+        resourceParameterService.findByIdDTO(null, null);
+    }
+
+    @Test
+    public void saveResourceParameterSuccess() throws Exception {
+        PowerMockito.doReturn("resourceParameter").when(resourceParameterService, "verifyIfParameterNameIsUniquePerResourceTemplate", anyString(), anyLong());
+        PowerMockito.doReturn("resource_parameter").when(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", anyString(), anyLong());
+        PowerMockito.doReturn("regex").when(resourceParameterService, "getMatchedPatternToParameterType", any(ParameterType.class), anyString());
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        ResourceParameterDTO actual = resourceParameterService.save(resourceTemplate.getId(), resourceParameterSaveDTO);
+        actual.setId(1L);
+        assertEquals(resourceParameterDTO, actual);
+    }
+
+    @Test
+    public void checkIfParameterCanBeUpdatedSuccess() throws Exception {
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        doReturn(resourceParameter).when(resourceParameterService).findById(anyLong());
+        PowerMockito.doReturn(resourceParameterDTOUpdate).when(resourceParameterService, "updateById", anyLong(), any(ResourceParameter.class), any(ResourceParameterSaveDTO.class));
+        assertEquals(resourceParameterService.checkIfParameterCanBeUpdated(resourceTemplate.getId(), resourceParameter.getId(), resourceParameterSaveDTOUpdate), resourceParameterDTOUpdate);
+    }
 
     @Test(expected = ResourceParameterCanNotBeModified.class)
-    public void testIfParameterCanBeDeletedFalse() {
+    public void checkIfParameterCanBeUpdatedFailed() {
         resourceTemplate.setIsPublished(true);
-        when(resourceTemplateService.findEntityById(any(Long.class))).thenReturn(resourceTemplate);
-        resourceParameterService.checkIfParameterCanBeDeleted(resourceTemplate.getId(), resourceParameter.getId());
-        verify(resourceParameterRepository, times(0)).deleteById(anyLong());
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        resourceParameterService.checkIfParameterCanBeUpdated(resourceTemplate.getId(), resourceParameter.getId(), resourceParameterSaveDTOUpdate);
+    }
+
+    @Test
+    public void updateById() throws Exception {
+        PowerMockito.doNothing().when(resourceParameterService, "updateParameterNameAndColumnName", anyLong(), any(ResourceParameter.class), any(ResourceParameterSaveDTO.class));
+        PowerMockito.doReturn("regex").when(resourceParameterService, "getMatchedPatternToParameterType", any(ParameterType.class), anyString());
+        PowerMockito.doReturn(resourceRelation).when(resourceParameterService, "saveParameterRelation", anyLong(), any(ResourceRelationDTO.class));
+        ResourceParameterDTO actual = Whitebox.invokeMethod(resourceParameterService, "updateById", resourceTemplate.getId(), resourceParameterUpdate, resourceParameterSaveDTOUpdate);
+        assertEquals(resourceParameterDTOUpdate, actual);
+    }
+
+    @Test
+    public void saveParameterRelationSuccess() throws Exception {
+        doReturn(resourceParameter).when(resourceParameterService).findById(anyLong());
+        doReturn(resourceTemplate).when(resourceTemplateService).findEntityById(anyLong());
+        PowerMockito.doReturn(resourceTemplate).when(resourceParameterService, "verifyIfResourceTemplateIsPublished", any(ResourceTemplate.class));
+        when(resourceRelationRepository.save(any(ResourceRelation.class))).thenReturn(resourceRelation);
+        ResourceRelation relation = Whitebox.invokeMethod(resourceParameterService, "saveParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+        assertEquals(resourceRelation, resourceRelationRepository.save(relation));
+    }
+
+
+    @Test(expected = NotUniqueNameException.class)
+    public void verifyIfParameterColumnNameIsUniquePerResourceTemplateFailed() throws Exception {
+        String columnName = "resource_parameter";
+        when(validator.generateTableOrColumnName(anyString())).thenReturn(columnName);
+        when(resourceParameterRepository.findByColumnNameAndResourceTemplateId(anyString(), anyLong())).thenReturn(Optional.of(resourceParameter));
+        Whitebox.invokeMethod(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", anyString(), anyLong());
+    }
+
+    @Test
+    public void verifyIfParameterColumnNameIsUniquePerResourceTemplateSuccess() throws Exception {
+        String columnName = "resource_parameter";
+        when(validator.generateTableOrColumnName(anyString())).thenReturn(columnName);
+        when(resourceParameterRepository.findByColumnNameAndResourceTemplateId(anyString(), anyLong())).thenReturn(Optional.empty());
+        String actual = Whitebox.invokeMethod(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", columnName, resourceTemplate.getId());
+        assertEquals(columnName, actual);
     }
 
     @Test
@@ -151,6 +191,14 @@ public class ResourceParameterServiceImplTest {
         when(resourceTemplateService.findEntityById(any(Long.class))).thenReturn(resourceTemplate);
         resourceParameterService.checkIfParameterCanBeDeleted(resourceTemplate.getId(), resourceParameter.getId());
         verify(resourceParameterRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test(expected = ResourceParameterCanNotBeModified.class)
+    public void testIfParameterCanBeDeletedFalse() {
+        when(resourceTemplateService.findEntityById(any(Long.class))).thenReturn(resourceTemplate);
+        resourceTemplate.setIsPublished(true);
+        resourceParameterService.checkIfParameterCanBeDeleted(resourceTemplate.getId(), resourceParameter.getId());
+        verify(resourceParameterRepository, times(0)).deleteById(anyLong());
     }
 
     @Test
@@ -190,10 +238,10 @@ public class ResourceParameterServiceImplTest {
         verifyPrivate(resourceParameterService, times(1)).
                 invoke("updateParameterNameAndColumnName", Mockito.any(Long.class),
                         Mockito.any(ResourceParameter.class), Mockito.any(ResourceParameterSaveDTO.class));
-        verifyPrivate(resourceParameterService, times(0)).
+        verifyPrivate(resourceParameterService, times(1)).
                 invoke("verifyIfParameterNameIsUniquePerResourceTemplate", Mockito.any(String.class),
                         Mockito.any(Long.class));
-        verifyPrivate(resourceParameterService, times(0)).
+        verifyPrivate(resourceParameterService, times(1)).
                 invoke("verifyIfParameterColumnNameIsUniquePerResourceTemplate", Mockito.any(String.class),
                         Mockito.any(Long.class));
     }
