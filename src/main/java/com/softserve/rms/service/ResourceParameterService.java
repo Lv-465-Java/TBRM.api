@@ -47,7 +47,7 @@ public interface ResourceParameterService {
      * @throws ResourceParameterCanNotBeModified if the resource template is published
      * @author Halyna Yatseniuk
      */
-    ResourceParameterDTO updateById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
+    ResourceParameterDTO checkIfParameterCanBeUpdated(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterSaveDTO);
 
     /**
      * Method finds all {@link ResourceParameter} by {@link ResourceTemplate} id.
@@ -67,5 +67,5 @@ public interface ResourceParameterService {
      * @throws ResourceParameterCanNotBeModified if the resource template is published
      * @author Halyna Yatseniuk
      */
-    void delete(Long templateId, Long parameterId);
+    void checkIfParameterCanBeDeleted(Long templateId, Long parameterId);
 }

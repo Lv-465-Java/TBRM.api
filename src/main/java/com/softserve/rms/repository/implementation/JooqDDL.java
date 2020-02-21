@@ -30,7 +30,7 @@ public class JooqDDL {
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
                 .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
-                .constraints(constraint(resourceTemplate.getTableName().concat("_PK"))
+                .constraints(constraint(resourceTemplate.getTableName().concat(FieldConstants.PRIMARY_KEY.getValue()))
                         .primaryKey(FieldConstants.ID.getValue()))
                 .execute();
         addColumnsToResourceContainerTable(resourceTemplate);
@@ -63,6 +63,7 @@ public class JooqDDL {
      * Method alters {@link Resource} container table and adds a new column based on Point or Coordinate parameter types.
      *
      * @param resourceTemplate {@link ResourceTemplate}
+     * @param parameter        {@link ResourceParameter}
      * @author Halyna Yatseniuk
      */
     private void addColumnWithPointOrCoordinatesParameterType(ResourceTemplate resourceTemplate,
@@ -76,42 +77,51 @@ public class JooqDDL {
      * Method alters {@link Resource} container table and adds new columns based on Range parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
+     * @param parameter        {@link ResourceParameter}
      * @author Halyna Yatseniuk
      */
     private void addColumnsWithRangeParameterType(ResourceTemplate resourceTemplate, ResourceParameter parameter) {
         dslContext.alterTable(resourceTemplate.getTableName())
-                .addColumn(parameter.getColumnName().concat("_from"),
+                .addColumn(parameter.getColumnName().concat(FieldConstants.FROM.getValue()),
                         parameter.getParameterType().getSqlType().nullable(false))
                 .execute();
         dslContext.alterTable(resourceTemplate.getTableName())
-                .addColumn(parameter.getColumnName().concat("_to"),
+                .addColumn(parameter.getColumnName().concat(FieldConstants.TO.getValue()),
                         parameter.getParameterType().getSqlType().nullable(false))
                 .execute();
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new column with constraint foreign key based on
-     * Point Reference parameter type.
+     * Method alters {@link Resource} container table and adds a new column based on Point Reference parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
+     * @param parameter        {@link ResourceParameter}
      * @author Halyna Yatseniuk
      */
     private void addColumnWithPointReferenceParameterType(ResourceTemplate resourceTemplate,
                                                           ResourceParameter parameter) {
         ResourceRelation resourceRelation = parameter.getResourceRelations();
         dslContext.alterTable(resourceTemplate.getTableName())
-                .addColumn(parameter.getColumnName().concat("_ref"),
+                .addColumn(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue()),
                         parameter.getParameterType().getSqlType().nullable(true))
                 .execute();
         addConstraint(resourceTemplate, parameter, resourceRelation);
     }
 
-    //java doc
+    /**
+     * Method alters {@link Resource} container table and adds a new constraint foreign key based on
+     * Point Reference parameter type.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @param parameter        {@link ResourceParameter}
+     * @param resourceRelation {@link ResourceRelation}
+     * @author Halyna Yatseniuk
+     */
     private void addConstraint(ResourceTemplate resourceTemplate,
                                ResourceParameter parameter, ResourceRelation resourceRelation) {
         dslContext.alterTable(resourceTemplate.getTableName())
-                .add(constraint(parameter.getColumnName().concat("_FK"))
-                        .foreignKey(parameter.getColumnName().concat("_ref")).references(resourceRelation.getRelatedResourceTemplate().getTableName()))
+                .add(constraint(parameter.getColumnName().concat(FieldConstants.FOREIGN_KEY.getValue()))
+                        .foreignKey(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue())).references(resourceRelation.getRelatedResourceTemplate().getTableName()))
                 .execute();
     }
 
