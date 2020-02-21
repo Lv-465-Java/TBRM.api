@@ -29,12 +29,18 @@ public enum ErrorMessage {
     USER_WITH_EMAIL_EXISTS ( "Account with this email already exists "),
     USER_NOT_SAVED ("User was not saved "),
     PHONE_NUMBER_NOT_UNIQUE ("Account with this phone number already exists"),
+    EMPTY_FIELD ("All fields should not be empty "),
     USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
 
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
     PERMISSION_NOT_FOUND("Could not find such permission."),
     USER_DO_NOT_EXISTS("Sorry such user don`t exists ("),
+    GROUP_DO_NOT_EXISTS("Sorry such group don`t exists ("),
+    GROUP_ALREADY_EXIST("Sorry such group already exists (:"),
+    GROUP_MEMBER_ALREADY_EXISTS("Sorry,but user that you want to add is member of this group"),
+    GROUP_ACCESS("Sorry you are not owner of this group, so yuo cannot manage it ("),
+    NOT_UNIQUE_PERMISSION("Permission you try to add already exists"),
 
     CAN_NOT_FIND_A_RESOURCE_TABLE("There is no such a table: "),
     CAN_NOT_FIND_A_RESOURCE_BY_ID("There is no such a resource with id: "),

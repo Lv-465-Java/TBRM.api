@@ -3,8 +3,10 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.dto.PermissionDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -15,7 +17,7 @@ import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
-import org.jooq.*;
+import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,12 +73,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO)
             throws NotUniqueNameException {
-        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
-        String prName = principal.getName();
         resourceTemplate.setUser(userService.getUserByEmail(principal.getName()));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
@@ -86,10 +87,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
 
     // javadoc
     public void setAccessToTemplate(Long resTempId, Principal principal) {
-        permissionManagerService.addPermissionForResourceTemplate(
-                new PermissionDto(resTempId, principal.getName(), "write", true), principal);
-        permissionManagerService.addPermissionForResourceTemplate(
-                new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
+        permissionManagerService.addPermission(
+                new PermissionDto(resTempId, principal.getName(), "write", true), principal, ResourceTemplate.class);
     }
 
     /**
@@ -191,8 +190,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public void deleteById(Long id) {
         try {
             resourceTemplateRepository.deleteById(id);
-            Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
-            permissionManagerService.closeAllPermissionsToResource(id, principal);
+            Principal principal = SecurityContextHolder.getContext().getAuthentication();
+            permissionManagerService.closeAllPermissions(id, principal, ResourceTemplate.class);
         } catch (EmptyResultDataAccessException ex) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage());
         }
@@ -301,6 +300,26 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public ResourceTemplate findEntityById(Long id) throws NotFoundException {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
+    }
+
+    @Override
+    public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
+        return permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+    }
+
+    @Override
+    public void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.addPermission(permissionDto, principal, ResourceTemplate.class);
+    }
+
+    @Override
+    public void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) {
+        permissionManagerService.changeOwner(changeOwnerDto, principal, ResourceTemplate.class);
+    }
+
+    @Override
+    public void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal) {
+        permissionManagerService.closePermissionForCertainUser(permissionDto, principal, ResourceTemplate.class);
     }
 
     /**
