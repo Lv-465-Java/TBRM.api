@@ -46,7 +46,7 @@ public class ResourceTemplateController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateSaveDTO templateDTO) {
         LOG.info("Creating a new Resource Template");
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.save(templateDTO));
@@ -82,7 +82,7 @@ public class ResourceTemplateController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ResourceTemplateDTO>> getAll() {
         LOG.info("Getting all Resource Templates");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
