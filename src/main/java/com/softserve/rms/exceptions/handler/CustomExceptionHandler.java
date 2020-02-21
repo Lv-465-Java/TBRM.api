@@ -39,6 +39,19 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleNotUniqueMemberException(NotUniqueMemberException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
+
+    /**
+     * Method with handles {@link NotUniquePermissionException} exception.
+     *
+     * @param exception {@link NotUniquePermissionException}
+     * @return ResponseEntity which contains an error message
+     * @author Artur Sydor
+     */
+    @ExceptionHandler(NotUniquePermissionException.class)
+    public ResponseEntity<Object> handleNotUniquePermissionException(NotUniquePermissionException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    }
+
     /**
      * Method with handles {@link PermissionException} exception.
      *

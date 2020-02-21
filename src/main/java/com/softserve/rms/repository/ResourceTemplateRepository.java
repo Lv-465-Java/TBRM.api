@@ -23,24 +23,22 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
             "or hasRole('MANAGER')")
     Optional<ResourceTemplate> findById(Long id);
 
-    @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'write')")
     /**
      * Method deletes {@link ResourceTemplate} by id
      *
      * @param id of{@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', write)")
+    @PreAuthorize("hasPermission(#id, 'com.softserve.rms.entities.ResourceTemplate', 'write')")
     void deleteById(Long id);
 
-    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     /**
      * Method finds list of all {@link ResourceTemplate}.
      *
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findAll();
 
     /**

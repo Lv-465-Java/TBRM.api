@@ -40,6 +40,7 @@ public enum ErrorMessage {
     GROUP_ALREADY_EXIST("Sorry such group already exists (:"),
     GROUP_MEMBER_ALREADY_EXISTS("Sorry,but user that you want to add is member of this group"),
     GROUP_ACCESS("Sorry you are not owner of this group, so yuo cannot manage it ("),
+    NOT_UNIQUE_PERMISSION("Permission you try to add already exists"),
 
     CAN_NOT_FIND_A_RESOURCE_TABLE("There is no such a table: "),
     CAN_NOT_FIND_A_RESOURCE_BY_ID("There is no such a resource with id: "),

@@ -5,8 +5,8 @@ import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -17,7 +17,7 @@ import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Validator;
-import org.jooq.*;
+import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,12 +72,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO)
             throws NotUniqueNameException {
-        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
         ResourceTemplate resourceTemplate = new ResourceTemplate();
         resourceTemplate.setName(verifyIfResourceTemplateNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setTableName(verifyIfResourceTemplateTableNameIsUnique(resourceTemplateSaveDTO.getName()));
         resourceTemplate.setDescription(resourceTemplateSaveDTO.getDescription());
-        String prName = principal.getName();
         resourceTemplate.setUser(userService.getUserByEmail(principal.getName()));
         resourceTemplate.setIsPublished(false);
         Long resTempId = resourceTemplateRepository.saveAndFlush(resourceTemplate).getId();
@@ -87,10 +86,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
 
     // javadoc
     public void setAccessToTemplate(Long resTempId, Principal principal) {
-        permissionManagerService.addPermissionForResourceTemplate(
-                new PermissionDto(resTempId, principal.getName(), "write", true), principal);
-        permissionManagerService.addPermissionForResourceTemplate(
-                new PermissionDto(resTempId, "ROLE_MANAGER", "read", false), principal);
+        permissionManagerService.addPermission(
+                new PermissionDto(resTempId, principal.getName(), "write", true), principal, ResourceTemplate.class);
     }
 
     /**

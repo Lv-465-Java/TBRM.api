@@ -69,13 +69,13 @@ public class GroupServiceImplTest {
     @InjectMocks
     private GroupServiceImpl groupService;
 
-    private Group group = new Group(1L, "group", "description", null);
+    private Group group = new Group(1L, "group", "description", Collections.emptyList());
     private List<Group> groups = Collections.singletonList(group);
-    private GroupDto groupDto = new GroupDto(group.getName(), group.getDescription(), null);
+    private GroupDto groupDto = new GroupDto(group.getName(), group.getDescription(), Collections.emptyList());
     private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
-            "password", true, role, null, null);
+            "password", true, role, Collections.emptyList(), Collections.emptyList());
     private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
     private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
     private ChangeOwnerDto changeOwnerDto = new ChangeOwnerDto(1L, "recipient");

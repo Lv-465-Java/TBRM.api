@@ -11,7 +11,6 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
