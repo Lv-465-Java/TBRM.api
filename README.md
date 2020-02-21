@@ -1,4 +1,4 @@
-# TBRS
+# TBRM
 backend
 [![Coverage Status](https://coveralls.io/repos/github/Lv-465-Java/TBRM.api/badge.svg?branch=develop)](https://coveralls.io/github/Lv-465-Java/TBRM.api?branch=develop)
 

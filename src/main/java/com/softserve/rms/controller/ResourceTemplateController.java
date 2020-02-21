@@ -21,6 +21,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+@RequestMapping("/resource-template")
 @RestController
 public class ResourceTemplateController {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceTemplateController.class);
@@ -44,12 +45,12 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 201,message = HttpStatuses.CREATED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @PostMapping("/resource-template")
+    @PostMapping
     public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateSaveDTO templateDTO) {
         LOG.info("Creating a new Resource Template");
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.save(templateDTO));
@@ -63,12 +64,12 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/resource-template/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
         LOG.info("Getting Resource Template by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findDTOById(id));
@@ -81,11 +82,11 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
-    @GetMapping("/resource-template")
+    @GetMapping
     public ResponseEntity<List<ResourceTemplateDTO>> getAll() {
         LOG.info("Getting all Resource Templates");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
@@ -94,20 +95,20 @@ public class ResourceTemplateController {
     /**
      * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
      *
-     * @param userId of {@link User}
+     * @param id of {@link User}
      * @return list of {@link ResourceTemplateDTO} with appropriate user id
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/resource-templates/{userId}")
-    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long userId) {
-        LOG.info("Getting all Resource Templates by user ID: " + userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
+        LOG.info("Getting all Resource Templates by user ID: " + id);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
     }
 
     /**
@@ -119,12 +120,12 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @PatchMapping("/resource-template/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ResourceTemplateDTO> updateById(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Updating Resource Template by ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.updateById(id, body));
@@ -138,12 +139,12 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @DeleteMapping("/resource-template/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable Long id) {
         LOG.info("Deleting Resource Template by ID: " + id);
         resourceTemplateService.deleteById(id);
@@ -158,11 +159,11 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
-    @GetMapping("/search-resource-template")
+    @GetMapping("/search")
     public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord) {
         LOG.info("Search a Resource Template by name or description contains: " + searchedWord);
         return ResponseEntity.status(HttpStatus.OK).body
@@ -177,34 +178,16 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @PostMapping("/publish-resource-template/{id}")
-    public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id) {
+    @PutMapping("/{id}/publish")
+    public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         LOG.info("Publish a Resource Template by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.publishResourceTemplate(id));
-    }
-
-    /**
-     * The controller which cancels {@link ResourceTemplateDTO} publication by id.
-     *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-     * @author Halyna Yatseniuk
-     */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping("/unpublish-resource-template/{id}")
-    public ResponseEntity<Boolean> unPublishResourceTemplate(@PathVariable Long id) {
-        LOG.info("Canceling a Resource Template publish by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.unPublishResourceTemplate(id));
+        resourceTemplateService.selectPublishOrCancelPublishAction(id, body);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ApiResponses(value = {
