@@ -49,5 +49,7 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
+    private String resetToken;
+
 
 }

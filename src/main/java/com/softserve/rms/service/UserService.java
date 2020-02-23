@@ -7,9 +7,6 @@ import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-
 @Service
 public interface UserService {
     /**
@@ -60,5 +57,31 @@ public interface UserService {
      * @author Mariia Shchur
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
-    List<Map<String, Object>> getData(Long id);
+
+    /**
+     * Method for deleting users's account
+     *
+     * @param id
+     * @author Mariia Shchur
+     */
+    void deleteAccount(long id);
+
+    /**
+     * Method that send link for password
+     * resetting on entered email address
+     *
+     * @param email a value of {@link Long}
+     * @author Mariia Shchur
+     */
+    void sendLinkToResetPassword(String email);
+
+    /**
+     * Method that allow you to reset password.
+     *
+     * @param token
+     * @param password new one
+     * @author Mariia Shchur
+     */
+    void resetPassword(String token, String password);
+
 }

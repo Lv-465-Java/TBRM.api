@@ -6,6 +6,7 @@ import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.AdminService;
+import com.softserve.rms.service.UserHistoryService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +14,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @RestController
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserHistoryService userHistoryService;
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService,UserHistoryService userHistoryService) {
         this.adminService = adminService;
+        this.userHistoryService=userHistoryService;
     }
 
     @ApiResponses(value = {
@@ -81,4 +86,27 @@ public class AdminController {
     public void deleteUser(@PathVariable("id") String id) {
         adminService.deleteUser(Long.valueOf(id));
     }
+
+
+    @GetMapping("user/{id}/history")
+    public ResponseEntity<List<Map<String, Object>>> getUserHistory(@PathVariable long id){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getUserHistory(id));
+    }
+
+    @GetMapping("/deleted_accounts")
+    public ResponseEntity<List<Map<String, Object>>> getAllDeletedAccounts(){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getDeletedAccounts());
+    }
+
+    @GetMapping("/all_accounts")
+    public ResponseEntity<List<Map<String, Object>>> getAllAccounts(){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllAccounts());
+    }
+
+    @GetMapping("/by_date")
+    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@RequestParam String date){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
+    }
+
+
 }

@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -99,8 +97,24 @@ public class UserController {
         //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-    @GetMapping("{id}/history")
-    public ResponseEntity<List<Map<String, Object>>> getUserHistory(@PathVariable long id){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getData(id));
+
+    /**
+     * Delete account
+     *
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("{id}/delete")
+    public ResponseEntity deleteAccount(@PathVariable long id){
+        userService.deleteAccount(id);
+        //TODO redirect to main page
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
+
 }

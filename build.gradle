@@ -51,6 +51,8 @@ dependencies {
     compile 'io.springfox:springfox-swagger-ui:2.9.2'
     compile 'javax.validation:validation-api:2.0.1.Final'
     compile 'org.hibernate:hibernate-envers:5.4.11.Final'
+    compile 'org.springframework.boot:spring-boot-starter-mail:2.2.4.RELEASE'
+    compile 'javax.mail:mail:1.5.0-b01'
 	compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.10'
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'

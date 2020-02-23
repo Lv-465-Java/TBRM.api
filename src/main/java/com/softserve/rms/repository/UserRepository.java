@@ -42,4 +42,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     boolean existsUserByPhone(String phone);
 
+    @Override
+    void deleteById(Long id);
+
+    Optional<User> findUserByResetToken(String resetToken);
 }

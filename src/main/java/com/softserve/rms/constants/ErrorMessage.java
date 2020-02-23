@@ -15,9 +15,8 @@ public enum ErrorMessage {
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETE_BY_ID("Resource parameter does not deleted with id: "),
     RESOURCE_PARAMETER_IS_ALREADY_EXISTED("Resource parameter is already existed with name: "),
 
-    USER_WITH_EMAIL_EXISTS ( "Account with this email already exists "),
     USER_NOT_SAVED ("User was not saved "),
-    PHONE_NUMBER_NOT_UNIQUE ("Account with this phone number already exists"),
+    USER_NOT_DELETE("User was not deleted"),
     USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
 
     ACCESS_DENIED("You do not have permission on this operation"),
@@ -25,7 +24,10 @@ public enum ErrorMessage {
     PERMISSION_NOT_FOUND("Could not find such permission."),
     USER_DO_NOT_EXISTS("Sorry such user don`t exists ("),
 
-    WRONG_PASSWORD("Wrong password");
+    WRONG_PASSWORD("Wrong password"),
+    INVALID_LINK_OR_TOKEN("Link is invalid or broken"),
+    TOKEN_EXPIRED("Token is already expired");
+
     private String message;
 
     ErrorMessage(String message) {
