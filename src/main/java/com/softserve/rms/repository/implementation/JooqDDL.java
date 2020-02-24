@@ -30,8 +30,14 @@ public class JooqDDL {
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
                 .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
-                .constraints(constraint(resourceTemplate.getTableName().concat(FieldConstants.PRIMARY_KEY.getValue()))
-                        .primaryKey(FieldConstants.ID.getValue()))
+                .constraints(
+                        constraint(resourceTemplate.getTableName()
+                                .concat(FieldConstants.PRIMARY_KEY.getValue()))
+                                .primaryKey(FieldConstants.ID.getValue()),
+                        constraint(FieldConstants.RESOURCE_TEMPLATE_ID.getValue()
+                                .concat(FieldConstants.FOREIGN_KEY.getValue()))
+                                .foreignKey(FieldConstants.RESOURCE_TEMPLATE_ID.getValue())
+                                .references(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue(), FieldConstants.ID.getValue()))
                 .execute();
         addColumnsToResourceContainerTable(resourceTemplate);
     }
@@ -121,7 +127,8 @@ public class JooqDDL {
                                ResourceParameter parameter, ResourceRelation resourceRelation) {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .add(constraint(parameter.getColumnName().concat(FieldConstants.FOREIGN_KEY.getValue()))
-                        .foreignKey(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue())).references(resourceRelation.getRelatedResourceTemplate().getTableName()))
+                        .foreignKey(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue()))
+                        .references(resourceRelation.getRelatedResourceTemplate().getTableName()))
                 .execute();
     }
 

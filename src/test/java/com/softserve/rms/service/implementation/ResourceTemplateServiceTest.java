@@ -12,7 +12,6 @@ import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
-import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

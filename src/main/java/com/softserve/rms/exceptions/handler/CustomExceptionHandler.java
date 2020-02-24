@@ -75,7 +75,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFoundException
     (NotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(generateErrorMessage(exception));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 
     /**
