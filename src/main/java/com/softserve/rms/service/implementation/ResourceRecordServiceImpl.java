@@ -133,7 +133,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         ResourceTemplate resourceTemplate = resourceTemplateService.findByName(tableName);
         if (!resourceTemplate.getIsPublished()) {
             throw new ResourceTemplateIsNotPublishedException(
-                    ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage());
+                    ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage() + tableName);
         }
         return resourceTemplate;
     }
