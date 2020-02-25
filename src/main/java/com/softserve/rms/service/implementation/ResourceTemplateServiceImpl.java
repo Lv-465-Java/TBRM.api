@@ -85,7 +85,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
-    // javadoc
+    /**
+     * Method sets "write" access principle to created {@link ResourceTemplate}.
+     *
+     * @param resTempId of {@link ResourceTemplateDTO}
+     * @param principal of currently authenticated user
+     * @author Marian Dutchyn
+     */
     public void setAccessToTemplate(Long resTempId, Principal principal) {
         permissionManagerService.addPermission(
                 new PermissionDto(resTempId, principal.getName(), "write", true), principal, ResourceTemplate.class);
