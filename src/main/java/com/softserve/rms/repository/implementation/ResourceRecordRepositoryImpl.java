@@ -2,12 +2,14 @@ package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.ResourceRecord;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
 
+import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,11 +118,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      */
     @Transactional
     @Override
-    public void delete(String tableName, Long id) throws NotFoundException {
-        findById(tableName, id);
-        dslContext.delete(table(tableName))
+    public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
+        int deleted = dslContext.delete(table(tableName))
                 .where(field("id").eq(id))
                 .execute();
+        if (deleted == 0) {
+            throw new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage() + id);
+        }
     }
 
     private List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {

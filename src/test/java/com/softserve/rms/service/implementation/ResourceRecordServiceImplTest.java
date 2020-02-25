@@ -4,10 +4,10 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.*;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceRecordRepository;
-import com.softserve.rms.repository.ResourceRelationRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.junit.Before;
@@ -55,17 +55,16 @@ public class ResourceRecordServiceImplTest {
     }};
     private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", resourceTemplate, user, firstDynamicParameters);
     private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description", resourceTemplate, user, firstDynamicParameters);
-    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description", resourceTemplate.getId(), user.getId(), secondDynamicParameters);
+    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description", resourceTemplate.getId(), user.getId(), firstDynamicParameters);
 
     private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description", user.getId(), firstDynamicParameters);
-    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), firstDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
             new ResourceRecord(1L, "TestName1", "Some description", resourceTemplate, user, firstDynamicParameters),
             new ResourceRecord(2L, "TestName2", "Some description2", resourceTemplate, user, secondDynamicParameters));
     private List<ResourceRecordDTO> resourceRecordDTOS = Arrays.asList(
             new ResourceRecordDTO(1L, "TestName1", "Some description", resourceTemplate.getId(), user.getId(), firstDynamicParameters),
             new ResourceRecordDTO(2L, "TestName2", "Some description2", resourceTemplate.getId(), user.getId(), secondDynamicParameters));
-    private Map<String, Object> map;
 
     @Before
     public void initializeMock() {
@@ -84,32 +83,33 @@ public class ResourceRecordServiceImplTest {
     public void getEmptyListOfResourceDTOs() throws Exception {
         PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
         List<ResourceRecordDTO> expected = Collections.emptyList();
-        assertEquals(expected, resourceRecordService.findAll(any()));
+        assertEquals(expected, resourceRecordService.findAll(anyString()));
     }
 
     @Test
     public void getResourceByIdSuccess() throws Exception {
         PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-//        Whitebox.invokeMethod(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
-        assertEquals(resourceRecord, resourceRecordService.findById(resourceTemplate.getTableName(), anyLong()));
+        assertEquals(resourceRecord, resourceRecordService.findById(resourceTemplate.getTableName(), resourceRecord.getId()));
     }
 
     @Test(expected = NotFoundException.class)
     public void getResourceByIdFailed() throws Exception {
         PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-        resourceRecordService.findById(null, null);
+        resourceRecordService.findById(anyString(), anyLong());
     }
 
     @Test
-    public void getResourceParameterByIdDTOSuccess() {
-        when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
-        assertEquals(resourceRecordDTO, resourceRecordService.findByIdDTO(resourceTemplate.getTableName(), anyLong()));
+    public void getResourceRecordByIdDTOSuccess() {
+        doReturn(resourceRecord).when(resourceRecordService).findById(anyString(), anyLong());
+        assertEquals(resourceRecordDTO, resourceRecordService.findByIdDTO(resourceTemplate.getTableName(), resourceRecord.getId()));
     }
 
     @Test(expected = NotFoundException.class)
-    public void getResourceParameterDTOByIdFailed() {
-        resourceRecordService.findByIdDTO(null, null);
+    public void getResourceRecordDTOByIdFailed() throws Exception {
+        doThrow(new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage()))
+                .when(resourceRecordService).findByIdDTO(anyString(), anyLong());
+        resourceRecordService.findByIdDTO(anyString(), anyLong());
     }
 
     @Test
@@ -119,15 +119,25 @@ public class ResourceRecordServiceImplTest {
         verify(resourceRecordRepository, times(1)).delete(resourceTemplate.getTableName(), resourceRecord.getId());
     }
 
+    @Test(expected = NotFoundException.class)
+    public void deleteFailedByResourceTemplate() throws Exception {
+        doThrow(new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage()))
+                .when(resourceRecordService).delete(anyString(), anyLong());
+        resourceRecordService.delete(anyString(), anyLong());
+    }
+
+    @Test(expected = NotDeletedException.class)
+    public void deleteFailedByResourceRecordId() throws Exception {
+        doThrow(new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage()))
+                .when(resourceRecordService).delete(anyString(), anyLong());
+        resourceRecordService.delete(anyString(), anyLong());
+    }
+
     @Test
     public void saveResource() throws Exception {
-//        Whitebox.invokeMethod(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
         PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-//        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
         when(userRepository.getOne(anyLong())).thenReturn(user);
         resourceRecordService.save(resourceTemplate.getTableName(), resourceRecordSaveDTO);
-//        SecurityContextHolder.setContext(securityContext);
-//        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         verify(resourceRecordRepository, times(1)).save(resourceTemplate.getTableName(), secondResourceRecord);
     }
 

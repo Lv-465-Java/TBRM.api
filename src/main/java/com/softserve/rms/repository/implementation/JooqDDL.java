@@ -33,7 +33,7 @@ public class JooqDDL {
                 .constraints(
                         constraint(resourceTemplate.getTableName()
                                 .concat(FieldConstants.PRIMARY_KEY.getValue()))
-                                .primaryKey(FieldConstants.ID.getValue()),
+                                .primaryKey(FieldConstants.ID  .getValue()),
                         constraint(FieldConstants.RESOURCE_TEMPLATE_ID.getValue()
                                 .concat(FieldConstants.FOREIGN_KEY.getValue()))
                                 .foreignKey(FieldConstants.RESOURCE_TEMPLATE_ID.getValue())

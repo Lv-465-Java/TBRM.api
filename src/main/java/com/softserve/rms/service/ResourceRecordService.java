@@ -3,7 +3,6 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
-import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
 
@@ -64,13 +63,11 @@ public interface ResourceRecordService {
      *
      * @param tableName {@link ResourceTemplate} tableName
      * @param id        {@link ResourceRecord} id
-//     * @param body      map with {@link ResourceParameter} where key is the name
-     *                  of parameter and value is the value of parameter.
+     * @param resourceRecordSaveDTO instance of {@link ResourceRecordSaveDTO}
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
     void update(String tableName, Long id, ResourceRecordSaveDTO resourceRecordSaveDTO);
-//    void update(String tableName, Long id, Map<String, Object> body);
 
     /**
      * Method deletes dynamic {@link ResourceRecordDTO} by id.
