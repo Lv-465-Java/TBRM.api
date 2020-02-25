@@ -1,21 +1,20 @@
-package com.softserve.rms.dto.resource;
+package com.softserve.rms.dto.resourcerecord;
 
-import com.softserve.rms.entities.ResourceParameter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResourceDTO {
+public class ResourceRecordDTO {
     private Long id;
     private String name;
     private String description;
     private Long resourceTemplateId;
     private Long userId;
-    private HashMap<String, Object> parameters;
+    private Map<String, Object> parameters;
+//    private HashMap<String, Object> parameters;
 }

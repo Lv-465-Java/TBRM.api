@@ -1,84 +1,82 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.resource.ResourceDTO;
-import com.softserve.rms.dto.resource.ResourceSaveDTO;
-import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.entities.Resource;
+import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
+import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
+import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public interface ResourceService {
+public interface ResourceRecordService {
 
     /**
-     * Method saves dynamic {@link ResourceSaveDTO} in a table specified
+     * Method saves dynamic {@link ResourceRecordSaveDTO} in a table specified
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param resource  instance of {@link ResourceSaveDTO}
+     * @param resource  instance of {@link ResourceRecordSaveDTO}
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    void save(String tableName, ResourceSaveDTO resource);
+    void save(String tableName, ResourceRecordSaveDTO resource);
 
 
     /**
-     * Method finds dynamic {@link ResourceDTO} in a table specified
+     * Method finds dynamic {@link ResourceRecordDTO} in a table specified
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param id {@link ResourceDTO} id
-     * @return {@link ResourceDTO}
+     * @param id {@link ResourceRecordDTO} id
+     * @return {@link ResourceRecordDTO}
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    ResourceDTO findByIdDTO(String tableName, Long id);
+    ResourceRecordDTO findByIdDTO(String tableName, Long id);
 
     /**
-     * Method finds dynamic {@link Resource} by provided id in a table specified
+     * Method finds dynamic {@link ResourceRecord} by provided id in a table specified
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param id of {@link ResourceDTO}
-     * @return {@link Resource}
+     * @param id of {@link ResourceRecordDTO}
+     * @return {@link ResourceRecord}
      * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */
-    Resource findById(String tableName, Long id);
+    ResourceRecord findById(String tableName, Long id);
 
     /**
-     * Method finds all dynamic {@link ResourceDTO} in a table specified
+     * Method finds all dynamic {@link ResourceRecordDTO} in a table specified
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @return list of dynamic {@link ResourceDTO}
+     * @return list of dynamic {@link ResourceRecordDTO}
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    List<ResourceDTO> findAll(String tableName);
+    List<ResourceRecordDTO> findAll(String tableName);
 
     /**
-     * Method updates dynamic {@link ResourceDTO} in a table specified
+     * Method updates dynamic {@link ResourceRecordDTO} in a table specified
      * by the reсorder.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param id        {@link Resource} id
-     * @param body      map with {@link ResourceParameter} where key is the name
+     * @param id        {@link ResourceRecord} id
+//     * @param body      map with {@link ResourceParameter} where key is the name
      *                  of parameter and value is the value of parameter.
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    void update(String tableName, Long id, Map<String, Object> body);
+    void update(String tableName, Long id, ResourceRecordSaveDTO resourceRecordSaveDTO);
+//    void update(String tableName, Long id, Map<String, Object> body);
 
     /**
-     * Method deletes dynamic {@link ResourceDTO} by id.
+     * Method deletes dynamic {@link ResourceRecordDTO} by id.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @param id {@link Resource} id
+     * @param id {@link ResourceRecord} id
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */

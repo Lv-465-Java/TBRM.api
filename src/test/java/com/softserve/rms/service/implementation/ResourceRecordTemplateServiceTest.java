@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceTemplateServiceImpl.class)
-public class ResourceTemplateServiceTest {
+public class ResourceRecordTemplateServiceTest {
     @InjectMocks
     private ResourceTemplateServiceImpl resourceTemplateService;
     @Mock

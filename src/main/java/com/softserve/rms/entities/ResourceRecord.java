@@ -8,11 +8,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Resource {
+public class ResourceRecord {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +25,7 @@ public class Resource {
     private ResourceTemplate resourceTemplate;
 
     private User user;
-    private HashMap<String, Object> parameters;
+    private Map<String, Object> parameters;
 
 //    private List<ResourceParameter> resourceParameters;
 //    private List<Object> parameters;

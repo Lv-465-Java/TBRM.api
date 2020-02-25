@@ -17,7 +17,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method creates {@link Resource} container table based on {@link ResourceTemplate} table name
+     * Method creates {@link ResourceRecord} container table based on {@link ResourceTemplate} table name
      * with static columns.
      *
      * @param resourceTemplate {@link ResourceTemplate}
@@ -66,7 +66,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new column based on Point or Coordinate parameter types.
+     * Method alters {@link ResourceRecord} container table and adds a new column based on Point or Coordinate parameter types.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -80,7 +80,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds new columns based on Range parameter type.
+     * Method alters {@link ResourceRecord} container table and adds new columns based on Range parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -98,7 +98,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new column based on Point Reference parameter type.
+     * Method alters {@link ResourceRecord} container table and adds a new column based on Point Reference parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -115,7 +115,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new constraint foreign key based on
+     * Method alters {@link ResourceRecord} container table and adds a new constraint foreign key based on
      * Point Reference parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
@@ -134,7 +134,7 @@ public class JooqDDL {
 
 
     /**
-     * Method counts {@link Resource} container table records amount.
+     * Method counts {@link ResourceRecord} container table records amount.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @author Halyna Yatseniuk
@@ -146,7 +146,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method drops {@link Resource} container table.
+     * Method drops {@link ResourceRecord} container table.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @author Halyna Yatseniuk

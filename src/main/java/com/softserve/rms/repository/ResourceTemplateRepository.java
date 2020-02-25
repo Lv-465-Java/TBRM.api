@@ -72,7 +72,6 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     @PreAuthorize("hasPermission(#name, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByName(String name);
 
-    @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
     /**
      * Method finds {@link Optional<ResourceTemplate>} by name with case ignore.
      *
@@ -80,7 +79,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PreAuthorize("hasPermission(#name, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByNameIgnoreCase(String name);
 
     /**
@@ -100,7 +99,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return created {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#resourceTemplate, write)")
+    @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
     ResourceTemplate save(ResourceTemplate resourceTemplate);
 
     @PreAuthorize("hasRole('MANAGER')")

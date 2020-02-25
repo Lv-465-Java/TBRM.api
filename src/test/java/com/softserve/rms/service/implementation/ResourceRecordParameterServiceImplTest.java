@@ -42,7 +42,7 @@ import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceParameterServiceImpl.class)
-public class ResourceParameterServiceImplTest {
+public class ResourceRecordParameterServiceImplTest {
 
     @InjectMocks
     private ResourceParameterServiceImpl resourceParameterService;
