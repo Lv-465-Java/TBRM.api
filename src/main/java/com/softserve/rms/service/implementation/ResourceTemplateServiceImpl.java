@@ -266,7 +266,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     private void unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
         if (verifyIfResourceTemplateIsPublished(resourceTemplate) &&
-                verifyIfResourceTableIsEmpty(resourceTemplate)) {
+                verifyIfResourceTableCanBeDropped(resourceTemplate)) {
             jooqDDL.dropResourceContainerTable(resourceTemplate);
             resourceTemplate.setIsPublished(false);
             resourceTemplateRepository.save(resourceTemplate);
@@ -274,17 +274,21 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method verifies if {@link ResourceTemplate} table contains records.
+     * Method verifies if {@link ResourceTemplate} table contains records or have references to it.
      *
      * @param resourceTemplate of {@link ResourceTemplate}
-     * @return true value if {@link ResourceTemplate} table is empty
-     * @throws ResourceTemplateCanNotBeUnPublished if {@link ResourceTemplate} table contains records
+     * @return true value if {@link ResourceTemplate} table is empty and do not have references to it
+     * @throws ResourceTemplateCanNotBeUnPublished if {@link ResourceTemplate} table contains records or
+     *                                             has at least one reference to it
      * @author Halyna Yatseniuk
      */
-    public Boolean verifyIfResourceTableIsEmpty(ResourceTemplate resourceTemplate) {
+    public Boolean verifyIfResourceTableCanBeDropped(ResourceTemplate resourceTemplate) {
         if (jooqDDL.countTableRecords(resourceTemplate) > 0) {
             throw new ResourceTemplateCanNotBeUnPublished(
-                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROP.getMessage());
+                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROPPED.getMessage());
+        } else if (jooqDDL.countReferencesToTable(resourceTemplate)) {
+            throw new ResourceTemplateCanNotBeUnPublished(
+                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DELETED.getMessage());
         }
         return true;
     }

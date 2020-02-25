@@ -11,8 +11,9 @@ public enum ErrorMessage {
     RESOURCE_TEMPLATE_TABLE_NAME_IS_NOT_UNIQUE("This resource template name is not allowed"),
     RESOURCE_TEMPLATE_CAN_NOT_BE_UPDATED("Resource template is published and can not be updated"),
     RESOURCE_TEMPLATE_CAN_NOT_BE_DELETED("Resource template can not be deleted"),
-    RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROP("You can not cancel resource template publish, " +
+    RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROPPED("You can not cancel resource template publish, " +
             "since it has related resources"),
+    RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DELETED("There are references to this resource template table"),
 
     RESOURCE_PARAMETER_CAN_NOT_BE_FOUND_BY_ID("Resource parameter does not exist with id:  "),
     RESOURCE_TEMPLATE_HAS_NOT_ANY_PARAMETERS("There is no parameters for template with id: "),
@@ -26,11 +27,11 @@ public enum ErrorMessage {
             "has been published"),
 
 
-    USER_WITH_EMAIL_EXISTS ( "Account with this email already exists "),
-    USER_NOT_SAVED ("User was not saved "),
-    PHONE_NUMBER_NOT_UNIQUE ("Account with this phone number already exists"),
-    EMPTY_FIELD ("All fields should not be empty "),
-    USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
+    USER_WITH_EMAIL_EXISTS("Account with this email already exists "),
+    USER_NOT_SAVED("User was not saved "),
+    PHONE_NUMBER_NOT_UNIQUE("Account with this phone number already exists"),
+    EMPTY_FIELD("All fields should not be empty "),
+    USER_NOT_FOUND_BY_EMAIL("User was not found by email "),
 
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
