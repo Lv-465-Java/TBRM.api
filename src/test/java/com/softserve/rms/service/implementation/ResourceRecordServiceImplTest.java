@@ -8,8 +8,8 @@ import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceRecordRepository;
-import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class ResourceRecordServiceImplTest {
     private ResourceTemplateService resourceTemplateService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     private Role role = new Role(3L, "REGISTER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null, Collections.emptyList(), Collections.emptyList());
@@ -69,7 +69,7 @@ public class ResourceRecordServiceImplTest {
     @Before
     public void initializeMock() {
         resourceRecordService = PowerMockito.spy(new ResourceRecordServiceImpl(resourceRecordRepository,
-                resourceTemplateService, userRepository));
+                resourceTemplateService, userService));
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void saveResource() throws Exception {
         PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-        when(userRepository.getOne(anyLong())).thenReturn(user);
+        when(userService.getById(anyLong())).thenReturn(user);
         resourceRecordService.save(resourceTemplate.getTableName(), resourceRecordSaveDTO);
         verify(resourceRecordRepository, times(1)).save(resourceTemplate.getTableName(), secondResourceRecord);
     }

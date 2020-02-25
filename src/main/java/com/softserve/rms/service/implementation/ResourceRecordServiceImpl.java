@@ -12,6 +12,7 @@ import com.softserve.rms.repository.ResourceRecordRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.ResourceRecordService;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class ResourceRecordServiceImpl implements ResourceRecordService {
     private ResourceRecordRepository resourceRecordRepository;
     private ResourceTemplateService resourceTemplateService;
-    private UserRepository userRepository;
+    private UserService userService;
     private ModelMapper modelMapper = new ModelMapper();
 
     /**
@@ -36,10 +37,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserRepository userRepository) {
+    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserService userService) {
         this.resourceRecordRepository = resourceRecordRepository;
         this.resourceTemplateService = resourceTemplateService;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -54,7 +55,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
         resourceRecord.setResourceTemplate(resourceTemplate);
-        User user = userRepository.getOne(resourceDTO.getUserId());
+        User user = userService.getById(resourceDTO.getUserId());
         resourceRecord.setUser(user);
         resourceRecord.setParameters(resourceDTO.getParameters());
         resourceRecordRepository.save(tableName, resourceRecord);
