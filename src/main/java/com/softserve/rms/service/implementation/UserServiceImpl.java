@@ -1,15 +1,15 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
+import com.softserve.rms.dto.user.*;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.UserRepository;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.Principal;
 
 
 @Service
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService, Message {
         Role role = new Role(5L, "ROLE_GUEST");
         User user = modelMapper.map(registrationDto, User.class);
         user.setRole(role);
+        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (userRepository.save(user) == null) {
             throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
@@ -127,6 +130,20 @@ public class UserServiceImpl implements UserService, Message {
     public User getById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
+    }
+
+    /**
+     * Method returns user's role
+     *
+     * @param principal authenticated user
+     * @author Marian Dutchyn
+     */
+    @Override
+    public UserRoleDto getUserRole(Principal principal){
+        User user = getUserByEmail(principal.getName());
+        UserRoleDto userRoleDto = new UserRoleDto();
+        userRoleDto.setRole(user.getRole().getName());
+        return userRoleDto;
     }
 
 }

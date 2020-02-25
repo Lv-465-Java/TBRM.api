@@ -1,11 +1,10 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
 
 @Service
 public interface UserService {
@@ -57,4 +56,6 @@ public interface UserService {
      * @author Mariia Shchur
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
+
+    UserRoleDto getUserRole(Principal principal);
 }

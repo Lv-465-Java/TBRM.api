@@ -229,7 +229,7 @@ public class ResourceTemplateController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/permission")
-    public ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal) {
+    public ResponseEntity<Object> deleteAceForCertainUser(@RequestBody PermissionDto permissionDto, Principal principal) {
         resourceTemplateService.closePermissionForCertainUser(permissionDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

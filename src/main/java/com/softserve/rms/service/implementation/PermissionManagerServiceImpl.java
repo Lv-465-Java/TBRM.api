@@ -54,9 +54,9 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     }
 
     /**
-     * Method returns list of principal with permissions for particular object
+     * Method returns list of principal with permissions to object
      *
-     * @param id of {@link ResourceTemplate}
+     * @param id of object
      * @return List of principal with access to object
      * @author Marian Dutchyn
      */
@@ -80,7 +80,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
 
 
     /**
-     * Method add/update permission on @{@link ResourceTemplate}
+     * Method add/update permission on object
      *
      * @param permissionDto {@link PermissionDto}
      * @param principal     authenticated user
@@ -113,7 +113,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     }
 
     /**
-     * Method changes owner for {@link ResourceTemplate}
+     * Method changes owner for object
      *
      * @param changeOwnerDto {@link ChangeOwnerDto}
      * @param principal      authenticated user
