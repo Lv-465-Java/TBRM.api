@@ -2,7 +2,6 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.dto.resource.ResourceDTO;
 import com.softserve.rms.dto.resource.ResourceSaveDTO;
-import com.softserve.rms.entities.Resource;
 import com.softserve.rms.service.ResourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +25,7 @@ public class ResourceController {
     }
 
     @PostMapping
-    public HttpStatus save(@PathVariable String tableName, @RequestBody ResourceSaveDTO resourceDTO){
+    public HttpStatus save(@PathVariable String tableName, @RequestBody ResourceSaveDTO resourceDTO) {
         LOG.info("Create a new Resource");
         resourceService.save(tableName, resourceDTO);
         return HttpStatus.OK;

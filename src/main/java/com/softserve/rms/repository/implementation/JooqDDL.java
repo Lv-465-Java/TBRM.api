@@ -3,6 +3,7 @@ package com.softserve.rms.repository.implementation;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.*;
 import org.jooq.DSLContext;
+import org.jooq.Table;
 import org.jooq.impl.SQLDataType;
 
 import java.util.List;
@@ -132,7 +133,6 @@ public class JooqDDL {
                 .execute();
     }
 
-
     /**
      * Method counts {@link Resource} container table records amount.
      *
@@ -143,6 +143,21 @@ public class JooqDDL {
         return dslContext.selectCount()
                 .from(resourceTemplate.getTableName())
                 .fetchOne(0, int.class);
+    }
+
+    /**
+     * Method checks whether amount of references to {@link Resource} container table is zero.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @author Halyna Yatseniuk
+     */
+    public Boolean countReferencesToTable(ResourceTemplate resourceTemplate) {
+        Table<?> foundTable = dslContext.meta().getTables(resourceTemplate.getTableName()).get(0);
+        long referencesAmount = dslContext
+                .meta().getTables().stream()
+                .map(table -> table.getReferencesTo((foundTable)))
+                .filter(size -> !(size.isEmpty())).count();
+        return !(referencesAmount == 0);
     }
 
     /**

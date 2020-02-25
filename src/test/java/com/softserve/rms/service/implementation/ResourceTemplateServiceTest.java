@@ -286,7 +286,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateSuccess() throws Exception {
         PowerMockito.doReturn(true).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(true).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         PowerMockito.doNothing().when(
@@ -301,7 +301,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateFalse() throws Exception {
         PowerMockito.doReturn(false).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(true).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
@@ -314,7 +314,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateFail() throws Exception {
         PowerMockito.doReturn(true).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(false).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
@@ -324,19 +324,38 @@ public class ResourceTemplateServiceTest {
                 invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
     }
 
+
+    // here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Test
-    public void testIfResourceTableIsEmptySuccess() throws Exception {
+    public void testIfResourceTableCanBeDroppedSuccess() throws Exception {
         PowerMockito.doReturn(0).when(jooqDDL,
                 "countTableRecords", Mockito.any(ResourceTemplate.class));
-        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+        PowerMockito.doReturn(false).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
         assertTrue(result);
     }
 
     @Test(expected = ResourceTemplateCanNotBeUnPublished.class)
-    public void testIfResourceTableIsEmptyFail() throws Exception {
+    public void testIfResourceTableCanNotBeDroppedFail() throws Exception {
         PowerMockito.doReturn(1).when(jooqDDL,
                 "countTableRecords", Mockito.any(ResourceTemplate.class));
-        Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+        PowerMockito.doReturn(false).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
+    }
+
+    @Test(expected = ResourceTemplateCanNotBeUnPublished.class)
+    public void testIfResourceTableCanNotBeDeletedFailed() throws Exception {
+        PowerMockito.doReturn(0).when(jooqDDL,
+                "countTableRecords", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
+        assertTrue(result);
     }
 
     @Test
