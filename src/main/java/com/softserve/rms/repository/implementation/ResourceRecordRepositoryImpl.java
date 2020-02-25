@@ -122,6 +122,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         }
     }
 
+    /**
+     * Method converts records from DB to ResourceRecord class.
+     *
+     * @param records list of {@link Record}
+     * @return list of {@link ResourceRecord}
+     * @author Andrii Bren
+     */
     private List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
         List<ResourceRecord> resourceRecords = new ArrayList<>();
         for (Record record : records) {
@@ -131,7 +138,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         return resourceRecords;
     }
 
-
+    /**
+     * Method converts record from DB to ResourceRecord class.
+     *
+     * @param record instance of {@link Record}
+     * @return instance of {@link ResourceRecord}
+     * @author Andrii Bren
+     */
     private ResourceRecord convertRecordToResource(Record record) {
         Long templateId = (Long) record.getValue(field("resource_template_id").getName());
         Long userId = (Long) record.getValue(field("user_id").getName());
@@ -145,6 +158,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
                 .build();
     }
 
+    /**
+     * Method gets all dynamic resource parameters records from DB.
+     *
+     * @param record instance of {@link Record}
+     * @return map of dynamic resource parameters
+     * @author Andrii Bren
+     */
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 5; i < record.size(); i++) {
