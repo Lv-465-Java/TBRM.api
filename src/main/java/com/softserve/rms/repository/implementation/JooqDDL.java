@@ -2,21 +2,13 @@ package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.*;
-import javafx.scene.control.Tab;
 import org.jooq.DSLContext;
-import org.jooq.ForeignKey;
 import org.jooq.Table;
-import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.foreignKey;
 
 public class JooqDDL {
     private DSLContext dslContext;
