@@ -1,6 +1,7 @@
 package com.softserve.rms.entities;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ResourceRecord {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +27,9 @@ public class ResourceRecord {
     private ResourceTemplate resourceTemplate;
 
     private User user;
+
     private Map<String, Object> parameters;
+
 
 //    private List<ResourceParameter> resourceParameters;
 //    private List<Object> parameters;

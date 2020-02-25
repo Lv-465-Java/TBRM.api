@@ -59,7 +59,6 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
             }
         }
         query.execute();
-
     }
 
 
@@ -135,16 +134,16 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
 
 
     private ResourceRecord convertRecordToResource(Record record) {
-        ResourceRecord resourceRecord = new ResourceRecord();
-        resourceRecord.setId((Long) record.getValue(field("id").getName()));
-        resourceRecord.setName((String) record.getValue(field("name").getName()));
-        resourceRecord.setDescription((String) record.getValue(field("description").getName()));
         Long templateId = (Long) record.getValue(field("resource_template_id").getName());
-        resourceRecord.setResourceTemplate(resourceTemplateService.findEntityById(templateId));
         Long userId = (Long) record.getValue(field("user_id").getName());
-        resourceRecord.setUser(userService.getById(userId));
-        resourceRecord.setParameters(getParameters(record));
-        return resourceRecord;
+        return ResourceRecord.builder()
+                .id((Long) record.getValue(field("id").getName()))
+                .name((String) record.getValue(field("name").getName()))
+                .description((String) record.getValue(field("description").getName()))
+                .resourceTemplate(resourceTemplateService.findEntityById(templateId))
+                .user(userService.getById(userId))
+                .parameters(getParameters(record))
+                .build();
     }
 
     private Map<String, Object> getParameters(Record record) {

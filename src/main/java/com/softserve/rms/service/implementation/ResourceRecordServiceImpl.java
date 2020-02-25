@@ -49,7 +49,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public void save(String tableName, ResourceRecordSaveDTO resourceDTO) throws NotFoundException {
-        ResourceTemplate resourceTemplate = checkIfResourceTemplateIsPublished(tableName);;
+        ResourceTemplate resourceTemplate = checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
