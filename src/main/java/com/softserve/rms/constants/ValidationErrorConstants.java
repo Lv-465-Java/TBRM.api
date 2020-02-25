@@ -14,6 +14,7 @@ public interface ValidationErrorConstants {
     String EMPTY_PASSWORD="Password may not be blank";
     String USER_WITH_EMAIL_EXISTS ="Account with this email already exists ";
     String PHONE_NUMBER_NOT_UNIQUE ="Account with this phone number already exists";
-
+//    String EMPTY_RESOURCE_RECORD_NAME="Resource name should not be a blank";
+//    String EMPTY_RESOURCE_RECORD_PARAMETERS="Resource parameters should not be a blank";
 
 }

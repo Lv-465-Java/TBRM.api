@@ -44,9 +44,11 @@ public enum ErrorMessage {
 
     CAN_NOT_FIND_A_RESOURCE_TABLE("There is no such a table: "),
     CAN_NOT_FIND_A_RESOURCE_BY_ID("There is no such a resource with id: "),
-    RESOURCE_CAN_NOT_BE_DELETED_BY_ID("Resource does not deleted with id: "),
+    RESOURCE_CAN_NOT_BE_DELETED_BY_ID("Resource can not be deleted with id: "),
+    RESOURCE_CAN_NOT_BE_SAVED("Resource can not be saved, wrong data "),
 
     WRONG_PASSWORD("Wrong password");
+
     private String message;
 
     ErrorMessage(String message) {

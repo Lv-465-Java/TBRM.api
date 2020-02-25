@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,7 +25,7 @@ public class ResourceRecordController {
     }
 
     @PostMapping
-    public HttpStatus save(@PathVariable String tableName, @RequestBody ResourceRecordSaveDTO resourceDTO){
+    public HttpStatus save(@PathVariable String tableName, @Valid @RequestBody ResourceRecordSaveDTO resourceDTO){
         LOG.info("Create a new Resource");
         resourceRecordService.save(tableName, resourceDTO);
         return HttpStatus.OK;
@@ -41,7 +43,7 @@ public class ResourceRecordController {
 
     @PatchMapping("/{id}")
     public HttpStatus update(@PathVariable String tableName, @PathVariable Long id,
-                             @RequestBody ResourceRecordSaveDTO resourceRecordSaveDTO) {
+                             @Valid @RequestBody ResourceRecordSaveDTO resourceRecordSaveDTO) {
         resourceRecordService.update(tableName, id, resourceRecordSaveDTO);
         return HttpStatus.OK;
     }

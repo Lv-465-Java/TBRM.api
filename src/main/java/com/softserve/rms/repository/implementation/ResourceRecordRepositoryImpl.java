@@ -8,8 +8,6 @@ import com.softserve.rms.repository.ResourceRecordRepository;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
-
-import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,15 +52,12 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field("description"), resourceRecord.getDescription());
         query.addValue(field("resource_template_id"), resourceRecord.getResourceTemplate().getId());
         query.addValue(field("user_id"), resourceRecord.getUser().getId());
-        if (resourceRecord.getParameters() != null) {
-            Map<String, Object> parameters = resourceRecord.getParameters();
-            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-                query.addValue(field(entry.getKey()), entry.getValue());
-            }
+        Map<String, Object> parameters = resourceRecord.getParameters();
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            query.addValue(field(entry.getKey()), entry.getValue());
         }
         query.execute();
     }
-
 
     /**
      * {@inheritDoc}
