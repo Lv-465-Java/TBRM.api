@@ -436,7 +436,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throws ResourceTemplateIsNotPublishedException {
         List<ResourceTemplate> list = resourceTemplate.getResourceParameters().stream()
                 .filter(parameter -> parameter.getParameterType().equals(ParameterType.POINT_REFERENCE))
-                .filter(parameter -> parameter.getResourceTemplate().getIsPublished().equals(false))
+                .filter(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate().getIsPublished().equals(false))
                 .map(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate())
                 .collect(Collectors.toList());
         if (!list.isEmpty()) {
