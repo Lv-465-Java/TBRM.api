@@ -2,10 +2,7 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
-import com.softserve.rms.dto.group.GroupDto;
-import com.softserve.rms.dto.group.GroupSaveDto;
-import com.softserve.rms.dto.group.MemberDto;
-import com.softserve.rms.dto.group.MemberOperationDto;
+import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
@@ -71,7 +68,7 @@ public class GroupServiceImplTest {
 
     private Group group = new Group(1L, "group", "description", Collections.emptyList());
     private List<Group> groups = Collections.singletonList(group);
-    private GroupDto groupDto = new GroupDto(group.getName(), group.getDescription(), Collections.emptyList());
+    private GroupDto groupDto = new GroupDto(1L ,group.getName(), group.getDescription(), Collections.emptyList());
     private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
@@ -79,6 +76,7 @@ public class GroupServiceImplTest {
     private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
     private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
     private ChangeOwnerDto changeOwnerDto = new ChangeOwnerDto(1L, "recipient");
+    private GroupPermissionDto groupPermissionDto = new GroupPermissionDto(1L, "recipient");
 
     @Before
     public void init() {
@@ -179,13 +177,13 @@ public class GroupServiceImplTest {
     public void addWritePermission() throws Exception {
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doNothing().when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        groupService.addWritePermission(permissionDto, principal);
+        groupService.addWritePermission(groupPermissionDto, principal);
     }
 
     @Test(expected = PermissionException.class)
     public void addWritePermissionIsNotOwner() throws Exception {
         doThrow(new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage())).when(groupService, verifyGroupPermission, anyString());
-        groupService.addWritePermission(permissionDto, principal);
+        groupService.addWritePermission(groupPermissionDto, principal);
     }
 
     @Test(expected = PermissionException.class)
@@ -193,7 +191,7 @@ public class GroupServiceImplTest {
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doThrow(new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage()))
                 .when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        groupService.addWritePermission(permissionDto, principal);
+        groupService.addWritePermission(groupPermissionDto, principal);
     }
 
     @Test
