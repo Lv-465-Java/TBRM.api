@@ -11,10 +11,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,25 +25,21 @@ import javax.validation.Valid;
 @RestController
 public class LoginController {
 
-    private UserService userService;
     private AuthenticationService authenticationService;
     private TokenManagementService tokenManagementService;
-    private String AUTHORIZATION_HEADER="Authorization";
-    private String REFRESH_HEADER="RefreshToken";
+    private String AUTHORIZATION_HEADER="authorization";
+    private String REFRESH_HEADER="refreshToken";
     private String AUTH_HEADER_PREFIX="Bearer ";
 
     /**
      * Constructor.
      *
-     * @param userService {@link UserService}
      * @param authenticationService {@link AuthenticationService}
      * @param tokenManagementService {@link TokenManagementService}
      */
     @Autowired
-    public LoginController(UserService userService,
-                           AuthenticationService authenticationService,
+    public LoginController(AuthenticationService authenticationService,
                            TokenManagementService tokenManagementService){
-        this.userService = userService;
         this.authenticationService=authenticationService;
         this.tokenManagementService=tokenManagementService;
     }
@@ -59,7 +52,7 @@ public class LoginController {
      */
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED)
     })
     @PostMapping("/authentication")
     public ResponseEntity<Object> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response){
@@ -88,5 +81,26 @@ public class LoginController {
         response.setHeader(REFRESH_HEADER, newToken.getRefreshToken());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/oauth2/fullRegister")
+    public ResponseEntity<Object> fullAuthenticate(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/oauth2/fullRegister")
+    public String getFullAuthenticate(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
+
+
+        return "http://localhost:3000/oauth2/fullRegister";
     }
 }

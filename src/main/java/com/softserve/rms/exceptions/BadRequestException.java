@@ -1,4 +1,4 @@
-package edu.softserve.exceptions;
+package com.softserve.rms.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

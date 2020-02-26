@@ -14,12 +14,13 @@ import java.util.*;
  *
  * @author Artur Sydor
  */
-public class UserPrincipal implements UserDetails{
+public class UserPrincipal implements OAuth2User, UserDetails{
     /**
      * Represents User entity.
      */
     private User user;
     private Map<String, Object> attributes;
+    private Collection<? extends GrantedAuthority> authorities;
 
     /**
      * Constructor with parameters.
@@ -29,11 +30,21 @@ public class UserPrincipal implements UserDetails{
     public UserPrincipal(User user) {
         this.user = user;
     }
-//
-//    @Override
-//    public Map<String, Object> getAttributes() {
-//        return attributes;
-//    }
+
+    public UserPrincipal(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+
+    public UserPrincipal(User user,  Collection<? extends GrantedAuthority> authorities) {
+        this.user = user;
+        this.authorities = authorities;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
 
     /**
      * Get role from User object
@@ -134,8 +145,48 @@ public class UserPrincipal implements UserDetails{
         return user != null ? user.hashCode() : 0;
     }
 
-//    @Override
-//    public String getName() {
-//        return String.valueOf(user.getId());
-//    }
+    /**
+     * get id value from user
+     * @return string {@link String}
+     */
+    @Override
+    public String getName() {
+        return String.valueOf(user.getId());
+    }
+
+    /**
+     * method set attributes for user principal
+     * @param attributes {@link Map}
+     */
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    /**
+     * method create user principal with authorities
+     * @param user {@link User}
+     * @return userPrincipal {@link UserPrincipal}
+     */
+    public static UserPrincipal create(User user) {
+        List<GrantedAuthority> authorities = Collections.
+                singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+        return new UserPrincipal(
+                user,
+                authorities
+        );
+    }
+
+    /**
+     * method create user principal with attributes
+     * @param user {@link User}
+     * @param attributes {@link Map}
+     * @return userPrincipal {@link UserPrincipal}
+     */
+    public static UserPrincipal create(User user, Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        userPrincipal.setAttributes(attributes);
+
+        return userPrincipal;
+    }
 }

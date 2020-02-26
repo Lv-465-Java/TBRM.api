@@ -2,13 +2,11 @@ package com.softserve.rms.security;
 
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.exceptions.JwtAuthenticationException;
-import com.softserve.rms.exceptions.JwtExpiredTokenException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
 
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -146,19 +143,10 @@ public class TokenManagementService implements Message {
                 isValid = true;
             }
         } catch (JwtException ex) {
-            LOGGER.error("Token is not valid!");////////////
-           // throw new JwtExpiredTokenException("eeeff");
-//    }catch(
-//       SignatureException e)
-//
-//    {
-//        LOGGER.info("Signature exc");
-    }
-
-      catch (IllegalArgumentException ex) {
-          LOGGER.error("an error occured during getting username from token");//////////
+            LOGGER.error("Token is not valid!");
+    } catch (IllegalArgumentException ex) {
+          LOGGER.error("an error occurred during getting username from token");
       }
-
         return isValid;
     }
 
@@ -171,7 +159,7 @@ public class TokenManagementService implements Message {
      */
     public String resolveAccessToken(HttpServletRequest request) {
         String AUTH_HEADER_PREFIX="Bearer ";
-        String AUTHORIZATION_HEADER="Authorization";
+        String AUTHORIZATION_HEADER="authorization";
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (Objects.nonNull(bearerToken) && bearerToken.startsWith(AUTH_HEADER_PREFIX)) {
             return bearerToken.substring(7);
@@ -186,7 +174,7 @@ public class TokenManagementService implements Message {
      * @return {@link String} of token or null.
      */
     public String resolveRefreshToken(HttpServletRequest request) {
-        String REFRESH_HEADER="RefreshToken";
+        String REFRESH_HEADER="refreshToken";
         String refreshToken = request.getHeader(REFRESH_HEADER);
         if (Objects.nonNull(refreshToken)) {
             return refreshToken;

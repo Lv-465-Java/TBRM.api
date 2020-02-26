@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -41,8 +42,21 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    private String imageUrl;
+
+    private String provider;
+
+    private String providerId;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
-
+    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
+        this.firstName=firstName;
+        this.email=email;
+        this.role=role;
+        this.imageUrl=imageUrl;
+        this.provider=provider;
+        this.providerId=providerId;
+    }
 }

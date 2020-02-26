@@ -1,15 +1,11 @@
 package com.softserve.rms.security.filter;
 
-import com.softserve.rms.exceptions.JwtAuthenticationException;
-import com.softserve.rms.exceptions.JwtExpiredTokenException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.security.TokenManagementService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * Filters incoming requests and installs a Spring Security principal if a header corresponding to a valid user is
@@ -66,12 +61,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter implements Mess
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (ExpiredJwtException e) {
-                LOGGER.error("Token has expired: " + accessToken);///////////////////
-                throw new JwtExpiredTokenException("exp");
+                LOGGER.info("Token has expired: " + accessToken);
 
             }
             catch (Exception e) {
-                LOGGER.error("JWT Authentication failed");/////////////
+                LOGGER.info("JWT Authentication failed");
             }
 
         }
