@@ -14,6 +14,8 @@ public enum ErrorMessage {
     RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROPPED("You can not cancel resource template publish, " +
             "since it has related resources"),
     RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DELETED("There are references to this resource template table"),
+    RESOURCE_TEMPLATE_CAN_NOT_BE_PUBLISHED("You can not publish template, because its parameter references to " +
+            "the template, which is not published: "),
 
     RESOURCE_PARAMETER_CAN_NOT_BE_FOUND_BY_ID("Resource parameter does not exist with id:  "),
     RESOURCE_TEMPLATE_HAS_NOT_ANY_PARAMETERS("There is no parameters for template with id: "),
@@ -25,7 +27,6 @@ public enum ErrorMessage {
             "has been published"),
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETED("Resource parameter can not be deleted since resource template " +
             "has been published"),
-
 
     USER_WITH_EMAIL_EXISTS("Account with this email already exists "),
     USER_NOT_SAVED("User was not saved "),

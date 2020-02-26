@@ -12,6 +12,7 @@ import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
+import com.softserve.rms.util.Formatter;
 import org.jooq.DSLContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +63,8 @@ public class ResourceTemplateServiceTest {
     private SecurityContext securityContext;
     @Mock
     private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
+    @Mock
+    private Formatter formatter;
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
@@ -78,7 +81,7 @@ public class ResourceTemplateServiceTest {
     @Before
     public void initializeMock() {
         resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext, jooqDDL));
+                permissionManagerService, dslContext, jooqDDL, formatter));
         JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
