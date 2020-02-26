@@ -15,6 +15,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "com.softserve.rms.repository")
 @EntityScan(basePackages = "com.softserve.rms.entities")
-@PropertySource("classpath:application.properties")
+//@PropertySource("classpath:application.properties")
 public class JPAConfig {
 }

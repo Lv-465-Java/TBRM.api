@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 @Builder
 @Data
 @AllArgsConstructor
@@ -19,4 +16,5 @@ public class RegistrationDto {
     private String email;
     private String phone;
     private String password;
+    private String tenantid;
 }

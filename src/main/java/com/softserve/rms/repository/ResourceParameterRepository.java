@@ -17,4 +17,5 @@ public interface ResourceParameterRepository extends JpaRepository<ResourceParam
      * @author Andrii Bren
      */
     List<ResourceParameter> findAllByResourceTemplateId(Long id);
+
 }

@@ -1,8 +1,12 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -13,14 +17,20 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"resourceTemplates"})
 @ToString(exclude = {"resourceTemplates"})
+@FilterDef(name = "tenantFilter", parameters = {@ParamDef(name = "tenantId", type = "string")})
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "tenant_id")
+    private String tenantId;
+
     @Column(nullable = false, length = 50)
     private String firstName;
+
 
     @Column( nullable = false, length = 50)
     private String lastName;

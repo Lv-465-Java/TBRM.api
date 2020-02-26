@@ -3,6 +3,7 @@ package com.softserve.rms.controller;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
+import com.softserve.rms.multitenancy.TenantContext;
 import com.softserve.rms.security.AuthenticationService;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.service.UserService;
@@ -11,12 +12,8 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -27,7 +24,6 @@ import javax.validation.Valid;
  */
 @RestController
 public class LoginController {
-
     private UserService userService;
     private AuthenticationService authenticationService;
     private TokenManagementService tokenManagementService;
@@ -45,7 +41,8 @@ public class LoginController {
     @Autowired
     public LoginController(UserService userService,
                            AuthenticationService authenticationService,
-                           TokenManagementService tokenManagementService){
+                           TokenManagementService tokenManagementService
+                           ){
         this.userService = userService;
         this.authenticationService=authenticationService;
         this.tokenManagementService=tokenManagementService;
@@ -62,8 +59,8 @@ public class LoginController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/authentication")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response){
-
+    public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response, @RequestParam String tenantName){
+        TenantContext.setCurrentTenant(tenantName);
         JwtDto jwtDto=authenticationService.loginUser(loginUser);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX+ jwtDto.getAccessToken());
         response.setHeader(REFRESH_HEADER, jwtDto.getRefreshToken());

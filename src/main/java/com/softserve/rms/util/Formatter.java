@@ -1,8 +1,8 @@
 package com.softserve.rms.util;
 
-import org.springframework.stereotype.Component;
-import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.stereotype.Component;
 
 /**
  * Class for formatting string

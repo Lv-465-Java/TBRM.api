@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.service.AdminService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;

@@ -1,16 +1,14 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
-
-import java.util.List;
-
-
 import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+
+import java.util.List;
 
 public interface ResourceParameterService {
 

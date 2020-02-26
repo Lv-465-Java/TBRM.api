@@ -1,7 +1,9 @@
 package com.softserve.rms.dto.resourceparameter;
 
 import com.softserve.rms.entities.ParameterType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

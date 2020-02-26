@@ -6,8 +6,6 @@ import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
-
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +14,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Class that provides methods for working with JWT.

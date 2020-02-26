@@ -1,8 +1,8 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.ValidationErrorConstants;
 import com.softserve.rms.constants.ValidationPattern;
-import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
@@ -12,7 +12,8 @@ import com.softserve.rms.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -85,7 +86,8 @@ public class UserValidationServiceImpl implements UserValidationService {
                 registrationDto.getLastName().trim(),
                 registrationDto.getEmail().toLowerCase().trim(),
                 registrationDto.getPhone().trim(),
-                registrationDto.getPassword());
+                registrationDto.getPassword(),
+                registrationDto.getTenantid().trim());
     }
 
     /**

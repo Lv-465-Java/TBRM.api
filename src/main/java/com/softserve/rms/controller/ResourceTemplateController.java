@@ -1,8 +1,8 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.ResourceTemplateService;
 import io.swagger.annotations.ApiResponse;

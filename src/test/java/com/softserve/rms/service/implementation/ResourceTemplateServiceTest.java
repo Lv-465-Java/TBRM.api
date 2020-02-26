@@ -9,7 +9,6 @@ import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublished
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.UserRepository;
-import com.softserve.rms.service.implementation.ResourceTemplateServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +47,7 @@ public class ResourceTemplateServiceTest {
     SecurityContext securityContext;
 
     private Role role = new Role(2L, "MANAGER");
-    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, role, Collections.emptyList());
+    private User user = new User();
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name", "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description", user.getId());
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name", "description", false, user.getId(), null);

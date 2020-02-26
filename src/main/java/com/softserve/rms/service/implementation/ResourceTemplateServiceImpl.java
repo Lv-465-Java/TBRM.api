@@ -2,8 +2,8 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
