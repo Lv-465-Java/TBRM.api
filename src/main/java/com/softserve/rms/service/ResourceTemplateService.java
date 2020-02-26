@@ -96,7 +96,8 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
-    List<ResourceTemplateDTO> findAllIsPublishedTrue();
+
+    List<ResourceTemplateDTO> findAllPublishedTemplates();
 
     ResourceTemplate findByName(String name);
 

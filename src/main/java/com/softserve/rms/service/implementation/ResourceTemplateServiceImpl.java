@@ -115,7 +115,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     @Override
-    public List<ResourceTemplateDTO> findAllIsPublishedTrue() {
+    public List<ResourceTemplateDTO> findAllPublishedTemplates() {
        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
        return resourceTemplates.stream()
                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
