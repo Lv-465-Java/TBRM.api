@@ -17,9 +17,4 @@ public class UserDto {
     private String password;
     private boolean enabled;
     private Role role;
-
-
-
-
-
 }

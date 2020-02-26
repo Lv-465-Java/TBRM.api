@@ -14,8 +14,8 @@ import java.util.List;
 @Audited
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates"})
+@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
+@ToString(exclude = {"resourceTemplates", "groups"})
 public class User {
 
     @Id
@@ -51,5 +51,11 @@ public class User {
 
     private String resetToken;
 
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "groups_members",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
+    )
+    private List<Group> groups;
 }

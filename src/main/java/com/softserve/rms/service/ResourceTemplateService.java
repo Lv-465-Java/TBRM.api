@@ -1,5 +1,8 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.PermissionDto;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
@@ -7,15 +10,15 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsPublishedException;
-import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateParameterListIsEmpty;
+import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 public interface ResourceTemplateService {
     /**
-     * Method creates {@link ResourceTemplateSaveDTO}.
+     * Method creates {@link ResourceTemplate}.
      *
      * @param resourceTemplateSaveDTO {@link ResourceTemplateSaveDTO}
      * @return new {@link ResourceTemplateDTO}
@@ -25,7 +28,7 @@ public interface ResourceTemplateService {
     ResourceTemplateDTO save(ResourceTemplateSaveDTO resourceTemplateSaveDTO);
 
     /**
-     * Method finds {@link ResourceTemplate} by id.
+     * Method finds {@link ResourceTemplate} by provided id.
      *
      * @param id of {@link ResourceTemplateDTO}
      * @return {@link ResourceTemplateDTO}
@@ -52,24 +55,27 @@ public interface ResourceTemplateService {
     List<ResourceTemplateDTO> getAllByUserId(Long id);
 
     /**
-     * Method updates {@link ResourceTemplate} by id.
+     * Method verifies if provided by id {@link ResourceTemplate} could be updated.
      *
      * @param id   of {@link ResourceTemplateDTO}
      * @param body map containing String key and Object value
      * @return {@link ResourceTemplateDTO}
-     * @throws NotFoundException if the resource template with provided id is not found
+     * @throws NotFoundException                if the resource template with provided id is not found
+     * @throws ResourceTemplateCanNotBeModified if the resource template can not be updated
+     * @throws NotUniqueNameException           if the resource template name is not unique
      * @author Halyna Yatseniuk
      */
-    ResourceTemplateDTO updateById(Long id, Map<String, Object> body);
+    ResourceTemplateDTO checkIfTemplateCanBeUpdated(Long id, Map<String, Object> body);
 
     /**
-     * Method deletes {@link ResourceTemplate} by id.
+     * Method verifies if {@link ResourceTemplate} could be deleted.
      *
      * @param id of {@link ResourceTemplateDTO}
-     * @throws NotDeletedException if the resource template with provided id is not deleted
+     * @throws NotFoundException                if the resource template with provided id is not found
+     * @throws ResourceTemplateCanNotBeModified if the resource template can not be deleted
      * @author Halyna Yatseniuk
      */
-    void deleteById(Long id);
+    void checkIfTemplateCanBeDeleted(Long id);
 
     /**
      * Method finds all {@link ResourceTemplate} by name or description.
@@ -90,23 +96,24 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
-    /**
-     * Method makes {@link ResourceTemplate} be published.
-     *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
-     * @throws ResourceTemplateIsPublishedException if resource template has been published already
-     * @throws ResourceTemplateParameterListIsEmpty if resource template do not have attached parameters
-     * @author Halyna Yatseniuk
-     */
-    Boolean publishResourceTemplate(Long id);
+    ResourceTemplate findByName(String name);
 
     /**
-     * Method cancels {@link ResourceTemplate} publish.
+     * Method verifies which action must be handled - publish or cancel publish resource template -
+     * by provided boolean value in a map body.
      *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
+     * @param id   of {@link ResourceTemplateDTO}
+     * @param body map containing String key and Object value
+     * @throws NotFoundException if the resource template with provided id is not found
      * @author Halyna Yatseniuk
      */
-    Boolean unPublishResourceTemplate(Long id);
+    void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body);
+
+    List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id);
+
+    void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal);
+
+    void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal);
+
+    void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal);
 }

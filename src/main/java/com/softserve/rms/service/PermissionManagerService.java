@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface PermissionManagerService {
 
-    List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id);
+    List<PrincipalPermissionDto> findPrincipalWithAccess(Long id, Class clazz);
 
-    void addPermissionForResourceTemplate(PermissionDto permissionDto, Principal principal);
+    void addPermission(PermissionDto permissionDto, Principal principal, Class clazz);
 
-    void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal);
+    void changeOwner(ChangeOwnerDto changeOwnerDto, Principal principal, Class clazz);
 
-    void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal);
+    void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal, Class clazz);
 
-    void closeAllPermissionsToResource(Long resourceTemplateId, Principal principal);
+    void closeAllPermissions(Long id, Principal principal, Class clazz);
 }
