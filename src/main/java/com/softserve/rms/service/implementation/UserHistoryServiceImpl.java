@@ -22,138 +22,162 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      */
     @Autowired
     public UserHistoryServiceImpl(DataSource dataSource) {
+
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    private Object password = new Object();
+    private Object first_name = new Object();
+    private Object last_name = new Object();
+    private Object phone = new Object();
+    private Object email = new Object();
+    private Object reset_token = new Object();
+    private Boolean passwordChange = false;
 
     /**
      * {@inheritDoc}
      *
      * @author Mariia Shchur
      */
-    final static String SQL = "select u.revtype,u.first_name,u.last_name,u.email,u.enabled,u.phone, to_timestamp(r.revtstmp/ 1000)  from users_aud u ,revinfo r where  u.rev=r.rev and u.id = ? ";
-
-    public List<Map<String, Object>> getUserHistory(Long id) {
-        List<Map<String, Object>> q = change_password(id);
-        return q;
-    }
-
-    final static String EDIT_DATA = "select u.revtype,to_timestamp(r.revtstmp/ 1000)::timestamp,u.first_name, u.last_name, u.email, u.phone,u.password,\n" +
+    final static String USER_BY_ID = "select u.revtype,to_timestamp(r.revtstmp/ 1000)::timestamp,u.first_name, u.last_name, u.email, u.phone,u.password,\n" +
             "u.reset_token from users_aud u ,revinfo r where  \n" +
             "u.rev=r.rev and u.id = ?";
 
-    private List<Map<String, Object>> change_password(long id) {
-        List<Map<String, Object>> data = jdbcTemplate.queryForList(EDIT_DATA, id);
-        String password = null;
-        String first_name = null;
-        String last_name = null;
-        String phone = null;
-        String email = null;
-        String reset_token = null;
-        Boolean passwordChange=false;
+    public List<Map<String, Object>> getUserHistory(Long id) {
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(USER_BY_ID, id);
         for (int i = 0; i < data.size(); i++) {
+            Iterator<Map.Entry<String, Object>> iterator = data.get(i).entrySet().iterator();
             if (i == 0) {
-                for (Map.Entry<String, Object> w : data.get(i).entrySet()) {
-                    if (w.getKey().equals("revtype") && (w.getValue().equals(0))) {
-                        w.setValue("Create user");
-                    }
-                    if (w.getKey().equals("password")) {
-                        password = (String) w.getValue();
-                    }
-                    if (w.getKey().equals("email")) {
-                        email = (String) w.getValue();
-                    }
-                    if (w.getKey().equals("phone")) {
-                        phone = (String) w.getValue();
-                    }
-                    if (w.getKey().equals("first_name")) {
-                        first_name = (String) w.getValue();
-                    }
-                    if (w.getKey().equals("last_name")) {
-                        last_name = (String) w.getValue();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Object> map = iterator.next();
+                    rememberDataWhenCreate(map);
+                    if(map.getKey().equals("password")|| map.getKey().equals("reset_token")){
+                        iterator.remove();
                     }
                 }
                 continue;
             }
-            Iterator<Map.Entry<String, Object>> q = data.get(i).entrySet().iterator();
-            while (q.hasNext()) {
-                Map.Entry<String,Object> w=q.next();
-                if (w.getKey().equals("revtype") && (w.getValue().equals(1))){
-                    q.remove();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Object> map = iterator.next();
+                if (map.getKey().equals("revtype") && (map.getValue().equals(1))) {
+                    iterator.remove();
                 }
-                if (w.getKey().equals("password")) {
-                    if (!(w.getValue().equals(password))) {
-                        password = (String) w.getValue();
-                        w.setValue("Password has been changed");
-                        passwordChange=true;
-                    } else {
-                       q.remove();
-                    }
-                }
-
-                if (w.getKey().equals("phone")) {
-                    if (!(w.getValue().equals(phone))) {
-                        phone = (String) w.getValue();
-                        w.setValue("phone has been changed - " + phone);
-                    } else {
-                        q.remove();
-                    }
-                }
-                if (w.getKey().equals("email")) {
-                    if (!(w.getValue().equals(email))) {
-                        email = (String) w.getValue();
-                        w.setValue("email has been changed - " + email);
-                    } else {
-                        q.remove();
-                    }
-                }
-                if (w.getKey().equals("first_name")) {
-                    if (!(w.getValue().equals(first_name))) {
-                        first_name = (String) w.getValue();
-                        w.setValue("first_name has been changed - " + first_name);
-                    } else {
-                        q.remove();
-                    }
-                }
-                if (w.getKey().equals("last_name")) {
-                    if (!(w.getValue().equals(last_name))) {
-                        last_name = (String) w.getValue();
-                        w.setValue("last_name has been changed - " + last_name);
-                    } else {
-                        q.remove();
-                    }
-                }
-                if (w.getKey().equals("reset_token")) {
-                    if (w.getValue() != reset_token) {
-                        reset_token = (String) w.getValue();
-                        if(passwordChange){
-                            w.setValue("password was reseted by link from email");
-                        }else w.setValue("Link for password reseting was send om email");
-                    } else {
-                        q.remove();
-                    }
-                }
+                passwordMessage(iterator, map);
+                this.first_name = setMessage(iterator, map, "first_name", this.first_name);
+                this.last_name = setMessage(iterator, map, "last_name", this.last_name);
+                this.phone = setMessage(iterator, map, "phone", this.phone);
+                this.email = setMessage(iterator, map, "email", this.email);
+                resetTokenMessage(iterator, map);
             }
-            passwordChange=false;
+            passwordChange = false;
         }
         return data;
     }
 
     /**
+     * Method that compare user's password from history
+     * flow and set user's friendly message
+     *
+     * @param iterator
+     * @param map      list of history flow
+     * @author Mariia Shchur
+     */
+    private void passwordMessage(Iterator<Map.Entry<String, Object>> iterator,
+                                 Map.Entry<String, Object> map) {
+        if (map.getKey().equals("password")) {
+            if (!(map.getValue().equals(password))) {
+                password = (String) map.getValue();
+                map.setValue("Password has been changed");
+                passwordChange = true;
+            } else {
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Method that compare user's reset token from history
+     * flow and set user's friendly message
+     *
+     * @param iterator
+     * @param map      list of history flow
+     * @author Mariia Shchur
+     */
+    private void resetTokenMessage(Iterator<Map.Entry<String, Object>> iterator,
+                                   Map.Entry<String, Object> map) {
+        if (map.getKey().equals("reset_token")) {
+            if (map.getValue() != reset_token) {
+                reset_token = (String) map.getValue();
+                if (passwordChange) {
+                    map.setValue("Password was reseted by link from email");
+                } else map.setValue("Link for password resenting was sent on email");
+            } else {
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Method that compare user's data from history
+     * flow and set user's friendly message when it's changed and
+     * delete row if data is unchanged
+     *
+     * @param iterator
+     * @param map      list of history flow
+     * @param keyName
+     * @param value
+     * @author Mariia Shchur
+     */
+    private Object setMessage(Iterator<Map.Entry<String, Object>> iterator,
+                              Map.Entry<String, Object> map, String keyName, Object value) {
+        if (map.getKey().equals(String.format(keyName))) {
+            if (!(map.getValue().equals(value))) {
+                value = map.getValue();
+                map.setValue(String.format("%s has been changed to " + value, keyName));
+            } else {
+                iterator.remove();
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Method that remembers user's registration data
+     *
+     * @param map list of history flow
+     * @author Mariia Shchur
+     */
+    private void rememberDataWhenCreate(Map.Entry<String, Object> map) {
+        if (map.getKey().equals("revtype") && (map.getValue().equals(0))) {
+            map.setValue("Create account");
+        }
+        if (map.getKey().equals("password")) {
+            this.password = (String) map.getValue();
+        }
+        if (map.getKey().equals("email")) {
+            this.email = (String) map.getValue();
+        }
+        if (map.getKey().equals("phone")) {
+            this.phone = (String) map.getValue();
+        }
+        if (map.getKey().equals("first_name")) {
+            this.first_name = (String) map.getValue();
+        }
+        if (map.getKey().equals("last_name")) {
+            this.last_name = (String) map.getValue();
+        }
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @author Mariia Shchur
      */
-    final static String DELETED_ACCOUNTS = "select to_timestamp(r.revtstmp/ 1000)::timestamp  as time,u.first_name,u.last_name, u.email, u.phone from users_aud u,\n" +
-            "revinfo r where u.revtype=0 \n" +
-            "and u.id in (\n" +
-            "\tselect u.id from users_aud u, revinfo r where u.revtype=2 \n" +
-            ") and r.revtstmp in (\n" +
-            "\tselect r.revtstmp from users_aud u, revinfo r where u.revtype=2 and u.rev=r.rev)";
+    final static String DELETED_ACCOUNTS = "select to_timestamp(r.revtstmp/ 1000)::timestamp ,u.first_name,u.last_name, u.email, u.phone from users_aud u,\n" +
+            "revinfo r where u.revtype=2 and u.rev=r.rev";
 
     public List<Map<String, Object>> getDeletedAccounts() {
-        List<Map<String, Object>> q = jdbcTemplate.queryForList(DELETED_ACCOUNTS);
-        return q;
+        return jdbcTemplate.queryForList(DELETED_ACCOUNTS);
     }
 
     /**
@@ -165,21 +189,27 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
     public List<Map<String, Object>> getAllAccounts() {
         List<Map<String, Object>> q = jdbcTemplate.queryForList(ALL_ACCOUNTS);
-        sortData(q);
-        return q;
+        return sortData(q);
     }
 
+    /**
+     * Method that change revtype to Create account/Edit account/Delete account
+     *
+     * @param data list of all history flow
+     * @return sorted list of all history flow
+     * @author Mariia Shchur
+     */
     private List<Map<String, Object>> sortData(List<Map<String, Object>> data) {
         for (int i = 0; i < data.size(); i++) {
             for (Map.Entry<String, Object> w : data.get(i).entrySet()) {
                 if (w.getKey().equals("revtype") && (w.getValue().equals(0))) {
-                    w.setValue("Create user");
+                    w.setValue("Create account");
                 }
                 if (w.getKey().equals("revtype") && (w.getValue().equals(1))) {
-                    w.setValue("Edit date");
+                    w.setValue("Edit account");
                 }
                 if (w.getKey().equals("revtype") && (w.getValue().equals(2))) {
-                    w.setValue("Delete user");
+                    w.setValue("Delete account");
                 }
             }
         }
@@ -191,13 +221,12 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String FILTER_BY_DATE = "select u.reset_token , u.revtype, to_timestamp(r.revtstmp/ 1000)::date , u.first_name,u.last_name,u.email,u.enabled,u.phone\n" +
+    final static String FILTER_BY_DATE = "select u.revtype,u.reset_token ,to_timestamp(r.revtstmp/ 1000)::date , u.first_name,u.last_name,u.email,u.enabled,u.phone\n" +
             "from users_aud u ,revinfo r where  u.rev=r.rev and to_timestamp(r.revtstmp/ 1000)::date=(?::date)";
-
     public List<Map<String, Object>> getAllByData(String date) {
         List<Map<String, Object>> q = jdbcTemplate.queryForList(FILTER_BY_DATE, date);
-        sortData(q);
-        return q;
+        ;
+        return sortData(q);
     }
 
 }

@@ -2,7 +2,6 @@ package com.softserve.rms.service;
 
 import com.softserve.rms.entities.User;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,5 +30,12 @@ public interface UserHistoryService {
      * @author Mariia Shchur
      */
     List<Map<String, Object>> getAllAccounts();
+
+    /**
+     * Method that returns all users history by accurate data
+     *
+     * @return list of all accounts
+     * @author Mariia Shchur
+     */
     List<Map<String, Object>> getAllByData(String date);
 }

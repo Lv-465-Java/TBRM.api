@@ -73,7 +73,7 @@ public interface UserService {
      * @param email a value of {@link Long}
      * @author Mariia Shchur
      */
-    void sendLinkToResetPassword(String email);
+    void sendLinkForPasswordResetting(String email);
 
     /**
      * Method that allow you to reset password.

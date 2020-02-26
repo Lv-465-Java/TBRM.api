@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import javax.sql.DataSource;
 import java.util.Map;
 import java.util.UUID;
@@ -168,7 +169,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public void sendLinkToResetPassword(String email) {
+    public void sendLinkForPasswordResetting(String email) {
         User user = getUserByEmail(email.trim());
         user.setResetToken(UUID.randomUUID().toString());
         userRepository.save(user);
