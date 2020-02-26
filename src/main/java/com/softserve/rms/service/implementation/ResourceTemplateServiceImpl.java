@@ -114,6 +114,14 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<ResourceTemplateDTO> findAllIsPublishedTrue() {
+       List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
+       return resourceTemplates.stream()
+               .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
+               .collect(Collectors.toList());
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -301,6 +309,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
+
+
 
     @Override
     public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {

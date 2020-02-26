@@ -1,4 +1,4 @@
-package com.softserve.rms.dto.resourceparameter;
+package com.softserve.rms.dto.resourceParameter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

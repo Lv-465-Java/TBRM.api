@@ -1,8 +1,8 @@
 package com.softserve.rms.controller;
 
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.service.ResourceParameterService;

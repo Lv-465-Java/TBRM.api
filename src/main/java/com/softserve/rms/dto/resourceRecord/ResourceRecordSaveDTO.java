@@ -1,4 +1,4 @@
-package com.softserve.rms.dto.resourcerecord;
+package com.softserve.rms.dto.resourceRecord;
 
 import com.softserve.rms.constants.ValidationErrorConstants;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ResourceRecordSaveDTO implements Serializable {
 
-//    @NotEmpty(message = ValidationErrorConstants.EMPTY_RESOURCE_RECORD_NAME)
+    @NotEmpty(message = ValidationErrorConstants.EMPTY_RESOURCE_RECORD_NAME)
     private String name;
     private String description;
     private Long userId;

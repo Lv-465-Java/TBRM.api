@@ -92,6 +92,12 @@ public class ResourceTemplateController {
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
     }
 
+    @GetMapping("/published")
+    public ResponseEntity<List<ResourceTemplateDTO>> getAllIsPublishedTrue() {
+        LOG.info("Getting all published Resource Templates");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findAllIsPublishedTrue());
+    }
+
     /**
      * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
      *

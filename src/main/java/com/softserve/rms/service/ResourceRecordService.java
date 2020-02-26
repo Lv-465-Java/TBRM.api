@@ -1,7 +1,7 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
-import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;

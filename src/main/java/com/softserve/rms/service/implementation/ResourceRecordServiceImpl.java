@@ -1,15 +1,14 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
-import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceRecordRepository;
-import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.ResourceRecordService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;

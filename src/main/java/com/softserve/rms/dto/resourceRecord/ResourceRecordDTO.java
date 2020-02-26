@@ -1,4 +1,4 @@
-package com.softserve.rms.dto.resourcerecord;
+package com.softserve.rms.dto.resourceRecord;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

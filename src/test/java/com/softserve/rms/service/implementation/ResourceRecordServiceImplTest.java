@@ -1,8 +1,8 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.resourcerecord.ResourceRecordDTO;
-import com.softserve.rms.dto.resourcerecord.ResourceRecordSaveDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.*;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;

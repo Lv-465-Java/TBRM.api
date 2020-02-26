@@ -1,8 +1,8 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceRelationDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
@@ -71,16 +71,21 @@ public class ResourceParameterServiceImplTest {
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "template", "resource_template", "some description", false, null, null, null);
     private ResourceParameter resourceParameter = new ResourceParameter(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", resourceTemplate, null);
     private ResourceParameter resourceParameterUpdate = new ResourceParameter(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", resourceTemplate, null);
-    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, null);
-    private ResourceParameterDTO resourceParameterDTOUpdate = new ResourceParameterDTO(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", 1L, null);
+    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, null, null);
+//    private ResourceParameterDTO resourceParameterDTO = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, null);
+    private ResourceParameterDTO resourceParameterDTOUpdate = new ResourceParameterDTO(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", 1L, null, null);
+//    private ResourceParameterDTO resourceParameterDTOUpdate = new ResourceParameterDTO(1L, "resourceParameterUpdate", "resource_parameter_update", ParameterType.POINT_INT, "regex", 1L, null);
     private ResourceParameterSaveDTO resourceParameterSaveDTO = new ResourceParameterSaveDTO("resourceParameter", ParameterType.POINT_INT, "regex", null);
     private ResourceParameterSaveDTO resourceParameterSaveDTOUpdate = new ResourceParameterSaveDTO("resourceParameterUpdate", ParameterType.POINT_INT, "regex", null);
     private ResourceRelation resourceRelation = new ResourceRelation(1L, resourceParameter, resourceTemplate);
     private ResourceRelationDTO resourceRelationDTO = new ResourceRelationDTO(1L);
-    private ResourceParameterDTO resourceParameterDTOWithRelation = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, resourceRelationDTO);
+    private ResourceParameterDTO resourceParameterDTOWithRelation = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, "template", 1L);
+//    private ResourceParameterDTO resourceParameterDTOWithRelation = new ResourceParameterDTO(1L, "resourceParameter", "resource_parameter", ParameterType.POINT_INT, "regex", 1L, resourceRelationDTO);
     private List<ResourceParameterDTO> parameterDTOS = Arrays.asList(
-            new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null),
-            new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null));
+            new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null, null),
+            new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null, null));
+//            new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null),
+//            new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null));
 
     private List<ResourceParameter> parameters = Arrays.asList(
             new ResourceParameter(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, resourceTemplate, null),
@@ -163,7 +168,7 @@ public class ResourceParameterServiceImplTest {
         doReturn(resourceTemplate).when(resourceTemplateService).findEntityById(anyLong());
         PowerMockito.doReturn(resourceTemplate).when(resourceParameterService, "verifyIfResourceTemplateIsPublished", any(ResourceTemplate.class));
         when(resourceRelationRepository.save(any(ResourceRelation.class))).thenReturn(resourceRelation);
-        ResourceRelation relation = Whitebox.invokeMethod(resourceParameterService, "saveParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+        ResourceRelation relation = Whitebox.invokeMethod(resourceParameterService, "saveParameterRelation", resourceParameter.getId(), resourceTemplate.getId());
         assertEquals(resourceRelation, resourceRelationRepository.save(relation));
     }
 
@@ -287,7 +292,7 @@ public class ResourceParameterServiceImplTest {
         PowerMockito.doReturn(resourceTemplate).when(resourceParameterService,
                 "verifyIfResourceTemplateIsPublished", resourceTemplate);
         ResourceRelation result = Whitebox.invokeMethod(resourceParameterService,
-                "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+                "updateParameterRelation", resourceParameter.getId(), resourceTemplate.getId());
         verifyPrivate(resourceParameterService, times(1)).
                 invoke("verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         assertEquals(resourceRelation, result);
@@ -298,9 +303,9 @@ public class ResourceParameterServiceImplTest {
         Mockito.doReturn(null).when(resourceRelationRepository)
                 .findByResourceParameterId(Mockito.any(Long.class));
         PowerMockito.doReturn(resourceRelation).when(resourceParameterService,
-                "saveParameterRelation", Mockito.any(Long.class), Mockito.any(ResourceRelationDTO.class));
+                "saveParameterRelation", Mockito.any(Long.class), Mockito.any(Long.class));
         Whitebox.invokeMethod(resourceParameterService,
-                "updateParameterRelation", resourceParameter.getId(), resourceRelationDTO);
+                "updateParameterRelation", resourceParameter.getId(), resourceTemplate.getId());
         verifyPrivate(resourceParameterService, times(0)).
                 invoke("verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
     }
