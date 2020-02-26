@@ -1,10 +1,12 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.List;
 
 @Service
 public interface UserService {
@@ -57,5 +59,9 @@ public interface UserService {
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
 
-    UserRoleDto getUserRole(Principal principal);
+    UserDtoRole getUserRole(Principal principal);
+
+    List<PermissionUserDto> getUsers();
+
+
 }

@@ -1,7 +1,9 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Role;
@@ -12,6 +14,7 @@ import com.softserve.rms.exceptions.NotSavedException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
+import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -21,11 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 public class UserServiceImpl implements UserService, Message {
     private UserRepository userRepository;
+    private AdminRepository adminRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -36,8 +43,10 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
+                           AdminRepository adminRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -139,11 +148,24 @@ public class UserServiceImpl implements UserService, Message {
      * @author Marian Dutchyn
      */
     @Override
-    public UserRoleDto getUserRole(Principal principal){
+    public UserDtoRole getUserRole(Principal principal){
         User user = getUserByEmail(principal.getName());
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setRole(user.getRole().getName());
+        UserDtoRole userRoleDto = new UserDtoRole();
+        userRoleDto.setRole(user.getRole());
         return userRoleDto;
     }
+    /**
+     * Method returns active users
+     *
+     * @author Marian Dutchyn
+     */
+    @Override
+    public List<PermissionUserDto> getUsers() {
+        List<User> users = adminRepository.getAllByEnabled(true);
+        return users.stream()
+                .map(user -> modelMapper.map(user, PermissionUserDto.class))
+                .collect(Collectors.toList());
+    }
+
 
 }

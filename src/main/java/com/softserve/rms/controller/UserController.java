@@ -3,11 +3,11 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.Validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.UserDto;
+import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.PermissionUserDto;
 import com.softserve.rms.dto.user.UserEditDto;
-import com.softserve.rms.dto.user.UserRoleDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.security.UserPrincipal;
 import com.softserve.rms.service.UserService;
@@ -23,6 +23,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 
 @RestController
@@ -102,7 +103,12 @@ public class UserController {
     }
 
     @GetMapping("/user/role")
-    public ResponseEntity<UserRoleDto> getUserRole(Principal principal){
+    public ResponseEntity<UserDtoRole> getUserRole(Principal principal){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserRole(principal));
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<PermissionUserDto>> getUsers(){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers());
     }
 }
