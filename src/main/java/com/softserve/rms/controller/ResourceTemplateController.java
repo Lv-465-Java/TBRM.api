@@ -112,12 +112,6 @@ public class ResourceTemplateController {
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
     }
 
-//    @GetMapping("/user/{id}")
-//    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
-//        LOG.info("Getting all Resource Templates by user ID: " + id);
-//        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
-//    }
-
     /**
      * The controller which updates a {@link ResourceTemplateDTO} by provided id.
      *

@@ -81,10 +81,10 @@ public class ResourceParameterServiceImplTest {
     private List<ResourceParameterDTO> parameterDTOS = Arrays.asList(
             new ResourceParameterDTO(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, 1L, null),
             new ResourceParameterDTO(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, 1L, null));
-
     private List<ResourceParameter> parameters = Arrays.asList(
             new ResourceParameter(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, resourceTemplate, null),
             new ResourceParameter(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, resourceTemplate, null));
+    private ParameterType parameterType;
 
     @Before
     public void initializeMock() {
@@ -154,6 +154,27 @@ public class ResourceParameterServiceImplTest {
         doReturn(resourceParameter).when(resourceParameterService).findById(anyLong());
         PowerMockito.doReturn(resourceParameterDTOUpdate).when(resourceParameterService, "updateById", anyLong(), any(ResourceParameter.class), any(ResourceParameterSaveDTO.class));
         assertEquals(resourceParameterService.checkIfParameterCanBeUpdated(resourceTemplate.getId(), resourceParameter.getId(), resourceParameterSaveDTOUpdate), resourceParameterDTOUpdate);
+    }
+
+    @Test
+    public void testParameterRelationVerificationPointReference() throws Exception {
+        PowerMockito.doReturn(resourceRelation).when(resourceParameterService, "updateParameterRelation",
+                Mockito.any(Long.class), Mockito.any(ResourceRelationDTO.class));
+        resourceParameterDTO.setParameterType(ParameterType.POINT_REFERENCE);
+        Whitebox.invokeMethod(resourceParameterService, "verifyParameterRelation", resourceParameter,
+                resourceParameterSaveDTO);
+        verifyPrivate(resourceParameterService, times(0)).
+                invoke("dropParameterRelation", Mockito.any(ResourceParameter.class));
+    }
+
+    @Test
+    public void testParameterRelationVerification() throws Exception {
+        PowerMockito.doNothing().when(resourceParameterService, "dropParameterRelation",
+                Mockito.any(ResourceParameter.class));
+        resourceParameterDTO.setParameterType(ParameterType.POINT_INT);
+        resourceParameterDTO.setResourceRelation(resourceRelationDTO);
+        Whitebox.invokeMethod(resourceParameterService, "verifyParameterRelation", resourceParameter,
+                resourceParameterSaveDTO);
     }
 
     @Test(expected = ResourceParameterCanNotBeModified.class)
