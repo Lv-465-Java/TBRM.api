@@ -225,7 +225,6 @@ public class UserHistoryServiceImpl implements UserHistoryService {
             "from users_aud u ,revinfo r where  u.rev=r.rev and to_timestamp(r.revtstmp/ 1000)::date=(?::date)";
     public List<Map<String, Object>> getAllByData(String date) {
         List<Map<String, Object>> q = jdbcTemplate.queryForList(FILTER_BY_DATE, date);
-        ;
         return sortData(q);
     }
 

@@ -51,6 +51,7 @@ public class User {
 
     private String resetToken;
 
+    @NotAudited
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "groups_members",

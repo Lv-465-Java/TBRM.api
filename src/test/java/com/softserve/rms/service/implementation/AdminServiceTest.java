@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class AdminServiceTest {
     @InjectMocks
     AdminServiceImpl service;
     Role role =new Role(1L,"admin");
-    User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role , null,null);
+    User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role , null,null, Collections.emptyList());
     UserDto userDto = new UserDto(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role );
 
     @Test

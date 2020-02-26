@@ -13,10 +13,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.modelmapper.ModelMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.Optional;
@@ -35,6 +35,8 @@ public class UserServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private DataSource dataSource;
     @Mock
     private JdbcTemplate jdbcTemplate=new JdbcTemplate(new DriverManagerDataSource());
     @InjectMocks
