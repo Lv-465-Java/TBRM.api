@@ -327,8 +327,6 @@ public class ResourceTemplateServiceTest {
                 invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
     }
 
-
-    // here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Test
     public void testIfResourceTableCanBeDroppedSuccess() throws Exception {
         PowerMockito.doReturn(0).when(jooqDDL,

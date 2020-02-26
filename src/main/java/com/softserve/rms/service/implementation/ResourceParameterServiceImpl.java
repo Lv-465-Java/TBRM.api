@@ -64,9 +64,27 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * {@inheritDoc}
      *
-     * @author Andrii Bren
+     * @author Halyna Yatseniuk
      */
     @Override
+    @Transactional
+    public ResourceParameterDTO checkIfParameterCanBeSaved(Long id, ResourceParameterSaveDTO parameterDTO)
+            throws NotFoundException, NotUniqueNameException {
+        if (resourceTemplateService.findEntityById(id).getIsPublished().equals(false)) {
+            return save(id, parameterDTO);
+        } else throw new ResourceParameterCanNotBeModified(
+                ErrorMessage.PARAMETER_CAN_NOT_BE_ADDED.getMessage());
+    }
+
+    /**
+     * Method saves {@link ResourceParameter}.
+     *
+     * @param id           {@link ResourceTemplate} id
+     * @param parameterDTO {@link ResourceParameterSaveDTO}
+     * @throws NotUniqueNameException if the resource parameter with provided name exists
+     * @throws NotFoundException      if the resource parameter with provided id is not found
+     * @author Andrii Bren
+     */
     @Transactional
     public ResourceParameterDTO save(Long id, ResourceParameterSaveDTO parameterDTO)
             throws NotFoundException, NotUniqueNameException {

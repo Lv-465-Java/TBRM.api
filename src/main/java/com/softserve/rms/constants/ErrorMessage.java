@@ -25,6 +25,7 @@ public enum ErrorMessage {
     RESOURCE_PARAMETER_COLUMN_NAME_IS_NOT_UNIQUE("This resource parameter name is not allowed"),
     RESOURCE_PARAMETER_CAN_NOT_BE_UPDATED("Resource parameter can not be updated since resource template " +
             "has been published"),
+    PARAMETER_CAN_NOT_BE_ADDED("Parameter can not be added since resource template has been published"),
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETED("Resource parameter can not be deleted since resource template " +
             "has been published"),
 

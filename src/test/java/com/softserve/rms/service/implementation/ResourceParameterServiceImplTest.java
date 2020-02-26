@@ -124,6 +124,20 @@ public class ResourceParameterServiceImplTest {
     }
 
     @Test
+    public void checkIfParameterCanBeAddedSuccess() throws Exception {
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        PowerMockito.doReturn(resourceParameterDTO).when(resourceParameterService, "save", anyLong(), any(ResourceParameterSaveDTO.class));
+        assertEquals(resourceParameterService.checkIfParameterCanBeSaved(resourceTemplate.getId(), resourceParameterSaveDTOUpdate), resourceParameterDTO);
+    }
+
+    @Test(expected = ResourceParameterCanNotBeModified.class)
+    public void checkIfParameterCanBeAddedFailed() {
+        resourceTemplate.setIsPublished(true);
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        resourceParameterService.checkIfParameterCanBeSaved(resourceTemplate.getId(), resourceParameterSaveDTO);
+    }
+
+    @Test
     public void saveResourceParameterSuccess() throws Exception {
         PowerMockito.doReturn("resourceParameter").when(resourceParameterService, "verifyIfParameterNameIsUniquePerResourceTemplate", anyString(), anyLong());
         PowerMockito.doReturn("resource_parameter").when(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", anyString(), anyLong());

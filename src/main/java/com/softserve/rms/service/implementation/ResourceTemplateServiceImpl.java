@@ -250,6 +250,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + name));
     }
 
+    @Override
+    public List<ResourceTemplateDTO> findAllPublished() {
+        return null;
+    }
+
     /**
      * Method makes {@link ResourceTemplate} be published.
      *

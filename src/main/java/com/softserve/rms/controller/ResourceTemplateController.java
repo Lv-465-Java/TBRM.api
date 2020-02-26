@@ -105,11 +105,18 @@ public class ResourceTemplateController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
+
     @GetMapping("/user/{id}")
     public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
         LOG.info("Getting all Resource Templates by user ID: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
     }
+
+//    @GetMapping("/user/{id}")
+//    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
+//        LOG.info("Getting all Resource Templates by user ID: " + id);
+//        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
+//    }
 
     /**
      * The controller which updates a {@link ResourceTemplateDTO} by provided id.
@@ -191,42 +198,42 @@ public class ResourceTemplateController {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/permission/{id}")
-    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id){
+    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id)));
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/permission")
-    public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(@RequestBody PermissionDto permissionDto, Principal principal){
+    public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(@RequestBody PermissionDto permissionDto, Principal principal) {
         resourceTemplateService.addPermissionToResourceTemplate(permissionDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/permission/owner")
-    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal){
+    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal) {
         resourceTemplateService.changeOwnerForResourceTemplate(changeOwnerDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/permission")
     public ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal) {
