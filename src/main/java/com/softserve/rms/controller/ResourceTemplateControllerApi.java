@@ -72,7 +72,7 @@ public interface ResourceTemplateControllerApi {
      * The controller which finds all published {@link ResourceTemplateDTO}.
      *
      * @return list of published {@link ResourceTemplateDTO}
-     * @author Halyna Yatseniuk
+     * @author Andrii Bren
      */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
@@ -285,5 +285,4 @@ public interface ResourceTemplateControllerApi {
     })
     @DeleteMapping("/{templateId}/resource-parameter/{parameterId}")
     ResponseEntity<Object> deleteParameterById(@PathVariable Long templateId, @PathVariable Long parameterId);
-
 }

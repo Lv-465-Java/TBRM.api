@@ -74,7 +74,7 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     /**
      * {@inheritDoc}
      *
-     * @author Halyna Yatseniuk
+     * @author Andrii Bren
      */
     @Override
     public ResponseEntity<List<ResourceTemplateDTO>> findAllPublishedTemplates() {
@@ -164,24 +164,44 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public ResponseEntity<ResourceParameterDTO> saveParameter(Long templateId, ResourceParameterSaveDTO parameterDTO) {
         LOG.info("Creating a new Resource Parameter");
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(templateId, parameterDTO));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public ResponseEntity<List<ResourceParameterDTO>> findParametersByTemplateId(Long templateId) {
         LOG.info("Getting Resource Parameter by Template ID: " + templateId);
         return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public ResponseEntity<ResourceParameterDTO> findParameterById(Long templateId, Long parameterId) {
         LOG.info("Getting Resource Parameter by Parameter ID: " + parameterId);
         return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findByIdDTO(templateId, parameterId));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public ResponseEntity<ResourceParameterDTO> updateParameterById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterDTO) {
         LOG.info("Updating Resource Parameter by Parameter ID: " + parameterId);
@@ -189,6 +209,11 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
                 .body(resourceParameterService.checkIfParameterCanBeUpdated(templateId, parameterId, parameterDTO));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public ResponseEntity<Object> deleteParameterById(Long templateId, Long parameterId) {
         LOG.info("Deleting Resource Parameter by Parameter ID: " + parameterId);
