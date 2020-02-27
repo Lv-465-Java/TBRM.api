@@ -258,8 +258,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Andrii Bren
      */
     @Override
-    public ResourceTemplate findByName(String name) {
-        return resourceTemplateRepository.findByNameIgnoreCase(name)
+    public ResourceTemplate findByTableName(String name) {
+        return resourceTemplateRepository.findByTableName(name)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + name));
     }
 
