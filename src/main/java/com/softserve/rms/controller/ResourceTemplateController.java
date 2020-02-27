@@ -33,7 +33,7 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public ResourceTemplateController(ResourceTemplateService resourceTemplateService, ResourceParameterService resourceParameterService, ResourceParameterService resourceParameterService1) {
+    public ResourceTemplateController(ResourceTemplateService resourceTemplateService, ResourceParameterService resourceParameterService1) {
         this.resourceTemplateService = resourceTemplateService;
         this.resourceParameterService = resourceParameterService1;
     }
