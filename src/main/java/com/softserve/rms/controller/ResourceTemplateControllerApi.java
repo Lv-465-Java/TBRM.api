@@ -3,9 +3,13 @@ package com.softserve.rms.controller;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.entities.ResourceParameter;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -191,5 +195,95 @@ public interface ResourceTemplateControllerApi {
     })
     @DeleteMapping("/permission")
     ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal);
+
+    /**
+     * Controller which saves {@link ResourceParameter}.
+     *
+     * @param templateId   {@link ResourceTemplate} id
+     * @param parameterDTO {@link ResourceParameterDTO}
+     * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/{templateId}/resource-parameter")
+    ResponseEntity<ResourceParameterDTO> saveParameter(@PathVariable Long templateId,
+                                                       @RequestBody ResourceParameterSaveDTO parameterDTO);
+
+    /**
+     * Controller which finds {@link ResourceParameter} by {@link ResourceTemplate} id.
+     *
+     * @param templateId {@link ResourceTemplate} id
+     * @return {@link ResponseEntity} with generic type list of {@link ResourceParameterDTO}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/{templateId}/resource-parameter")
+    ResponseEntity<List<ResourceParameterDTO>> findParametersByTemplateId(@PathVariable Long templateId);
+
+    /**
+     * Controller which finds {@link ResourceParameter} by id.
+     *
+     * @param templateId  {@link ResourceTemplate} id
+     * @param parameterId {@link ResourceParameter} id
+     * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/{templateId}/resource-parameter/{parameterId}")
+    ResponseEntity<ResourceParameterDTO> findParameterById(@PathVariable Long templateId,
+                                                           @PathVariable Long parameterId);
+
+    /**
+     * Controller which updates {@link ResourceParameter}.
+     *
+     * @param templateId   {@link ResourceTemplate} id
+     * @param parameterId  {@link ResourceParameter} id
+     * @param parameterDTO {@link ResourceParameterDTO}
+     * @return {@link ResponseEntity} with generic type {@link ResourceParameterDTO}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @PutMapping("/{templateId}/resource-parameter/{parameterId}")
+    ResponseEntity<ResourceParameterDTO> updateParameterById(@PathVariable Long templateId,
+                                                             @PathVariable Long parameterId,
+                                                             @RequestBody ResourceParameterSaveDTO parameterDTO);
+
+
+    /**
+     * Controller which deletes {@link ResourceParameter} by id.
+     *
+     * @param templateId  {@link ResourceTemplate} id
+     * @param parameterId {@link ResourceParameter} id
+     * @return {@link ResponseEntity} with generic type {@link Object}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/{templateId}/resource-parameter/{parameterId}")
+    ResponseEntity<Object> deleteParameterById(@PathVariable Long templateId, @PathVariable Long parameterId);
 
 }
