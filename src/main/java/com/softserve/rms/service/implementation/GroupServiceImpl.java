@@ -160,7 +160,6 @@ public class GroupServiceImpl  implements GroupService {
 
     @Override
     public void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal) {
-        verifyGroupPermission(groupPermissionDto.getId().toString());
         PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal, Group.class);
     }

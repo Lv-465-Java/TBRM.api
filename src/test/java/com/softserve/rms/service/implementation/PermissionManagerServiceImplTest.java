@@ -5,21 +5,25 @@ import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.exceptions.NotUniquePermissionException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.util.Formatter;
 import com.sun.security.auth.UserPrincipal;
+import jdk.jfr.internal.test.WhiteBox;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.*;
 
@@ -36,6 +40,9 @@ import static org.mockito.Mockito.*;
 @PrepareForTest(PermissionManagerServiceImpl.class)
 public class PermissionManagerServiceImplTest {
     private final String privateMethod = "verifyPrincipal";
+
+    @Mock
+    private AclCache aclCache;
 
     @Mock
     private PermissionMapper permissionMapper;
@@ -58,34 +65,28 @@ public class PermissionManagerServiceImplTest {
     @InjectMocks
     private PermissionManagerServiceImpl permissionManagerService;
 
-    private Principal principal;
-    private MutableAcl mutableAcl;
-    private PermissionDto permissionDto;
-    private ChangeOwnerDto changeOwnerDto;
-    private Permission permission;
-    private Class clazz = Group.class;
-    private Class resTempClass = ResourceTemplate.class;
+    private AclAuthorizationStrategyImpl authorizationStrategy = PowerMockito.mock(AclAuthorizationStrategyImpl.class);
+    private ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, 1L);
+    private Sid sid = new PrincipalSid("owner");
+    private Permission permission = BasePermission.READ;
+    private Principal principal = new UserPrincipal("owner");
+    private MutableAcl mutableAcl = new AclImpl(objectIdentity, 1L, authorizationStrategy, null, null, null, false, sid);
+    private AccessControlEntry ace = new AccessControlEntryImpl(1L, mutableAcl, sid, permission, true, false, false);
+    private PermissionDto permissionDto = new PermissionDto(1L, "manager", "read", true);
+    private ChangeOwnerDto changeOwnerDto = new ChangeOwnerDto(2L, "manager");
+    private Class<Group> clazz = Group.class;
+    private Class<ResourceTemplate> resTempClass = ResourceTemplate.class;
 
     @Before
     public void init() {
-        //MockitoAnnotations.initMocks(this);
         permissionManagerService = PowerMockito.spy(new PermissionManagerServiceImpl
-                (mutableAclService, permissionMapper, formatter, userRepository, groupRepository));
-        AclAuthorizationStrategyImpl authorizationStrategy = PowerMockito.mock(AclAuthorizationStrategyImpl.class);
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, 1L);
-        principal = new UserPrincipal("owner");
-        Sid sid = new PrincipalSid("owner");
-        mutableAcl = new AclImpl(objectIdentity, 1L, authorizationStrategy, null, null, null, false, sid);
-        permissionDto = new PermissionDto(1L, "manager", "read", true);
-        changeOwnerDto = new ChangeOwnerDto(2L, "manager");
-        permission = BasePermission.READ;
+                (mutableAclService, permissionMapper, formatter, userRepository, groupRepository, aclCache));
     }
 
     @Test
     public void findPrincipalWithAccessToResourceTemplateSuccess(){
-        List<AccessControlEntry> entries = Arrays.asList();
+        mutableAcl.insertAce(0, permission, sid, true);
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
-        doReturn(entries).when(aclService).getEntries();
         permissionManagerService.findPrincipalWithAccess(1L, resTempClass);
     }
 
@@ -104,11 +105,32 @@ public class PermissionManagerServiceImplTest {
         permissionManagerService.addPermission(permissionDto, principal, resTempClass);
     }
 
+    @Test
+    public void addPermissionForResourceTemplateNewAclSuccess() throws Exception {
+        doThrow(new NotFoundException("")).when(mutableAclService).readAclById(any());
+        doReturn("owner").when(formatter).sidFormatter(anyString());
+        doReturn(permission).when(permissionMapper).getMask(anyString());
+        doReturn(mutableAcl).when(mutableAclService).createAcl(any(ObjectIdentity.class));
+        PowerMockito.doNothing().when(permissionManagerService, privateMethod, anyString(), anyBoolean());
+        permissionManagerService.addPermission(permissionDto, principal, resTempClass);
+    }
+
     @Test(expected = PermissionException.class)
     public void addPermissionForResourceTemplateFail() throws Exception {
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("not owner").when(formatter).sidFormatter(anyString());
         PowerMockito.doNothing().when(permissionManagerService, privateMethod, anyString(), anyBoolean());
+        permissionManagerService.addPermission(permissionDto, principal, resTempClass);
+    }
+
+    @Test(expected = NotUniquePermissionException.class)
+    public void addPermissionForResourceTemplateNotUnique() throws Exception {
+        PowerMockito.doNothing().when(permissionManagerService, privateMethod, anyString(), anyBoolean());
+        doReturn(mutableAcl).when(mutableAclService).readAclById(any());
+        doReturn("owner").when(formatter).sidFormatter(anyString());
+        doReturn(permission).when(permissionMapper).getMask(anyString());
+        doThrow(new DuplicateKeyException("")).when(mutableAclService).updateAcl(Mockito.any(MutableAcl.class));
+        doNothing().when(aclCache).evictFromCache(any(ObjectIdentity.class));
         permissionManagerService.addPermission(permissionDto, principal, resTempClass);
     }
 
@@ -150,8 +172,10 @@ public class PermissionManagerServiceImplTest {
 
     @Test
     public void closePermissionForCertainUserOk() throws Exception {
+        mutableAcl.insertAce(0, permission, sid, true);
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
+        doReturn(permission).when(permissionMapper).getMask(anyString());
         PowerMockito.doNothing().when(permissionManagerService, privateMethod, anyString(), anyBoolean());
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal, clazz);
     }
@@ -178,7 +202,6 @@ public class PermissionManagerServiceImplTest {
         doReturn(mutableAcl).when(mutableAclService).readAclById(any());
         doReturn("owner").when(formatter).sidFormatter(anyString());
         doNothing().when(mutableAclService).deleteAcl(any(ObjectIdentityImpl.class), anyBoolean());
-        //doCallRealMethod().when(permissionManagerService).closeAllPermissions(anyLong(), any(Principal.class), any(Class.class));
         permissionManagerService.closeAllPermissions(1L, principal, clazz);
         verify(permissionManagerService, times(1)).closeAllPermissions(1L, principal, clazz);
     }
@@ -197,5 +220,29 @@ public class PermissionManagerServiceImplTest {
         doReturn("not owner").when(formatter).sidFormatter(anyString());
         doNothing().when(mutableAclService).deleteAcl(any(ObjectIdentityImpl.class), anyBoolean());
         permissionManagerService.closeAllPermissions(1L, principal, clazz);
+    }
+
+    @Test
+    public void verifyPrincipalUserOk() throws Exception {
+        doReturn(Optional.of(new User())).when(userRepository).findUserByEmail(anyString());
+        Whitebox.invokeMethod(permissionManagerService, privateMethod,"name", true);
+    }
+
+    @Test
+    public void verifyPrincipalGroupOk() throws Exception {
+        doReturn(Optional.of(new Group())).when(groupRepository).findByName(anyString());
+        Whitebox.invokeMethod(permissionManagerService, privateMethod,"name", false);
+    }
+
+    @Test(expected = com.softserve.rms.exceptions.NotFoundException.class)
+    public void verifyPrincipalUserNotFound() throws Exception {
+        doReturn(Optional.empty()).when(userRepository).findUserByEmail(anyString());
+        Whitebox.invokeMethod(permissionManagerService, privateMethod,"name", true);
+    }
+
+    @Test(expected = com.softserve.rms.exceptions.NotFoundException.class)
+    public void verifyPrincipalGroupNotFound() throws Exception {
+        doReturn(Optional.empty()).when(groupRepository).findByName(anyString());
+        Whitebox.invokeMethod(permissionManagerService, privateMethod,"name", false);
     }
 }
