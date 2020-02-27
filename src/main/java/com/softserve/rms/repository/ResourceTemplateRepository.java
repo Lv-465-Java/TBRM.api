@@ -79,7 +79,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
+    @PreAuthorize("hasPermission(#name, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByNameIgnoreCase(String name);
 
     /**
@@ -99,9 +99,14 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return created {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#resourceTemplate, write)")
+    @PreAuthorize("hasPermission(#resourceTemplate, 'write')")
     ResourceTemplate save(ResourceTemplate resourceTemplate);
 
     @PreAuthorize("hasRole('MANAGER')")
     ResourceTemplate saveAndFlush(ResourceTemplate resourceTemplate);
+
+    @PreAuthorize("hasRole('MANAGER')")
+    List<ResourceTemplate> findAllByIsPublishedIsTrue();
+
+
 }

@@ -10,7 +10,7 @@ There are several parameter types, which can be added to a Resource Template:
 ### Point
 Field type that holds a single value. A _manager_ may restrict the type of input so that he is able to choose the point type **Integer**, **Double** or **String**.
 ### Range
-The best option for describing a resource _“from-to”_ property. It may be **Integer** or **Double**.
+The best option for describing a resourceRecord _“from-to”_ property. It may be **Integer** or **Double**.
 ### Area
 Field type for entering _coordinates_ of the land. It can be only **Double** type.
 

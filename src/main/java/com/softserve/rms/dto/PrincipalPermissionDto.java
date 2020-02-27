@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class PrincipalPermissionDto {
-
     private String principal;
     private String permission;
 }

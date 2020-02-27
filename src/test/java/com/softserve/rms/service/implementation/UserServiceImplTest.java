@@ -13,11 +13,15 @@ import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
+import com.sun.security.auth.UserPrincipal;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
@@ -26,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.security.Principal;
+import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,25 +42,29 @@ import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
     @Mock
-    private ModelMapper modelMapper;
-    @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private DataSource dataSource;
     @Mock
     private Principal principal;
     @Mock
     private UserServiceImpl userService2;
     @Mock
     private AdminRepository adminRepository;
+    @Mock
+    private JdbcTemplate jdbcTemplate=new JdbcTemplate(new DriverManagerDataSource());
     @InjectMocks
     private UserServiceImpl userService;
 
-    User testUser = new User(1L, "first1", "last1", "email1", "phone1", "password1", true, new Role(1L, "USER"), Collections.emptyList(), Collections.emptyList());
+    private Principal principal2 = new UserPrincipal("test3@gmail.com");
+
+    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"), Collections.emptyList(),null,Collections.emptyList());
 
     private User user =
             User.builder()
@@ -97,11 +106,11 @@ public class UserServiceImplTest {
                     .password("qwertQWE!@1")
                     .build();
     private UserEditDto userEditDto =
-            new UserEditDto("test", "test",
+            new UserEditDto("test","test",
                     "+380111111111");
 
     private PasswordEditDto passwordEditDto =
-            new PasswordEditDto("qwertQWE!@1", "qwertyQQ1!!");
+            new PasswordEditDto("qwertQWE!@1","qwertyQQ1!!");
 
     private PermissionUserDto permissionUserDto =
             new PermissionUserDto("test3@gmail.com", "test3", "test3", new Role(1L, "ROLE_MANAGER"));
@@ -110,7 +119,7 @@ public class UserServiceImplTest {
     public void saveTest() {
         when(userRepository.save(any(User.class))).thenReturn(user);
         userService.save(registrationDto);
-        verify(userRepository, times(1)).save(any());
+        verify(userRepository,times(1)).save(any());
         assertEquals(user, userRepository.save(user));
     }
 
@@ -121,39 +130,39 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void updateTest() {
+    public void updateTest(){
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenReturn(user);
-        userService.update(userEditDto, user.getEmail());
-        verify(userRepository, times(1)).save(any());
+        userService.update(userEditDto,user.getEmail());
+        verify(userRepository,times(1)).save(any());
     }
 
-    @Test(expected = WrongEmailException.class)
-    public void updateWrongEmailTest() {
+    @Test(expected = NotFoundException.class)
+    public void updateWrongEmailTest(){
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
-        userService.update(userEditDto, any());
-        verify(userRepository, times(1)).save(any());
+        userService.update(userEditDto,any());
+        verify(userRepository,times(1)).save(any());
     }
 
     @Test
     public void editPasswordTest() {
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        when(passwordEncoder.matches(any(),any())).thenReturn(true);
         userService.editPassword(passwordEditDto,
                 user.getEmail());
-        when(userRepository.save(any())).thenReturn(user);
-        verify(userRepository, times(1)).save(any());
+        verify(userRepository,times(1)).save(any());
     }
 
-    @Test(expected = WrongEmailException.class)
-    public void editPasswordWrongEmailTest() {
+
+    @Test(expected = NotFoundException.class)
+    public void editPasswordWrongEmailTest(){
+        userService.editPassword(passwordEditDto,any());
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
-        userService.editPassword(passwordEditDto, any());
-        verify(userRepository, times(1)).save(any());
+        verify(userRepository,times(1)).save(any());
     }
 
     @Test
-    public void getUserByEmailTest() {
+    public void getUserByEmailTest(){
 
         when(userRepository.findUserByEmail("email1")).thenReturn(Optional.of(testUser));
 
@@ -194,12 +203,13 @@ public class UserServiceImplTest {
 
     @Test
     public void getUserRoleTestSuccess() {
-        doReturn(thirdUser).when(userService2).getUserByEmail(anyString());
+        lenient().when(userService2.getUserByEmail(anyString())).thenReturn(thirdUser);
+        userService2.getUserRole(principal2);
     }
 
     @Test(expected = NotFoundException.class)
     public void getUserRoleTestFail() {
-        doThrow(new NotFoundException("exception")).when(userService2).getUserByEmail(anyString());
+        doThrow(new NotFoundException("exception")).when(userRepository).findUserByEmail(anyString());
         userService.getUserByEmail(anyString());
     }
 

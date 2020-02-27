@@ -1,17 +1,18 @@
-package com.softserve.rms.dto.group;
+package com.softserve.rms.dto.resourceRecord;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupDto {
+public class ResourceRecordDTO {
     private Long id;
     private String name;
     private String description;
-    private List<MemberDto> users;
+    private Long userId;
+    private Map<String, Object> parameters;
 }

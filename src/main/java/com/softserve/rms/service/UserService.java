@@ -59,6 +59,33 @@ public interface UserService {
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
 
+    /**
+     * Method for deleting users's account
+     *
+     * @param id
+     * @author Mariia Shchur
+     */
+    void deleteAccount(long id);
+
+    /**
+     * Method that send link for password
+     * resetting on entered email address
+     *
+     * @param email a value of {@link Long}
+     * @author Mariia Shchur
+     */
+    void sendLinkForPasswordResetting(String email);
+
+    /**
+     * Method that allow you to reset password.
+     *
+     * @param token
+     * @param password new one
+     * @author Mariia Shchur
+     */
+    void resetPassword(String token, String password);
+
+
     UserDtoRole getUserRole(Principal principal);
 
     List<PermissionUserDto> getUsers();

@@ -1,15 +1,14 @@
 package com.softserve.rms.controller;
 
-import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.entities.User;
+import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,10 @@ import java.util.Map;
 
 @RequestMapping("/resource-template")
 @RestController
-public class ResourceTemplateController {
+public class ResourceTemplateController implements ResourceTemplateControllerApi {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceTemplateController.class);
     private ResourceTemplateService resourceTemplateService;
+    private ResourceParameterService resourceParameterService;
 
     /**
      * Constructor with parameters.
@@ -33,204 +33,191 @@ public class ResourceTemplateController {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public ResourceTemplateController(ResourceTemplateService resourceTemplateService) {
+    public ResourceTemplateController(ResourceTemplateService resourceTemplateService, ResourceParameterService resourceParameterService1) {
         this.resourceTemplateService = resourceTemplateService;
+        this.resourceParameterService = resourceParameterService1;
     }
 
     /**
-     * The controller which saves a new {@link ResourceTemplateSaveDTO}.
+     * {@inheritDoc}
      *
-     * @param templateDTO ResourceTemplateDTO
-     * @return {@link ResourceTemplateSaveDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = HttpStatuses.CREATED),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping
-    public ResponseEntity<ResourceTemplateDTO> save(@RequestBody ResourceTemplateSaveDTO templateDTO) {
+    @Override
+    public ResponseEntity<ResourceTemplateDTO> saveTemplate(ResourceTemplateSaveDTO templateDTO) {
         LOG.info("Creating a new Resource Template");
         return ResponseEntity.status(HttpStatus.CREATED).body(resourceTemplateService.save(templateDTO));
     }
 
     /**
-     * The controller which finds a {@link ResourceTemplateDTO} by provided id.
+     * {@inheritDoc}
      *
-     * @param id ResourceTemplateDTO
-     * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<ResourceTemplateDTO> getById(@PathVariable Long id) {
-        LOG.info("Getting Resource Template by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findDTOById(id));
+    @Override
+    public ResponseEntity<ResourceTemplateDTO> findTemplateById(Long templateId) {
+        LOG.info("Getting Resource Template by ID: " + templateId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findDTOById(templateId));
     }
 
     /**
-     * The controller which finds all {@link ResourceTemplateDTO}.
+     * {@inheritDoc}
      *
-     * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
-    })
-    @GetMapping
-    public ResponseEntity<List<ResourceTemplateDTO>> getAll() {
+    @Override
+    public ResponseEntity<List<ResourceTemplateDTO>> findAllTemplates() {
         LOG.info("Getting all Resource Templates");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
     }
 
     /**
-     * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
+     * {@inheritDoc}
      *
-     * @param id of {@link User}
-     * @return list of {@link ResourceTemplateDTO} with appropriate user id
-     * @author Halyna Yatseniuk
+     * @author Andrii Bren
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @GetMapping("/user/{id}")
-    public ResponseEntity<List<ResourceTemplateDTO>> getAllByUserId(@PathVariable Long id) {
-        LOG.info("Getting all Resource Templates by user ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(id));
+    @Override
+    public ResponseEntity<List<ResourceTemplateDTO>> findAllPublishedTemplates() {
+        LOG.info("Getting all published Resource Templates");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findAllPublishedTemplates());
     }
 
     /**
-     * The controller which updates a {@link ResourceTemplateDTO} by provided id.
+     * {@inheritDoc}
      *
-     * @param id   ResourceTemplateDTO
-     * @param body map containing String key and Object value
-     * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @PatchMapping("/{id}")
-    public ResponseEntity<ResourceTemplateDTO> updateById(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        LOG.info("Updating Resource Template by ID: " + id);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.checkIfTemplateCanBeUpdated(id, body));
+    @Override
+    public ResponseEntity<List<ResourceTemplateDTO>> findAllTemplatesByUserId(Long userId) {
+        LOG.info("Getting all Resource Templates by user ID: " + userId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
     }
 
     /**
-     * The controller which deletes a {@link ResourceTemplateDTO} by provided id.
+     * {@inheritDoc}
      *
-     * @param id ResourceTemplateDTO
-     * @return {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteById(@PathVariable Long id) {
-        LOG.info("Deleting Resource Template by ID: " + id);
-        resourceTemplateService.checkIfTemplateCanBeDeleted(id);
+    @Override
+    public ResponseEntity<ResourceTemplateDTO> updateTemplateById(Long templateId, Map<String, Object> body) {
+        LOG.info("Updating Resource Template by ID: " + templateId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.checkIfTemplateCanBeUpdated(templateId, body));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Halyna Yatseniuk
+     */
+    @Override
+    public ResponseEntity<Object> deleteTemplateById(Long templateId) {
+        LOG.info("Deleting Resource Template by ID: " + templateId);
+        resourceTemplateService.checkIfTemplateCanBeDeleted(templateId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
-     * The controller which searches all {@link ResourceTemplateDTO} by name or description.
+     * {@inheritDoc}
      *
-     * @param searchedWord request parameter to search resource templates
-     * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
-    })
-    @GetMapping("/search")
-    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord) {
+    @Override
+    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(String searchedWord) {
         LOG.info("Search a Resource Template by name or description contains: " + searchedWord);
-        return ResponseEntity.status(HttpStatus.OK).body
-                (resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
     }
 
     /**
-     * The controller which publishes {@link ResourceTemplateDTO} by id.
+     * {@inheritDoc}
      *
-     * @param id of {@link ResourceTemplateDTO}
-     * @return boolean value of {@link ResourceTemplateDTO} isPublished field
      * @author Halyna Yatseniuk
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
-    })
-    @PutMapping("/{id}/publish")
-    public ResponseEntity<Boolean> publishResourceTemplate(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        LOG.info("Publish a Resource Template by ID: " + id);
-        resourceTemplateService.selectPublishOrCancelPublishAction(id, body);
+    @Override
+    public ResponseEntity<Boolean> publishResourceTemplate(Long templateId, Map<String, Object> body) {
+        LOG.info("Publish a Resource Template by ID: " + templateId);
+        resourceTemplateService.selectPublishOrCancelPublishAction(templateId, body);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @GetMapping("/permission/{id}")
-    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id){
+    @Override
+    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id)));
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping("/permission")
-    public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(@RequestBody PermissionDto permissionDto, Principal principal){
+    @Override
+    public ResponseEntity<PermissionDto> addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal) {
         resourceTemplateService.addPermissionToResourceTemplate(permissionDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping("/permission/owner")
-    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(@RequestBody ChangeOwnerDto changeOwnerDto, Principal principal){
+    @Override
+    public ResponseEntity<ChangeOwnerDto> changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) {
         resourceTemplateService.changeOwnerForResourceTemplate(changeOwnerDto, principal);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @DeleteMapping("/permission")
-    public ResponseEntity<Object> deleteAceForCertainUser(@RequestBody PermissionDto permissionDto, Principal principal) {
+    @Override
+    public ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal) {
         resourceTemplateService.closePermissionForCertainUser(permissionDto, principal);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<ResourceParameterDTO> saveParameter(Long templateId, ResourceParameterSaveDTO parameterDTO) {
+        LOG.info("Creating a new Resource Parameter");
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.checkIfParameterCanBeSaved(templateId, parameterDTO));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<List<ResourceParameterDTO>> findParametersByTemplateId(Long templateId) {
+        LOG.info("Getting Resource Parameter by Template ID: " + templateId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<ResourceParameterDTO> findParameterById(Long templateId, Long parameterId) {
+        LOG.info("Getting Resource Parameter by Parameter ID: " + parameterId);
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findByIdDTO(templateId, parameterId));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<ResourceParameterDTO> updateParameterById(Long templateId, Long parameterId, ResourceParameterSaveDTO parameterDTO) {
+        LOG.info("Updating Resource Parameter by Parameter ID: " + parameterId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceParameterService.checkIfParameterCanBeUpdated(templateId, parameterId, parameterDTO));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<Object> deleteParameterById(Long templateId, Long parameterId) {
+        LOG.info("Deleting Resource Parameter by Parameter ID: " + parameterId);
+        resourceParameterService.checkIfParameterCanBeDeleted(templateId, parameterId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

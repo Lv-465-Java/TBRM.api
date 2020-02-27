@@ -12,7 +12,7 @@ import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
-import com.softserve.rms.util.Validator;
+import com.softserve.rms.util.Formatter;
 import org.jooq.DSLContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +20,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,10 +63,12 @@ public class ResourceTemplateServiceTest {
     private SecurityContext securityContext;
     @Mock
     private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
+    @Mock
+    private Formatter formatter;
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
-            "any", false, role, Collections.emptyList(), Collections.emptyList());
+            "any", false, role, Collections.emptyList(), null, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name",
             "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description");
@@ -81,7 +81,7 @@ public class ResourceTemplateServiceTest {
     @Before
     public void initializeMock() {
         resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext, jooqDDL));
+                permissionManagerService, dslContext, jooqDDL, formatter));
         JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
@@ -112,6 +112,13 @@ public class ResourceTemplateServiceTest {
         when(resourceTemplateRepository.findAll()).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
         assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll());
+    }
+
+    @Test
+    public void testFindAllPublished() {
+        when(resourceTemplateRepository.findAllByIsPublishedIsTrue()).thenReturn(Collections.singletonList(resourceTemplate));
+        List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates());
     }
 
     @Test
@@ -289,7 +296,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateSuccess() throws Exception {
         PowerMockito.doReturn(true).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(true).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         PowerMockito.doNothing().when(
@@ -304,7 +311,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateFalse() throws Exception {
         PowerMockito.doReturn(false).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(true).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
@@ -317,7 +324,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUnPublishResourceTemplateFail() throws Exception {
         PowerMockito.doReturn(true).when(resourceTemplateService,
-                "verifyIfResourceTableIsEmpty", Mockito.any(ResourceTemplate.class));
+                "verifyIfResourceTableCanBeDropped", Mockito.any(ResourceTemplate.class));
         PowerMockito.doReturn(false).when(resourceTemplateService,
                 "verifyIfResourceTemplateIsPublished", Mockito.any(ResourceTemplate.class));
         Whitebox.invokeMethod(resourceTemplateService, "unPublishResourceTemplate", resourceTemplate);
@@ -328,18 +335,35 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
-    public void testIfResourceTableIsEmptySuccess() throws Exception {
+    public void testIfResourceTableCanBeDroppedSuccess() throws Exception {
         PowerMockito.doReturn(0).when(jooqDDL,
                 "countTableRecords", Mockito.any(ResourceTemplate.class));
-        Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+        PowerMockito.doReturn(false).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
         assertTrue(result);
     }
 
     @Test(expected = ResourceTemplateCanNotBeUnPublished.class)
-    public void testIfResourceTableIsEmptyFail() throws Exception {
+    public void testIfResourceTableCanNotBeDroppedFail() throws Exception {
         PowerMockito.doReturn(1).when(jooqDDL,
                 "countTableRecords", Mockito.any(ResourceTemplate.class));
-        Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTableIsEmpty", resourceTemplate);
+        PowerMockito.doReturn(false).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
+    }
+
+    @Test(expected = ResourceTemplateCanNotBeUnPublished.class)
+    public void testIfResourceTableCanNotBeDeletedFailed() throws Exception {
+        PowerMockito.doReturn(0).when(jooqDDL,
+                "countTableRecords", Mockito.any(ResourceTemplate.class));
+        PowerMockito.doReturn(true).when(jooqDDL,
+                "countReferencesToTable", Mockito.any(ResourceTemplate.class));
+        Boolean result = Whitebox.invokeMethod(resourceTemplateService,
+                "verifyIfResourceTableCanBeDropped", resourceTemplate);
+        assertTrue(result);
     }
 
     @Test
@@ -424,13 +448,13 @@ public class ResourceTemplateServiceTest {
     @Test(expected = NotFoundException.class)
     public void testFindByName() {
         when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.empty());
-        resourceTemplateService.findByName(resourceTemplate.getName());
+        resourceTemplateService.findByTableName(resourceTemplate.getName());
     }
 
     @Test
     public void testFindByNameEmpty() {
-        when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.of(resourceTemplate));
-        resourceTemplateService.findByName(resourceTemplate.getName());
+        when(resourceTemplateRepository.findByTableName(anyString())).thenReturn(Optional.of(resourceTemplate));
+        resourceTemplateService.findByTableName(resourceTemplate.getTableName());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.softserve.rms.entities;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,11 +9,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Resource {
+@Builder
+public class ResourceRecord {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +24,12 @@ public class Resource {
 
     private String description;
 
-    private ResourceTemplate resourceTemplate;
+//    private ResourceTemplate resourceTemplate;
 
     private User user;
-    private HashMap<String, Object> parameters;
+
+    private Map<String, Object> parameters;
+
 
 //    private List<ResourceParameter> resourceParameters;
 //    private List<Object> parameters;

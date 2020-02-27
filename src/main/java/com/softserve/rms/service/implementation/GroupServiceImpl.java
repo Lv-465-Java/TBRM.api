@@ -2,13 +2,12 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
-import com.softserve.rms.dto.group.GroupDto;
-import com.softserve.rms.dto.group.GroupSaveDto;
-import com.softserve.rms.dto.group.MemberDto;
-import com.softserve.rms.dto.group.MemberOperationDto;
+import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueMemberException;
@@ -21,6 +20,7 @@ import com.softserve.rms.service.GroupService;
 import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +39,7 @@ public class GroupServiceImpl  implements GroupService {
     private GroupMemberRepository groupMemberRepository;
     private PermissionManagerService permissionManagerService;
     private ModelMapper modelMapper;
+    private final String writePermission = "write";
 
     @Autowired
     public GroupServiceImpl(UserRepository userRepository, GroupRepository groupRepository,
@@ -67,6 +68,9 @@ public class GroupServiceImpl  implements GroupService {
     @Transactional
     @Override
     public GroupDto createGroup(GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
+        if(groupSaveDto.getName() == null) {
+            throw new RuntimeException(ErrorMessage.CANNOT_ADD_EMPTY_NAME.getMessage());
+        }
         verifyIfGroupNameIsUnique(groupSaveDto.getName());
         Group newGroup = groupRepository.saveAndFlush(modelMapper.map(groupSaveDto, Group.class));
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
@@ -95,8 +99,9 @@ public class GroupServiceImpl  implements GroupService {
     }
 
     @Override
-    public void addWritePermission(PermissionDto permissionDto, Principal principal) {
-        verifyGroupPermission(permissionDto.getId().toString());
+    public void addWritePermission(GroupPermissionDto groupPermissionDto, Principal principal) {
+        verifyGroupPermission(groupPermissionDto.getId().toString());
+        PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
         permissionManagerService.addPermission(permissionDto, principal, Group.class);
     }
 
@@ -130,7 +135,8 @@ public class GroupServiceImpl  implements GroupService {
         Group group = groupRepository.findByName(groupName).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())
         );
-        verifyGroupPermission(group.getId().toString());
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        permissionManagerService.closeAllPermissions(group.getId(),principal, Group.class);
         groupMemberRepository.deleteByGroupId(group.getId());
         groupRepository.deleteByName(groupName);
     }
@@ -147,6 +153,16 @@ public class GroupServiceImpl  implements GroupService {
         groupMemberRepository.deleteMember(user.getId(), group.getId());
     }
 
+    @Override
+    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id) {
+        return permissionManagerService.findPrincipalWithAccess(id, Group.class);
+    }
+
+    @Override
+    public void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal) {
+        PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
+        permissionManagerService.closePermissionForCertainUser(permissionDto, principal, Group.class);
+    }
 
     /**
      * Method verifies if {@link Group} name is unique.
