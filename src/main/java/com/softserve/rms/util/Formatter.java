@@ -1,8 +1,11 @@
 package com.softserve.rms.util;
 
+import com.softserve.rms.entities.ResourceTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.Permission;
+
+import java.util.List;
 
 /**
  * Class for formatting string
@@ -35,5 +38,21 @@ public class Formatter {
         String result;
         result = name.substring(31).equals("R") ? "READ" : "WRITE";
         return result;
+    }
+
+    /**
+     * Method returns formatted error message string
+     *
+     * @param list of {@link ResourceTemplate}
+     * @return String of error
+     * @author Halyna Yatseniuk
+     */
+    public String errorMessageFormatter(List<ResourceTemplate> list) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ResourceTemplate template : list) {
+            stringBuilder.append(template.getName().concat(", "));
+        }
+        int length = stringBuilder.length();
+        return stringBuilder.delete(length - 2, length).toString();
     }
 }

@@ -7,6 +7,7 @@ import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -16,6 +17,7 @@ import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.util.Formatter;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
@@ -46,6 +48,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private ModelMapper modelMapper = new ModelMapper();
     private DSLContext dslContext;
     private JooqDDL jooqDDL;
+    private Formatter formatter;
 
     private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
@@ -57,12 +60,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserServiceImpl userService, PermissionManagerService permissionManagerService,
-                                       DSLContext dslContext, JooqDDL jooqDDL) {
+                                       DSLContext dslContext, JooqDDL jooqDDL, Formatter formatter) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userService = userService;
         this.permissionManagerService = permissionManagerService;
         this.dslContext = dslContext;
         this.jooqDDL = jooqDDL;
+        this.formatter = formatter;
     }
 
     /**
@@ -246,6 +250,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + name));
     }
 
+    @Override
+    public List<ResourceTemplateDTO> findAllPublished() {
+        return null;
+    }
+
     /**
      * Method makes {@link ResourceTemplate} be published.
      *
@@ -410,7 +419,30 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (resourceTemplate.getResourceParameters().isEmpty()) {
             throw new ResourceTemplateParameterListIsEmpty
                     (ErrorMessage.RESOURCE_TEMPLATE_DO_NOT_HAVE_ANY_PARAMETERS.getMessage());
+        } else {
+            verifyIfReferencedTemplateIsPublished(resourceTemplate);
         }
         return true;
+    }
+
+    /**
+     * Method verifies if any parameter of {@link ResourceTemplate} references to unpublished template.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @throws ResourceTemplateIsNotPublishedException if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
+    private void verifyIfReferencedTemplateIsPublished(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateIsNotPublishedException {
+        List<ResourceTemplate> list = resourceTemplate.getResourceParameters().stream()
+                .filter(parameter -> parameter.getParameterType().equals(ParameterType.POINT_REFERENCE))
+                .filter(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate().getIsPublished().equals(false))
+                .map(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate())
+                .collect(Collectors.toList());
+        if (!list.isEmpty()) {
+            throw new ResourceTemplateIsNotPublishedException(
+                    ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_PUBLISHED.getMessage()
+                            + formatter.errorMessageFormatter(list));
+        }
     }
 }

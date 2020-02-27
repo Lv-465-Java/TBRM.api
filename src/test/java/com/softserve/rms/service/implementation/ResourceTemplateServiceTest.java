@@ -12,6 +12,7 @@ import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
+import com.softserve.rms.util.Formatter;
 import org.jooq.DSLContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,10 +63,12 @@ public class ResourceTemplateServiceTest {
     private SecurityContext securityContext;
     @Mock
     private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
+    @Mock
+    private Formatter formatter;
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
-            "any", false, role, Collections.emptyList(), null,Collections.emptyList());
+            "any", false, role, Collections.emptyList(), null, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name",
             "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description");
@@ -78,7 +81,7 @@ public class ResourceTemplateServiceTest {
     @Before
     public void initializeMock() {
         resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext, jooqDDL));
+                permissionManagerService, dslContext, jooqDDL, formatter));
         JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
@@ -324,8 +327,6 @@ public class ResourceTemplateServiceTest {
                 invoke("dropResourceContainerTable", Mockito.any(ResourceTemplate.class));
     }
 
-
-    // here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @Test
     public void testIfResourceTableCanBeDroppedSuccess() throws Exception {
         PowerMockito.doReturn(0).when(jooqDDL,

@@ -48,7 +48,8 @@ public class ResourceParameterController {
     @PostMapping
     public ResponseEntity<ResourceParameterDTO> save(@PathVariable Long templateId,
                                                      @RequestBody ResourceParameterSaveDTO parameterDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(templateId, parameterDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(resourceParameterService.checkIfParameterCanBeSaved(templateId, parameterDTO));
     }
 
     /**
