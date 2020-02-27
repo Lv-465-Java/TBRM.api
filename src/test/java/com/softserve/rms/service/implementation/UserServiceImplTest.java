@@ -1,13 +1,20 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.PermissionUserDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.WrongEmailException;
+import com.softserve.rms.exceptions.user.WrongPasswordException;
+import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
+import com.sun.security.auth.UserPrincipal;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,16 +22,23 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
+import java.security.Principal;
 import javax.sql.DataSource;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 
@@ -38,9 +52,17 @@ public class UserServiceImplTest {
     @Mock
     private DataSource dataSource;
     @Mock
+    private Principal principal;
+    @Mock
+    private UserServiceImpl userService2;
+    @Mock
+    private AdminRepository adminRepository;
+    @Mock
     private JdbcTemplate jdbcTemplate=new JdbcTemplate(new DriverManagerDataSource());
     @InjectMocks
     private UserServiceImpl userService;
+
+    private Principal principal2 = new UserPrincipal("test3@gmail.com");
 
     User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
 
@@ -64,6 +86,17 @@ public class UserServiceImplTest {
                     .password("qwertQWE!@2")
                     .build();
 
+    private User thirdUser =
+            User.builder()
+                    .id(1L)
+                    .firstName("test3")
+                    .lastName("test3")
+                    .email("test3@gmail.com")
+                    .phone("+380333333333")
+                    .password("mwertQWE!@2")
+                    .role(new Role(1L, "ROLE_MANAGER"))
+                    .build();
+
     private RegistrationDto registrationDto =
             RegistrationDto.builder()
                     .firstName("test")
@@ -78,6 +111,9 @@ public class UserServiceImplTest {
 
     private PasswordEditDto passwordEditDto =
             new PasswordEditDto("qwertQWE!@1","qwertyQQ1!!");
+
+    private PermissionUserDto permissionUserDto =
+            new PermissionUserDto("test3@gmail.com", "test3", "test3", new Role(1L, "ROLE_MANAGER"));
 
     @Test
     public void saveTest() {
@@ -163,6 +199,25 @@ public class UserServiceImplTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         userService.getById(anyLong());
+    }
+
+    @Test
+    public void getUserRoleTestSuccess() {
+        lenient().when(userService2.getUserByEmail(anyString())).thenReturn(thirdUser);
+        userService2.getUserRole(principal2);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void getUserRoleTestFail() {
+        doThrow(new NotFoundException("exception")).when(userRepository).findUserByEmail(anyString());
+        userService.getUserByEmail(anyString());
+    }
+
+    @Test
+    public void getUsersTestSuccess() {
+        Mockito.when(adminRepository.getAllByEnabled(true)).thenReturn(Collections.singletonList(thirdUser));
+        List<PermissionUserDto> resourceTemplateDTOs = Collections.singletonList(permissionUserDto);
+        Assert.assertEquals(resourceTemplateDTOs, userService.getUsers());
     }
 
 }

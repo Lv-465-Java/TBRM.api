@@ -4,8 +4,10 @@ package com.softserve.rms.controller;
 import com.softserve.rms.Validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.PermissionUserDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.security.TokenManagementService;
@@ -23,6 +25,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 
 
 @RestController
@@ -122,6 +126,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/user/role")
+    public ResponseEntity<UserDtoRole> getUserRole(Principal principal){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserRole(principal));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/user")
+    public ResponseEntity<List<PermissionUserDto>> getUsers(){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers());
+    }
+
     /**
      * Set password and phone of user for full oauth authentication
      *
@@ -129,6 +156,7 @@ public class UserController {
      * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
      * @param response {@link HttpServletResponse}
      * @return httpStatus {@link HttpStatus}
+     * @author Kravets Maryana
      *
      */
     @ApiResponses(value = {
