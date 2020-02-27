@@ -13,7 +13,7 @@ public class ResourceRecordDTO {
     private Long id;
     private String name;
     private String description;
-    private Long resourceTemplateId;
+//    private Long resourceTemplateId;
     private Long userId;
     private Map<String, Object> parameters;
 }

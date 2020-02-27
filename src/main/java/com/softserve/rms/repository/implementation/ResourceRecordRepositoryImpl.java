@@ -1,6 +1,7 @@
 package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -48,10 +49,9 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public void save(String tableName, ResourceRecord resourceRecord) {
         InsertQuery<Record> query = dslContext.insertQuery(table(tableName));
-        query.addValue(field("name"), resourceRecord.getName());
-        query.addValue(field("description"), resourceRecord.getDescription());
-        query.addValue(field("resource_template_id"), resourceRecord.getResourceTemplate().getId());
-        query.addValue(field("user_id"), resourceRecord.getUser().getId());
+        query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
+        query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
+        query.addValue(field(FieldConstants.USER_ID.getValue()), resourceRecord.getUser().getId());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -68,13 +68,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public void update(String tableName, Long id, ResourceRecord resourceRecord) {
         UpdateQuery<Record> query = dslContext.updateQuery(table(tableName));
-        query.addValue(field("name"), resourceRecord.getName());
-        query.addValue(field("description"), resourceRecord.getDescription());
+        query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
+        query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
         }
-        query.addConditions(field("id").eq(id));
+        query.addConditions(field(FieldConstants.ID.getValue()).eq(id));
         query.execute();
     }
 
@@ -99,7 +99,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public Optional<ResourceRecord> findById(String tableName, Long id)
             throws NotFoundException {
-        Record record = dslContext.selectFrom(tableName).where(field("id").eq(id)).fetchOne();
+        Record record = dslContext.selectFrom(tableName).where(field(FieldConstants.ID.getValue()).eq(id)).fetchOne();
         if (record == null) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_BY_ID.getMessage() + id);
         }
@@ -115,7 +115,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
         int deleted = dslContext.delete(table(tableName))
-                .where(field("id").eq(id))
+                .where(field(FieldConstants.ID.getValue()).eq(id))
                 .execute();
         if (deleted == 0) {
             throw new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage() + id);
@@ -146,13 +146,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @author Andrii Bren
      */
     private ResourceRecord convertRecordToResource(Record record) {
-        Long templateId = (Long) record.getValue(field("resource_template_id").getName());
-        Long userId = (Long) record.getValue(field("user_id").getName());
+        Long userId = (Long) record.getValue(field(FieldConstants.USER_ID.getValue()).getName());
         return ResourceRecord.builder()
-                .id((Long) record.getValue(field("id").getName()))
-                .name((String) record.getValue(field("name").getName()))
-                .description((String) record.getValue(field("description").getName()))
-                .resourceTemplate(resourceTemplateService.findEntityById(templateId))
+                .id((Long) record.getValue(field(FieldConstants.ID.getValue()).getName()))
+                .name((String) record.getValue(field(FieldConstants.NAME.getValue()).getName()))
+                .description((String) record.getValue(field(FieldConstants.DESCRIPTION.getValue()).getName()))
                 .user(userService.getById(userId))
                 .parameters(getParameters(record))
                 .build();
@@ -167,9 +165,13 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      */
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
-        for (int i = 5; i < record.size(); i++) {
+        for (int i = 0; i < record.size(); i++) {
             parameters.put(record.field(i).getName(), record.getValue(i));
         }
+        parameters.remove(FieldConstants.ID.getValue());
+        parameters.remove(FieldConstants.NAME.getValue());
+        parameters.remove(FieldConstants.DESCRIPTION.getValue());
+        parameters.remove(FieldConstants.USER_ID.getValue());
         return parameters;
     }
 }

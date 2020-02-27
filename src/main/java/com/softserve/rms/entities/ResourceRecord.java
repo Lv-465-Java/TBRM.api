@@ -24,7 +24,7 @@ public class ResourceRecord {
 
     private String description;
 
-    private ResourceTemplate resourceTemplate;
+//    private ResourceTemplate resourceTemplate;
 
     private User user;
 

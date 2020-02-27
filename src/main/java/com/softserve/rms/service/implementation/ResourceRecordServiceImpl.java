@@ -49,11 +49,11 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public void save(String tableName, ResourceRecordSaveDTO resourceDTO) throws NotFoundException {
-        ResourceTemplate resourceTemplate = checkIfResourceTemplateIsPublished(tableName);
+        checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
-        resourceRecord.setResourceTemplate(resourceTemplate);
+//        resourceRecord.setResourceTemplate(resourceTemplate);
         User user = userService.getById(resourceDTO.getUserId());
         resourceRecord.setUser(user);
         resourceRecord.setParameters(resourceDTO.getParameters());
@@ -129,12 +129,12 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         resourceRecordRepository.delete(tableName, id);
     }
 
-    private ResourceTemplate checkIfResourceTemplateIsPublished(String tableName) {
+    private void checkIfResourceTemplateIsPublished(String tableName) {
         ResourceTemplate resourceTemplate = resourceTemplateService.findByName(tableName);
         if (!resourceTemplate.getIsPublished()) {
             throw new ResourceTemplateIsNotPublishedException(
                     ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage() + tableName);
         }
-        return resourceTemplate;
+//        return resourceTemplate;
     }
 }
