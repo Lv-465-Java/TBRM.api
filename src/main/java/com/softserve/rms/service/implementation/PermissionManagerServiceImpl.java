@@ -5,6 +5,7 @@ import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotUniquePermissionException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
@@ -12,6 +13,7 @@ import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -34,6 +36,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
     private final Formatter formatter;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final AclCache aclCache;
 
     /**
      * Constructor with parameters.
@@ -45,12 +48,14 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
      * @author Artur Sydor
      */
     @Autowired
-    public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper, Formatter formatter, UserRepository userRepository, GroupRepository groupRepository) {
+    public PermissionManagerServiceImpl(MutableAclService mutableAclService, PermissionMapper permissionMapper, Formatter formatter,
+                                        UserRepository userRepository, GroupRepository groupRepository, AclCache aclCache) {
         this.mutableAclService = mutableAclService;
         this.permissionMapper = permissionMapper;
         this.formatter = formatter;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.aclCache = aclCache;
     }
 
     /**
@@ -109,7 +114,13 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             acl.setOwner(sid);
         }
         acl.insertAce(acl.getEntries().size(), permission, sid, true);
-        mutableAclService.updateAcl(acl);
+        try {
+            mutableAclService.updateAcl(acl);
+        } catch (DuplicateKeyException e) {
+            acl.deleteAce(acl.getEntries().size() - 1);
+            aclCache.evictFromCache(oid);
+            throw new NotUniquePermissionException(ErrorMessage.NOT_UNIQUE_PERMISSION.getMessage());
+        }
     }
 
     /**
@@ -158,7 +169,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         verifyPrincipal(permissionDto.getRecipient(), permissionDto.isPrincipal());
         Sid sid = permissionDto.isPrincipal()
                 ? new PrincipalSid(permissionDto.getRecipient()) : new GrantedAuthoritySid(permissionDto.getRecipient());
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(ResourceTemplate.class, permissionDto.getId());
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, permissionDto.getId());
         int acePosition = 0;
         try {
             acl = (MutableAcl) mutableAclService.readAclById(objectIdentity);
