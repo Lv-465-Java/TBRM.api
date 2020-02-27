@@ -194,7 +194,7 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/permission")
-    ResponseEntity<Object> deleteAceForCertainUser(PermissionDto permissionDto, Principal principal);
+    ResponseEntity<Object> deleteAceForCertainUser(@RequestBody PermissionDto permissionDto, Principal principal);
 
     /**
      * Controller which saves {@link ResourceParameter}.
