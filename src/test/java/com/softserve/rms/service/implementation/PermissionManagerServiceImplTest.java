@@ -12,7 +12,7 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.security.mappers.PermissionMapper;
 import com.softserve.rms.util.Formatter;
 import com.sun.security.auth.UserPrincipal;
-import jdk.jfr.internal.test.WhiteBox;
+//import jdk.jfr.internal.test.WhiteBox;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

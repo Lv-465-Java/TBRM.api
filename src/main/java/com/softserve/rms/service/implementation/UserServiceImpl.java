@@ -1,18 +1,21 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.dto.UserDtoRole;
+import com.softserve.rms.dto.security.ChangeOwnerDto;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.user.*;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidTokenException;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
+import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -24,6 +27,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 import javax.sql.DataSource;
@@ -38,6 +46,7 @@ import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
 @EnableAutoConfiguration
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
+    private AdminRepository adminRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
     public final JavaMailSender javaMailSender;
@@ -50,10 +59,12 @@ public class UserServiceImpl implements UserService {
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
+                           AdminRepository adminRepository,
                            PasswordEncoder passwordEncoder,
                            JavaMailSender javaMailSender,
                            DataSource dataSource) {
         this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
         this.javaMailSender = javaMailSender;
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -70,6 +81,7 @@ public class UserServiceImpl implements UserService {
         Role role = new Role(5L, "ROLE_GUEST");
         User user = modelMapper.map(registrationDto, User.class);
         user.setRole(role);
+        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (userRepository.save(user) == null) {
             throw new NotSavedException(ErrorMessage.USER_NOT_SAVED.getMessage());
@@ -105,7 +117,6 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userEditDto.getPhone());
         userRepository.save(user);
     }
-
 
     /**
      * {@inheritDoc}
@@ -225,4 +236,31 @@ public class UserServiceImpl implements UserService {
         }
         return q;
     }
+    /**
+     * Method returns user's role
+     *
+     * @param principal authenticated user
+     * @author Marian Dutchyn
+     */
+    @Override
+    public UserDtoRole getUserRole(Principal principal){
+        User user = getUserByEmail(principal.getName());
+        UserDtoRole userRoleDto = new UserDtoRole();
+        userRoleDto.setRole(user.getRole());
+        return userRoleDto;
+    }
+    /**
+     * Method returns active users
+     *
+     * @author Marian Dutchyn
+     */
+    @Override
+    public List<PermissionUserDto> getUsers() {
+        List<User> users = adminRepository.getAllByEnabled(true);
+        return users.stream()
+                .map(user -> modelMapper.map(user, PermissionUserDto.class))
+                .collect(Collectors.toList());
+    }
+
+
 }

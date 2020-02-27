@@ -12,6 +12,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
@@ -329,16 +330,38 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
 
+    /**
+     * Method returns list of principal with permissions to object
+     *
+     * @param id of {@link ResourceTemplate}
+     * @return List of principal with access to object
+     * @author Marian Dutchyn
+     */
     @Override
     public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
         return permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
     }
 
+    /**
+     * Method add/update permission on @{@link ResourceTemplate}
+     *
+     * @param permissionDto {@link PermissionDto}
+     * @param principal     authenticated user
+     * @author Marian Dutchyn
+     */
     @Override
     public void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal) {
         permissionManagerService.addPermission(permissionDto, principal, ResourceTemplate.class);
     }
 
+    /**
+     * Method changes owner for {@link ResourceTemplate}
+     *
+     * @param changeOwnerDto {@link ChangeOwnerDto}
+     * @param principal      authenticated user
+     * @throws PermissionException
+     * @author Marian Dutchyn
+     */
     @Override
     public void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, ResourceTemplate.class);
