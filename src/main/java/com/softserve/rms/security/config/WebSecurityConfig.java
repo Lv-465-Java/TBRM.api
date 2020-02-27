@@ -5,7 +5,6 @@ import com.softserve.rms.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -18,15 +17,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
+
+import java.util.Locale;
 
 /**
  * Config for security
+ *
  * @author Kravets Maryana
  */
 @Configuration
@@ -37,13 +37,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * constructor
+     *
      * @param tokenManagementService {@link TokenManagementService}
      */
     @Autowired
-    public WebSecurityConfig(TokenManagementService tokenManagementService){
-        this.tokenManagementService=tokenManagementService;
+    public WebSecurityConfig(TokenManagementService tokenManagementService) {
+        this.tokenManagementService = tokenManagementService;
     }
-
 
 
     private static final String[] AUTH_WHITELIST = {
@@ -66,6 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * method configure patterns to define protected/unprotected API endpoints
+     *
      * @param http {@link HttpSecurity}
      * @throws Exception
      */
@@ -77,8 +78,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(
-                (req,resp,e)->resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                 )
+                        (req, resp, e) -> resp.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                )
                 .and()
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -92,7 +93,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -102,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * @param web
      */
     @Override
-    public void configure(WebSecurity web)  {
+    public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources/**",
@@ -112,7 +113,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(){
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        return localeResolver;
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*");
         configuration.addAllowedOrigin("*");

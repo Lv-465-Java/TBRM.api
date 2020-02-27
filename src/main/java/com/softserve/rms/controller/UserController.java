@@ -102,11 +102,23 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
     @GetMapping("/user/role")
     public ResponseEntity<UserDtoRole> getUserRole(Principal principal){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserRole(principal));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
     @GetMapping("/user")
     public ResponseEntity<List<PermissionUserDto>> getUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers());
