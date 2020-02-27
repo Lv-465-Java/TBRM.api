@@ -85,7 +85,7 @@ public class TokenManagementServiceTest {
     @Test
     public void getAccessTokenFromHttpServletRequest() {
         final String expectedToken = "An AccessToken";
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + expectedToken);
+        when(request.getHeader("authorization")).thenReturn("Bearer " + expectedToken);
         String actualToken = tokenManagementService.resolveAccessToken(request);
         assertEquals(expectedToken, actualToken);
     }
@@ -93,7 +93,7 @@ public class TokenManagementServiceTest {
     @Test
     public void getRefreshTokenFromHttpServletRequest() {
         final String expectedToken = "An RefreshToken";
-        when(request.getHeader("RefreshToken")).thenReturn(expectedToken);
+        when(request.getHeader("refreshToken")).thenReturn(expectedToken);
         String actualToken = tokenManagementService.resolveRefreshToken(request);
         assertEquals(expectedToken, actualToken);
     }
