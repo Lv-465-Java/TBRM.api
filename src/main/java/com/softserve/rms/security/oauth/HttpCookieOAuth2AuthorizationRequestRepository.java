@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * The following class provides functionality for storing the authorization request
  * in cookies and retrieving it.
+ *
  * @author Kravets Maryana
  */
 @Component
@@ -24,6 +25,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
 
     /**
      * method load authorization request
+     *
      * @param request {@link HttpServletRequest}
      * @return OAuth2AuthorizationRequest
      */
@@ -36,9 +38,10 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
 
     /**
      * method save authorization request in cookie
+     *
      * @param authorizationRequest {@link AuthorizationRequest}
-     * @param request {@link HttpServletRequest}
-     * @param response {@link HttpServletResponse}
+     * @param request              {@link HttpServletRequest}
+     * @param response             {@link HttpServletResponse}
      */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
@@ -57,6 +60,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
 
     /**
      * method remove authorization request
+     *
      * @param request {@link HttpServletRequest}
      * @return OAuth2AuthorizationRequest
      */

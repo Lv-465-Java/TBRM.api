@@ -43,7 +43,7 @@ public class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"), Collections.emptyList());
+    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),Collections.emptyList());
 
     private User user =
             User.builder()

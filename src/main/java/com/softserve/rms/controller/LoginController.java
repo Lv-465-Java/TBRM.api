@@ -5,7 +5,6 @@ import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.security.AuthenticationService;
 import com.softserve.rms.security.TokenManagementService;
-import com.softserve.rms.service.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -65,7 +63,7 @@ public class LoginController {
     }
 
     /**
-     * Method for user authentication.
+     * Method for refresh access and refresh token.
      *
      * @return {@link ResponseEntity}
      */
@@ -81,26 +79,5 @@ public class LoginController {
         response.setHeader(REFRESH_HEADER, newToken.getRefreshToken());
 
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping("/oauth2/fullRegister")
-    public ResponseEntity<Object> fullAuthenticate(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @GetMapping("/oauth2/fullRegister")
-    public String getFullAuthenticate(@RequestHeader(name = "refreshToken")  String refresh, HttpServletResponse response) {
-
-
-        return "http://localhost:3000/oauth2/fullRegister";
     }
 }

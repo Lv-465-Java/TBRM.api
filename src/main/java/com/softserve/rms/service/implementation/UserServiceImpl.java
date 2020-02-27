@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
@@ -129,4 +130,18 @@ public class UserServiceImpl implements UserService, Message {
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
     }
 
+    /**
+     * Method for set password and phone of user
+     *
+     * @param email {@link String}
+     * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
+     * @author Kravets Maryana
+     */
+    @Override
+    public void setPasswordAndPhone(String email, UserPasswordPhoneDto userPasswordPhoneDto) {
+        User user = getUserByEmail(email);
+        user.setPassword(passwordEncoder.encode(userPasswordPhoneDto.getPassword()));
+        user.setPhone(userPasswordPhoneDto.getPhone());
+        userRepository.save(user);
+    }
 }

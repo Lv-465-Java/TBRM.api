@@ -4,9 +4,10 @@ import java.util.Map;
 
 /**
  * The following classes are used to get the user details from Google provider
+ *
  * @author Maryana Kravets
  */
-public class GoogleOAuth2UserInfo extends OAuth2UserInfo{
+public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
 
     public GoogleOAuth2UserInfo(Map<String, Object> attributes) {
         super(attributes);

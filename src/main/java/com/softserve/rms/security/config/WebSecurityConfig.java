@@ -22,8 +22,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Config for security
  *
@@ -69,8 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_WHITELIST = {
             "/registration",
             "/authentication",
-            "/refresh",
-            "http://localhost:3000/oauth2/fullRegister"
+            "/refresh"
     };
 
     /**
@@ -169,7 +166,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*");
         configuration.addAllowedOrigin("*");
-        configuration.addAllowedOrigin("http://localhost:3000/oauth2/fullRegister");
         configuration.setAllowCredentials(true);
         configuration.addAllowedMethod("*");
         configuration.addExposedHeader("authorization");

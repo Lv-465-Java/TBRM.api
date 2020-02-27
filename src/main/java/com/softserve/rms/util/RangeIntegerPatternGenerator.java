@@ -51,7 +51,7 @@ public class RangeIntegerPatternGenerator {
         int start = Integer.parseInt(beginStr);
         int end = Integer.parseInt(endStr);
         List<Integer> pairs = getRegexPairs(start, end);
-        return toRegex(pairs);
+        return integersToRegex(pairs);
     }
 
     /**
@@ -109,7 +109,7 @@ public class RangeIntegerPatternGenerator {
      * @return list of regular expressions
      * @author Andrii Bren
      */
-    private List<String> toRegex(List<Integer> pairs) {
+    private List<String> integersToRegex(List<Integer> pairs) {
         List<String> list = new ArrayList<>();
         for (Iterator<Integer> iterator = pairs.iterator(); iterator.hasNext(); ) {
             String start = String.format("%d", iterator.next());

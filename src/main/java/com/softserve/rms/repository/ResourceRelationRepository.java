@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ResourceRelationRepository extends JpaRepository<ResourceRelation, Long> {
+    ResourceRelation findByResourceParameterId(Long id);
 }

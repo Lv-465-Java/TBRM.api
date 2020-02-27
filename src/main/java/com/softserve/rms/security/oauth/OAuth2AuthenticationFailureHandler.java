@@ -17,6 +17,7 @@ import static com.softserve.rms.security.oauth.HttpCookieOAuth2AuthorizationRequ
 
 /**
  * In case of any error during OAuth2 authentication
+ *
  * @author Kravets Maryana
  */
 @Component
@@ -26,17 +27,19 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
     /**
      * constructor
+     *
      * @param httpCookieOAuth2AuthorizationRequestRepository {@link HttpCookieOAuth2AuthorizationRequestRepository}
      */
     @Autowired
-    OAuth2AuthenticationFailureHandler(HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository){
-        this.httpCookieOAuth2AuthorizationRequestRepository=httpCookieOAuth2AuthorizationRequestRepository;
+    OAuth2AuthenticationFailureHandler(HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
+        this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
     }
 
     /**
      * This method invokes when we have any error during OAuth2 authentication
-     * @param request {@link HttpServletRequest}
-     * @param response {@link HttpServletResponse}
+     *
+     * @param request   {@link HttpServletRequest}
+     * @param response  {@link HttpServletResponse}
      * @param exception {@link AuthenticationException}
      * @throws IOException
      * @throws ServletException

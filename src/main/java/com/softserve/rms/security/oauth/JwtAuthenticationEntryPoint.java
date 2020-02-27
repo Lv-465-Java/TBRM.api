@@ -22,8 +22,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
 
     /**
      * This method is invoked when a user tries to access a protected resource without authentication,return a 401 Unauthorized response
-     * @param request {@link HttpServletRequest}
-     * @param response {@link HttpServletResponse}
+     *
+     * @param request       {@link HttpServletRequest}
+     * @param response      {@link HttpServletResponse}
      * @param authException {@link AuthenticationException}
      * @throws IOException
      */

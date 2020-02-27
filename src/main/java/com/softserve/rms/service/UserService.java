@@ -1,5 +1,6 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
@@ -57,4 +58,13 @@ public interface UserService {
      * @author Mariia Shchur
      */
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
+
+    /**
+     * Method for set password and phone of user
+     *
+     * @param email {@link String}
+     * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
+     * @author Kravets Maryana
+     */
+    void setPasswordAndPhone(String email, UserPasswordPhoneDto userPasswordPhoneDto);
 }

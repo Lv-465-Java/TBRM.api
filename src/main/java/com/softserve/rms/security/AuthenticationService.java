@@ -15,44 +15,47 @@ import org.springframework.stereotype.Component;
 
 /**
  * Class that provides authentication logic.
+ *
  * @author Kravets Maryana
  */
 @Component
 public class AuthenticationService implements Message {
 
-    private static final Logger LOGGER= LoggerFactory.getLogger(AuthenticationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
     private TokenManagementService tokenManagementService;
     private UserServiceImpl userService;
     private WebSecurityConfig webSecurityConfig;
 
     /**
      * constructor
+     *
      * @param tokenManagementService {@link TokenManagementService}
-     * @param userService {@link UserServiceImpl}
+     * @param userService            {@link UserServiceImpl}
      */
     @Autowired
     public AuthenticationService(TokenManagementService tokenManagementService,
                                  UserServiceImpl userService,
-                                 WebSecurityConfig webSecurityConfig){
-        this.tokenManagementService=tokenManagementService;
-        this.userService=userService;
-        this.webSecurityConfig=webSecurityConfig;
+                                 WebSecurityConfig webSecurityConfig) {
+        this.tokenManagementService = tokenManagementService;
+        this.userService = userService;
+        this.webSecurityConfig = webSecurityConfig;
     }
 
     /**
      * authentication user. Method verify user credential. If user is in DB than generating access and refresh token, if no thrown
      * BadCredentialException exception
+     *
      * @param loginUser {@link LoginUser}
      * @return JwtDto
      * @throws BadCredentialException
      */
-    public JwtDto loginUser(LoginUser loginUser){
+    public JwtDto loginUser(LoginUser loginUser) {
         LOGGER.info("user login info - {}", loginUser);
 
-        User user =userService.getUserByEmail(loginUser.getEmail());
+        User user = userService.getUserByEmail(loginUser.getEmail());
 
-        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())){
-            if (!user.isEnabled()){
+        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())) {
+            if (!user.isEnabled()) {
                 throw new DisabledException(NON_ACTIVE_ACCOUNT_EXCEPTION);
             }
             return tokenManagementService.generateTokenPair(loginUser.getEmail());

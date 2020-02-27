@@ -24,15 +24,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- *  This class retrieves the details of the authenticated user
+ * This class retrieves the details of the authenticated user
+ *
  * @author Kravets Maryana
  */
 @Service
@@ -44,18 +43,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Value("${fullRegistrationRedirectUri}")
     private String fullRegistrationRedirectUri;
 
+    public Boolean isNewUser=false;
+
     /**
      * constructor
+     *
      * @param userRepository {@link UserRepository}
      */
     @Autowired
     public CustomOAuth2UserService(UserRepository userRepository) {
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
     }
 
 
     /**
      * This method is called after an access token is obtained from the OAuth2 provider.
+     *
      * @param oAuth2UserRequest {@link OAuth2UserRequest}
      * @return oAuth2User {@link OAuth2User}
      * @throws OAuth2AuthenticationException
@@ -75,28 +78,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     /**
      * This method process oAuth2User. If a user with the same email already exists in database then we update his details, otherwise, we register a new user.
+     *
      * @param oAuth2UserRequest {@link OAuth2UserRequest}
-     * @param oAuth2User {@link OAuth2User}
+     * @param oAuth2User        {@link OAuth2User}
      * @return oAuthUser {@link OAuth2User}
      */
     private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration().getRegistrationId(), oAuth2User.getAttributes());
-        if(StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
+        if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
 
         Optional<User> userOptional = userRepository.findUserByEmail(oAuth2UserInfo.getEmail());
         User user;
-        if(userOptional.isPresent()) {
+        if (userOptional.isPresent()) {
             user = userOptional.get();
-            if(!user.getProvider().equals(oAuth2UserRequest.getClientRegistration().getRegistrationId())) {
+            if (!user.getProvider().equals(oAuth2UserRequest.getClientRegistration().getRegistrationId())) {
                 throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
                         user.getProvider() + " account.");
             }
             user = updateExistingUser(user, oAuth2UserInfo);
+            isNewUser=false;
         } else {
-            LOGGER.info("we want register user");
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
+            isNewUser=true;
         }
 
         return UserPrincipal.create(user, oAuth2User.getAttributes());
@@ -104,8 +109,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     /**
      * Method for register new user
+     *
      * @param oAuth2UserRequest {@link OAuth2UserRequest}
-     * @param oAuth2UserInfo {@link OAuth2UserInfo}
+     * @param oAuth2UserInfo    {@link OAuth2UserInfo}
      * @return user {@link User}
      */
     private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
@@ -119,15 +125,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setRole(new Role(5L, "ROLE_GUEST"));
         user.setEnabled(true);
         LOGGER.info("user registered");
-        userRepository.save(user);
-        Map<String, Object> attributes = new HashMap<>(oAuth2UserInfo.getAttributes());
-        populatePasswordAndPhone(oAuth2UserRequest,attributes);
-        return user;
+       return userRepository.save(user);
     }
 
     /**
      * Method for update existing user
-     * @param existingUser {@link User}
+     *
+     * @param existingUser   {@link User}
      * @param oAuth2UserInfo {@link OAuth2UserInfo}
      * @return user {@link User}
      */
@@ -135,18 +139,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         existingUser.setFirstName(oAuth2UserInfo.getName());
         existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
         return userRepository.save(existingUser);
-    }
-
-    public void populatePasswordAndPhone(OAuth2UserRequest oAuth2UserRequest, Map<String, Object> attributes) throws OAuth2AuthenticationException {
-
-        LOGGER.info("we at populate method");
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + oAuth2UserRequest.getAccessToken().getTokenValue());
-        HttpEntity<?> entity = new HttpEntity<>("", headers);
-        ResponseEntity<Map> response = restTemplate.exchange(fullRegistrationRedirectUri, HttpMethod.GET, entity, Map.class);
-        Map map=response.getBody();
-        attributes.putAll(map);
     }
 }
 

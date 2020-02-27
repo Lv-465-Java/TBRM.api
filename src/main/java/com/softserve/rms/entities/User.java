@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,8 +13,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"resourceTemplates"})
-@ToString(exclude = {"resourceTemplates"})
+@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
+@ToString(exclude = {"resourceTemplates", "groups"})
 public class User {
 
     @Id
@@ -23,10 +24,10 @@ public class User {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column( nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false,unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -51,6 +52,13 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "groups_members",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
+    )
+    private List<Group> groups=new ArrayList<>();
     public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
         this.firstName=firstName;
         this.email=email;

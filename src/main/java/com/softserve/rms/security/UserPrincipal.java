@@ -1,7 +1,9 @@
 package com.softserve.rms.security;
 
 
+import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +16,9 @@ import java.util.*;
  *
  * @author Artur Sydor
  */
+@Data
 public class UserPrincipal implements OAuth2User, UserDetails{
+
     /**
      * Represents User entity.
      */
@@ -56,6 +60,9 @@ public class UserPrincipal implements OAuth2User, UserDetails{
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
+        for (Group group : user.getGroups()) {
+            authorities.add(new SimpleGrantedAuthority(group.getName()));
+        }
         return authorities;
     }
 

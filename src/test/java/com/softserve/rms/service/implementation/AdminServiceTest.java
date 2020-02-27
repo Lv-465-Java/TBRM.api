@@ -27,7 +27,7 @@ public class AdminServiceTest {
     @InjectMocks
     AdminServiceImpl service;
     Role role =new Role(1L,"admin");
-    User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role , null);
+    User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role , null, null);
     UserDto userDto = new UserDto(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role );
 
     @Test
