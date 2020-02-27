@@ -35,7 +35,4 @@ public class ResourceTemplate {
 
     @OneToMany(mappedBy = "relatedResourceTemplate")
     private List<ResourceRelation> resourceRelations;
-
-//    @OneToMany(mappedBy = "resourceTemplate")
-//    private Resource resources;
 }

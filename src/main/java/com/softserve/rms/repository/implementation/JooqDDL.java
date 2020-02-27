@@ -18,7 +18,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method creates {@link Resource} container table based on {@link ResourceTemplate} table name
+     * Method creates {@link ResourceRecord} container table based on {@link ResourceTemplate} table name
      * with static columns.
      *
      * @param resourceTemplate {@link ResourceTemplate}
@@ -29,16 +29,16 @@ public class JooqDDL {
                 .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false).identity(true))
                 .column(FieldConstants.NAME.getValue(), SQLDataType.VARCHAR(255).nullable(false))
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
-                .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
+//                .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .constraints(
                         constraint(resourceTemplate.getTableName()
                                 .concat(FieldConstants.PRIMARY_KEY.getValue()))
-                                .primaryKey(FieldConstants.ID.getValue()),
-                        constraint(FieldConstants.RESOURCE_TEMPLATE_ID.getValue()
-                                .concat(FieldConstants.FOREIGN_KEY.getValue()))
-                                .foreignKey(FieldConstants.RESOURCE_TEMPLATE_ID.getValue())
-                                .references(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue(), FieldConstants.ID.getValue()))
+                                .primaryKey(FieldConstants.ID.getValue()))
+//                        constraint(FieldConstants.RESOURCE_TEMPLATE_ID.getValue()
+//                                .concat(FieldConstants.FOREIGN_KEY.getValue()))
+//                                .foreignKey(FieldConstants.RESOURCE_TEMPLATE_ID.getValue())
+//                                .references(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue(), FieldConstants.ID.getValue()))
                 .execute();
         addColumnsToResourceContainerTable(resourceTemplate);
     }
@@ -67,7 +67,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new column based on Point or Coordinate parameter types.
+     * Method alters {@link ResourceRecord} container table and adds a new column based on Point or Coordinate parameter types.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -81,7 +81,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds new columns based on Range parameter type.
+     * Method alters {@link ResourceRecord} container table and adds new columns based on Range parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -99,7 +99,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new column based on Point Reference parameter type.
+     * Method alters {@link ResourceRecord} container table and adds a new column based on Point Reference parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @param parameter        {@link ResourceParameter}
@@ -116,7 +116,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method alters {@link Resource} container table and adds a new constraint foreign key based on
+     * Method alters {@link ResourceRecord} container table and adds a new constraint foreign key based on
      * Point Reference parameter type.
      *
      * @param resourceTemplate {@link ResourceTemplate}
@@ -134,7 +134,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method counts {@link Resource} container table records amount.
+     * Method counts {@link ResourceRecord} container table records amount.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @author Halyna Yatseniuk
@@ -146,7 +146,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method checks whether amount of references to {@link Resource} container table is zero.
+     * Method checks whether amount of references to {@link ResourceRecord} container table is zero.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @author Halyna Yatseniuk
@@ -161,7 +161,7 @@ public class JooqDDL {
     }
 
     /**
-     * Method drops {@link Resource} container table.
+     * Method drops {@link ResourceRecord} container table.
      *
      * @param resourceTemplate {@link ResourceTemplate}
      * @author Halyna Yatseniuk

@@ -70,7 +70,7 @@ public class GroupServiceImplTest {
 
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
-            "password", true, role, Collections.emptyList(), Collections.emptyList());
+            "password", true, role, Collections.emptyList(), "resetToken", Collections.emptyList());
     private Group group = new Group(1L, "group", "description", Collections.emptyList());
     private GroupsMember groupsMember = new GroupsMember(1L, user, group);
     private List<Group> groups = Collections.singletonList(group);

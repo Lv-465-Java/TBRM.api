@@ -1,6 +1,6 @@
 package com.softserve.rms.dto.template;
 
-import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
