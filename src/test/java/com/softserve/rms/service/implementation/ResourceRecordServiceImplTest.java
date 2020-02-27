@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -24,6 +25,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceRecordServiceImpl.class)
@@ -52,18 +54,18 @@ public class ResourceRecordServiceImplTest {
         put("first_parameter", 111111);
         put("second_parameter", 987123);
     }};
-    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", resourceTemplate, user, firstDynamicParameters);
-    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description", resourceTemplate, user, firstDynamicParameters);
-    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description", resourceTemplate.getId(), user.getId(), firstDynamicParameters);
+    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", user, firstDynamicParameters);
+    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user, firstDynamicParameters);
+    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), firstDynamicParameters);
 
     private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description", user.getId(), firstDynamicParameters);
     private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
-            new ResourceRecord(1L, "TestName1", "Some description", resourceTemplate, user, firstDynamicParameters),
-            new ResourceRecord(2L, "TestName2", "Some description2", resourceTemplate, user, secondDynamicParameters));
+            new ResourceRecord(1L, "TestName1", "Some description", user, firstDynamicParameters),
+            new ResourceRecord(2L, "TestName2", "Some description2",user, secondDynamicParameters));
     private List<ResourceRecordDTO> resourceRecordDTOS = Arrays.asList(
-            new ResourceRecordDTO(1L, "TestName1", "Some description", resourceTemplate.getId(), user.getId(), firstDynamicParameters),
-            new ResourceRecordDTO(2L, "TestName2", "Some description2", resourceTemplate.getId(), user.getId(), secondDynamicParameters));
+            new ResourceRecordDTO(1L, "TestName1", "Some description",  user.getId(), firstDynamicParameters),
+            new ResourceRecordDTO(2L, "TestName2", "Some description2", user.getId(), secondDynamicParameters));
 
     @Before
     public void initializeMock() {
@@ -73,28 +75,28 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void getListOfResourceDTOsSuccess() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         when(resourceRecordRepository.findAll(anyString())).thenReturn(resourceRecords);
         assertEquals(resourceRecordDTOS, resourceRecordService.findAll(anyString()));
     }
 
     @Test
     public void getEmptyListOfResourceDTOs() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         List<ResourceRecordDTO> expected = Collections.emptyList();
         assertEquals(expected, resourceRecordService.findAll(anyString()));
     }
 
     @Test
     public void getResourceByIdSuccess() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         assertEquals(resourceRecord, resourceRecordService.findById(resourceTemplate.getTableName(), resourceRecord.getId()));
     }
 
     @Test(expected = NotFoundException.class)
     public void getResourceByIdFailed() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         resourceRecordService.findById(anyString(), anyLong());
     }
 
@@ -113,7 +115,7 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void deleteSuccess() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         resourceRecordService.delete(resourceTemplate.getTableName(), resourceRecord.getId());
         verify(resourceRecordRepository, times(1)).delete(resourceTemplate.getTableName(), resourceRecord.getId());
     }
@@ -134,7 +136,7 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void saveResource() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         when(userService.getById(anyLong())).thenReturn(user);
         resourceRecordService.save(resourceTemplate.getTableName(), resourceRecordSaveDTO);
         verify(resourceRecordRepository, times(1)).save(resourceTemplate.getTableName(), secondResourceRecord);
@@ -142,7 +144,7 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void updateResourceRecordSuccess() throws Exception {
-        PowerMockito.doReturn(resourceTemplate).when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         resourceRecordService.update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecordUpdateDTO);
         verify(resourceRecordRepository, times(1)).update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecord);
@@ -151,8 +153,8 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void checkIfResourceTemplateIsPublishedSuccess() throws Exception {
         when(resourceTemplateService.findByName(anyString())).thenReturn(resourceTemplate);
-        ResourceTemplate actual = Whitebox.invokeMethod(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-        assertEquals(resourceTemplate, actual);
+        verifyPrivate(resourceRecordService, times(0)).
+                invoke("checkIfResourceTemplateIsPublished", Mockito.anyString());
     }
 
     @Test(expected = ResourceTemplateIsNotPublishedException.class)
