@@ -64,7 +64,7 @@ public class UserServiceImplTest {
 
     private Principal principal2 = new UserPrincipal("test3@gmail.com");
 
-    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"), Collections.emptyList(),null,Collections.emptyList());
+    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
 
     private User user =
             User.builder()

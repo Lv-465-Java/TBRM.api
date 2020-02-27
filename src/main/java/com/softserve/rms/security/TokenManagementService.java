@@ -1,13 +1,14 @@
 package com.softserve.rms.security;
 
 import com.softserve.rms.dto.JwtDto;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.JwtAuthenticationException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
+import com.softserve.rms.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
 
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -43,25 +43,28 @@ public class TokenManagementService implements Message {
 
     /**
      * constructor
+     *
      * @param userPrincipalDetailsService {@link UserPrincipalDetailsService}
      */
     @Autowired
-    public TokenManagementService(UserPrincipalDetailsService userPrincipalDetailsService){
-        this.userPrincipalDetailsService=userPrincipalDetailsService;
+    public TokenManagementService(UserPrincipalDetailsService userPrincipalDetailsService) {
+        this.userPrincipalDetailsService = userPrincipalDetailsService;
+        //this.userService=userService;
     }
 
     /**
      * Generates a JWT access and refresh tokens containing userId as claim. These properties are taken from the specified
-     *  User object. Access token validity is 2 min, refresh token validity 60 days.
+     * User object. Access token validity is 2 min, refresh token validity 60 days.
+     *
      * @param email {@link String}
      * @return JwtDto - it is access and refresh tokens
      */
     public JwtDto generateTokenPair(String email) {
 
-        long nowMillis=System.currentTimeMillis();
-        long expirationTime =Long.parseLong(expireTimeAccessToken);
-        Date expiryDate = new Date(nowMillis+expirationTime);
-        SignatureAlgorithm signatureAlgorithm=SignatureAlgorithm.HS256;
+        long nowMillis = System.currentTimeMillis();
+        long expirationTime = Long.parseLong(expireTimeAccessToken);
+        Date expiryDate = new Date(nowMillis + expirationTime);
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         byte[] decodeSecretKey = TextCodec.BASE64.decode(secretKey);
 
         String token = Jwts.builder()
@@ -72,10 +75,10 @@ public class TokenManagementService implements Message {
 
 
         long expirationTimeRefresh = Long.parseLong(expireTimeRefreshToken);
-        String refreshToken=Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(nowMillis+expirationTimeRefresh))
+                .setExpiration(new Date(nowMillis + expirationTimeRefresh))
                 .signWith(signatureAlgorithm, decodeSecretKey).compact();
 
         return new JwtDto(token, refreshToken);
@@ -83,20 +86,20 @@ public class TokenManagementService implements Message {
 
     /**
      * Refresh access and refresh tokens, using refresh token
+     *
      * @param refreshToken {@link String}
      * @return JwtDto
      */
 
-    public JwtDto refreshTokens(String  refreshToken) {
-        if (refreshToken!=null && validateToken(refreshToken)) {
+    public JwtDto refreshTokens(String refreshToken) {
+        if (refreshToken != null && validateToken(refreshToken)) {
             try {
-                String email=getUserEmail(refreshToken);
-                JwtDto jwtDto= generateTokenPair(email);
-                LOGGER.info("tokens refreshed successfully!");
+                String email = getUserEmail(refreshToken);
+                JwtDto jwtDto = generateTokenPair(email);
+                LOGGER.info("Tokens refreshed successfully!");
 
                 return jwtDto;
-            }
-            catch (JwtException e) {
+            } catch (JwtException e) {
                 throw new RefreshTokenException(REFRESH_TOKEN_EXCEPTION);
             }
         } else {
@@ -119,30 +122,34 @@ public class TokenManagementService implements Message {
 
     /**
      * Gets email from token and throws an error if token is expired.
+     *
      * @param token {@link String}
      * @return email {@link String}
      */
     public String getUserEmail(String token) {
-            return Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey))
-                    .parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey))
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
 
     /**
      * Method verify whether the token has expired or not.
+     *
      * @param token {@link String}
      * @return boolean
      */
     public boolean validateToken(String token) {
         boolean isValid = false;
-        try{
-            Jws<Claims> claimsJws=Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
-            if (!claimsJws.getBody().getExpiration().before(new Date())){
-                isValid=true;
+        try {
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(TextCodec.BASE64.decode(secretKey)).parseClaimsJws(token);
+            if (!claimsJws.getBody().getExpiration().before(new Date())) {
+                isValid = true;
             }
-        }catch(IllegalArgumentException | UnsupportedJwtException | MalformedJwtException | SignatureException ex){
-            LOGGER.info("Token is not valid!");
-        }
+        } catch (JwtException ex) {
+            LOGGER.error("Token is not valid!");
+    } catch (IllegalArgumentException ex) {
+          LOGGER.error("an error occurred during getting username from token");
+      }
         return isValid;
     }
 
@@ -155,7 +162,7 @@ public class TokenManagementService implements Message {
      */
     public String resolveAccessToken(HttpServletRequest request) {
         String AUTH_HEADER_PREFIX="Bearer ";
-        String AUTHORIZATION_HEADER="Authorization";
+        String AUTHORIZATION_HEADER="authorization";
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (Objects.nonNull(bearerToken) && bearerToken.startsWith(AUTH_HEADER_PREFIX)) {
             return bearerToken.substring(7);
@@ -170,7 +177,7 @@ public class TokenManagementService implements Message {
      * @return {@link String} of token or null.
      */
     public String resolveRefreshToken(HttpServletRequest request) {
-        String REFRESH_HEADER="RefreshToken";
+        String REFRESH_HEADER="refreshToken";
         String refreshToken = request.getHeader(REFRESH_HEADER);
         if (Objects.nonNull(refreshToken)) {
             return refreshToken;

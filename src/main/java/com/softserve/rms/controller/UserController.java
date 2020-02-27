@@ -3,12 +3,14 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.Validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.PermissionUserDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.UserPrincipal;
 import com.softserve.rms.service.UserService;
 import io.swagger.annotations.ApiResponse;
@@ -21,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.List;
 public class UserController {
     private UserService userService;
     private Trimmer trimmer;
+    private TokenManagementService tokenManagementService;
 
     /**
      * Constructor with parameters
@@ -38,9 +42,10 @@ public class UserController {
      * @author Mariia Shchur
      */
     @Autowired
-    public UserController(UserService userService, Trimmer trimmer) {
+    public UserController(UserService userService, Trimmer trimmer, TokenManagementService tokenManagementService) {
         this.userService = userService;
         this.trimmer = trimmer;
+        this.tokenManagementService=tokenManagementService;
     }
 
     /**
@@ -143,4 +148,27 @@ public class UserController {
     public ResponseEntity<List<PermissionUserDto>> getUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers());
     }
+
+    /**
+     * Set password and phone of user for full oauth authentication
+     *
+     * @param accessToken {@link String}
+     * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
+     * @param response {@link HttpServletResponse}
+     * @return httpStatus {@link HttpStatus}
+     * @author Kravets Maryana
+     *
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/oauth2/fullRegister")
+    public ResponseEntity<Object> getFullAuthenticate(@RequestHeader(name = "authorization")  String accessToken, @RequestBody UserPasswordPhoneDto userPasswordPhoneDto, HttpServletResponse response) {
+
+        String email=tokenManagementService.getUserEmail(accessToken.substring(7));
+        userService.setPasswordAndPhone(email, userPasswordPhoneDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

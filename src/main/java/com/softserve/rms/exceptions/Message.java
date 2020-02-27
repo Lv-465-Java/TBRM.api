@@ -15,4 +15,6 @@ public interface Message {
     String JWT_EXPIRE_TOKEN_EXCEPTION="JWT Token expired";
 
     String JWT_AUTHENTICATION_EXCEPTION="JWT Authentication failed. Please sign in again";
+
+    String NON_ACTIVE_ACCOUNT_EXCEPTION="Your account is not active";
 }

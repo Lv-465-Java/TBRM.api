@@ -7,10 +7,9 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class that implements UserDetails interface.
@@ -18,11 +17,14 @@ import java.util.List;
  * @author Artur Sydor
  */
 @Data
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements OAuth2User, UserDetails{
+
     /**
      * Represents User entity.
      */
     private User user;
+    private Map<String, Object> attributes;
+    private Collection<? extends GrantedAuthority> authorities;
 
     /**
      * Constructor with parameters.
@@ -31,6 +33,21 @@ public class UserPrincipal implements UserDetails {
      */
     public UserPrincipal(User user) {
         this.user = user;
+    }
+
+    public UserPrincipal(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+
+    public UserPrincipal(User user,  Collection<? extends GrantedAuthority> authorities) {
+        this.user = user;
+        this.authorities = authorities;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
     /**
@@ -107,5 +124,76 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.isEnabled();
+    }
+
+    /**
+     * Overridden method Equals.
+     *
+     * @param o object for comparing
+     * @return true if object are equals
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserPrincipal that = (UserPrincipal) o;
+
+        return Objects.equals(user, that.user);
+    }
+
+    /**
+     * Overridden method HashCode.
+     *
+     * @return hashCode of object user
+     */
+    @Override
+    public int hashCode() {
+        return user != null ? user.hashCode() : 0;
+    }
+
+    /**
+     * get id value from user
+     * @return string {@link String}
+     */
+    @Override
+    public String getName() {
+        return String.valueOf(user.getId());
+    }
+
+    /**
+     * method set attributes for user principal
+     * @param attributes {@link Map}
+     */
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    /**
+     * method create user principal with authorities
+     * @param user {@link User}
+     * @return userPrincipal {@link UserPrincipal}
+     */
+    public static UserPrincipal create(User user) {
+        List<GrantedAuthority> authorities = Collections.
+                singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+        return new UserPrincipal(
+                user,
+                authorities
+        );
+    }
+
+    /**
+     * method create user principal with attributes
+     * @param user {@link User}
+     * @param attributes {@link Map}
+     * @return userPrincipal {@link UserPrincipal}
+     */
+    public static UserPrincipal create(User user, Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        userPrincipal.setAttributes(attributes);
+
+        return userPrincipal;
     }
 }

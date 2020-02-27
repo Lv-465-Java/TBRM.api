@@ -5,6 +5,8 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,6 +47,12 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    private String imageUrl;
+
+    private String provider;
+
+    private String providerId;
+
     @NotAudited
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
@@ -58,5 +66,13 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
     )
-    private List<Group> groups;
+    private List<Group> groups=new ArrayList<>();
+    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
+        this.firstName=firstName;
+        this.email=email;
+        this.role=role;
+        this.imageUrl=imageUrl;
+        this.provider=provider;
+        this.providerId=providerId;
+    }
 }
