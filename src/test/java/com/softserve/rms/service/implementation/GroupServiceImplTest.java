@@ -75,7 +75,7 @@ public class GroupServiceImplTest {
     private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
-            "password", true, role, Collections.emptyList(), Collections.emptyList());
+            "password", true, role, Collections.emptyList(), null,Collections.emptyList());
     private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
     private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
     private ChangeOwnerDto changeOwnerDto = new ChangeOwnerDto(1L, "recipient");

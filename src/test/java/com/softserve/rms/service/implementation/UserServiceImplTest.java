@@ -7,43 +7,42 @@ import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
-import com.softserve.rms.exceptions.user.WrongEmailException;
-import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.modelmapper.ModelMapper;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
+import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
     @Mock
-    private ModelMapper modelMapper;
-    @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private DataSource dataSource;
+    @Mock
+    private JdbcTemplate jdbcTemplate=new JdbcTemplate(new DriverManagerDataSource());
     @InjectMocks
     private UserServiceImpl userService;
 
-    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"), Collections.emptyList(),Collections.emptyList());
+    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"), Collections.emptyList(),null,Collections.emptyList());
 
     private User user =
             User.builder()
@@ -102,7 +101,7 @@ public class UserServiceImplTest {
         verify(userRepository,times(1)).save(any());
     }
 
-    @Test(expected = WrongEmailException.class)
+    @Test(expected = NotFoundException.class)
     public void updateWrongEmailTest(){
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
         userService.update(userEditDto,any());
@@ -115,15 +114,14 @@ public class UserServiceImplTest {
         when(passwordEncoder.matches(any(),any())).thenReturn(true);
         userService.editPassword(passwordEditDto,
                 user.getEmail());
-        when(userRepository.save(any())).thenReturn(user);
         verify(userRepository,times(1)).save(any());
     }
 
 
-    @Test(expected = WrongEmailException.class)
+    @Test(expected = NotFoundException.class)
     public void editPasswordWrongEmailTest(){
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
         userService.editPassword(passwordEditDto,any());
+        when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
         verify(userRepository,times(1)).save(any());
     }
 

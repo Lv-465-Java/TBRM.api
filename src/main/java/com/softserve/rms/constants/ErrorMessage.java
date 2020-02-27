@@ -29,11 +29,9 @@ public enum ErrorMessage {
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETED("Resource parameter can not be deleted since resource template " +
             "has been published"),
 
-    USER_WITH_EMAIL_EXISTS("Account with this email already exists "),
-    USER_NOT_SAVED("User was not saved "),
-    PHONE_NUMBER_NOT_UNIQUE("Account with this phone number already exists"),
-    EMPTY_FIELD("All fields should not be empty "),
-    USER_NOT_FOUND_BY_EMAIL("User was not found by email "),
+    USER_NOT_SAVED ("User was not saved "),
+    USER_NOT_DELETE("User was not deleted"),
+    USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
 
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
@@ -49,7 +47,10 @@ public enum ErrorMessage {
     CAN_NOT_FIND_A_RESOURCE_BY_ID("There is no such a resource with id: "),
     RESOURCE_CAN_NOT_BE_DELETED_BY_ID("Resource does not deleted with id: "),
 
-    WRONG_PASSWORD("Wrong password");
+    WRONG_PASSWORD("Wrong password"),
+    INVALID_LINK_OR_TOKEN("Link is invalid or broken"),
+    TOKEN_EXPIRED("Token is already expired");
+
     private String message;
 
     ErrorMessage(String message) {
