@@ -152,7 +152,7 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void checkIfResourceTemplateIsPublishedSuccess() throws Exception {
-        when(resourceTemplateService.findByName(anyString())).thenReturn(resourceTemplate);
+        when(resourceTemplateService.findByTableName(anyString())).thenReturn(resourceTemplate);
         verifyPrivate(resourceRecordService, times(0)).
                 invoke("checkIfResourceTemplateIsPublished", Mockito.anyString());
     }
@@ -160,7 +160,7 @@ public class ResourceRecordServiceImplTest {
     @Test(expected = ResourceTemplateIsNotPublishedException.class)
     public void checkIfResourceTemplateIsPublishedFailed() throws Exception {
         resourceTemplate.setIsPublished(false);
-        when(resourceTemplateService.findByName(anyString())).thenReturn(resourceTemplate);
+        when(resourceTemplateService.findByTableName(anyString())).thenReturn(resourceTemplate);
         Whitebox.invokeMethod(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
     }
 }

@@ -105,7 +105,7 @@ public interface ResourceTemplateService {
     List<ResourceTemplateDTO> findAllPublishedTemplates();
 
 
-    ResourceTemplate findByName(String name);
+    ResourceTemplate findByTableName(String name);
 
     /**
      * Method verifies which action must be handled - publish or cancel publish resource template -

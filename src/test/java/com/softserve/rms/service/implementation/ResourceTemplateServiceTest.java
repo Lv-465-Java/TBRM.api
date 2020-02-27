@@ -448,13 +448,13 @@ public class ResourceTemplateServiceTest {
     @Test(expected = NotFoundException.class)
     public void testFindByName() {
         when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.empty());
-        resourceTemplateService.findByName(resourceTemplate.getName());
+        resourceTemplateService.findByTableName(resourceTemplate.getName());
     }
 
     @Test
     public void testFindByNameEmpty() {
-        when(resourceTemplateRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.of(resourceTemplate));
-        resourceTemplateService.findByName(resourceTemplate.getName());
+        when(resourceTemplateRepository.findByTableName(anyString())).thenReturn(Optional.of(resourceTemplate));
+        resourceTemplateService.findByTableName(resourceTemplate.getTableName());
     }
 
     @Test
