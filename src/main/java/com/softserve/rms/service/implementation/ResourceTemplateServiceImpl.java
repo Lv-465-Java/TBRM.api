@@ -127,6 +127,19 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     /**
      * {@inheritDoc}
      *
+     * @author Andrii Bren
+     */
+    @Override
+    public List<ResourceTemplateDTO> findAllPublishedTemplates() {
+       List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
+       return resourceTemplates.stream()
+               .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
+               .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @author Halyna Yatseniuk
      */
     @Override
@@ -248,11 +261,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public ResourceTemplate findByName(String name) {
         return resourceTemplateRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + name));
-    }
-
-    @Override
-    public List<ResourceTemplateDTO> findAllPublished() {
-        return null;
     }
 
     /**

@@ -3,9 +3,8 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
@@ -107,9 +106,9 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
 
         resourceParameterRepository.save(resourceParameter);
 
-        if (parameterDTO.getResourceRelationDTO() != null) {
+        if (parameterDTO.getRelatedResourceTemplateId() != null) {
             resourceParameter.setResourceRelations(saveParameterRelation(resourceParameter.getId(),
-                    parameterDTO.getResourceRelationDTO()));
+                    parameterDTO.getRelatedResourceTemplateId()));
         }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
@@ -183,7 +182,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                                          ResourceParameterSaveDTO parameterDTO) {
         if (parameterDTO.getParameterType().equals(ParameterType.POINT_REFERENCE)) {
             resourceParameter.setResourceRelations(updateParameterRelation(
-                    resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
+                    resourceParameter.getId(), parameterDTO.getRelatedResourceTemplateId()));
         } else if (!parameterDTO.getParameterType().equals(ParameterType.POINT_REFERENCE)
                 && resourceParameter.getResourceRelations() != null) {
             dropParameterRelation(resourceParameter);
@@ -228,38 +227,38 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * Method updates {@link ResourceRelation}.
      *
      * @param parameterId {@link ResourceParameter} id
-     * @param relationDTO {@link ResourceRelationDTO}
+     * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
      * @author Halyna Yatseniuk
      */
-    private ResourceRelation updateParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
+    private ResourceRelation updateParameterRelation(Long parameterId, Long relatedResourceParameterId)
             throws NotFoundException {
         ResourceRelation resourceRelation = resourceRelationRepository.findByResourceParameterId(parameterId);
         if (resourceRelation != null) {
             resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
-                    .findEntityById(relationDTO.getRelatedResourceTemplateId())));
+                    .findEntityById(relatedResourceParameterId)));
             return resourceRelation;
-        } else return saveParameterRelation(parameterId, relationDTO);
+        } else return saveParameterRelation(parameterId, relatedResourceParameterId);
     }
 
     /**
      * Method saves {@link ResourceRelation}.
      *
      * @param parameterId {@link ResourceParameter} id
-     * @param relationDTO {@link ResourceRelationDTO}
+     * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
      * @author Andrii Bren
      */
-    private ResourceRelation saveParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
+    private ResourceRelation saveParameterRelation(Long parameterId, Long relatedResourceParameterId)
             throws NotFoundException, ResourceTemplateIsNotPublishedException {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
         resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
-                .findEntityById(relationDTO.getRelatedResourceTemplateId())));
+                .findEntityById(relatedResourceParameterId)));
         return resourceRelationRepository.save(resourceRelation);
     }
 
