@@ -49,7 +49,7 @@ public class RegistrationController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/registration")
-    public ResponseEntity<String> createUser(@Valid @RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity createUser(@Valid @RequestBody RegistrationDto registrationDto) {
         userService.save(trimmer.trimRegistrationData(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

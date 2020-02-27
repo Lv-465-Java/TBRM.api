@@ -34,7 +34,7 @@ public class ResourceServiceImplTest {
     private UserRepository userRepository;
 
     private Role role = new Role(3L, "REGISTER");
-    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null, Collections.emptyList(), Collections.emptyList());
+    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null, Collections.emptyList(), null,Collections.emptyList());
 
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, null, Collections.emptyList(), Collections.emptyList());
     private HashMap<String, Object> firstDynamicParameters = new HashMap<String, Object>() {{

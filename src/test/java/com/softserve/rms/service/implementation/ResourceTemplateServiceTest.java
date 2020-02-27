@@ -65,7 +65,7 @@ public class ResourceTemplateServiceTest {
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
-            "any", false, role, Collections.emptyList(), Collections.emptyList());
+            "any", false, role, Collections.emptyList(), null,Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name",
             "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description");
