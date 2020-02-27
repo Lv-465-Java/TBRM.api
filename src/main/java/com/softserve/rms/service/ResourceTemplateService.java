@@ -96,8 +96,14 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
-
+    /**
+     * Method finds all published {@link ResourceTemplate}.
+     *
+     * @return list of published {@link ResourceTemplate}
+     * @author Andrii Bren
+     */
     List<ResourceTemplateDTO> findAllPublishedTemplates();
+
 
     ResourceTemplate findByName(String name);
 

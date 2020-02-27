@@ -112,6 +112,13 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
+    public void testFindAllPublished() {
+        when(resourceTemplateRepository.findAllByIsPublishedIsTrue()).thenReturn(Collections.singletonList(resourceTemplate));
+        List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates());
+    }
+
+    @Test
     public void testFindAllByUserId() {
         when(resourceTemplateRepository.findAllByUserId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);

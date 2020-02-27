@@ -114,6 +114,11 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Andrii Bren
+     */
     @Override
     public List<ResourceTemplateDTO> findAllPublishedTemplates() {
        List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
