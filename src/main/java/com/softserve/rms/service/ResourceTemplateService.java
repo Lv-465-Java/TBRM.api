@@ -107,8 +107,6 @@ public interface ResourceTemplateService {
 
     ResourceTemplate findByName(String name);
 
-    List<ResourceTemplateDTO> findAllPublished();
-
     /**
      * Method verifies which action must be handled - publish or cancel publish resource template -
      * by provided boolean value in a map body.

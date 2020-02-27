@@ -3,9 +3,8 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
-import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
@@ -228,7 +227,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * Method updates {@link ResourceRelation}.
      *
      * @param parameterId {@link ResourceParameter} id
-     * @param relationDTO {@link ResourceRelationDTO}
+     * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
@@ -248,7 +247,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * Method saves {@link ResourceRelation}.
      *
      * @param parameterId {@link ResourceParameter} id
-//     * @param relationDTO {@link ResourceRelationDTO}
+     * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has not been published

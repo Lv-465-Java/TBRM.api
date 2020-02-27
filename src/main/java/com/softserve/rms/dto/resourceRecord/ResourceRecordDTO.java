@@ -16,5 +16,4 @@ public class ResourceRecordDTO {
     private Long resourceTemplateId;
     private Long userId;
     private Map<String, Object> parameters;
-//    private HashMap<String, Object> parameters;
 }

@@ -10,7 +10,6 @@ import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
-import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeModified;
 
 public interface ResourceParameterService {

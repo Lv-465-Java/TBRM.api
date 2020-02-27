@@ -12,7 +12,5 @@ public class ResourceParameterSaveDTO {
     private String name;
     private ParameterType parameterType;
     private String pattern;
-    //    private Long resourceTemplateId;
     private Long relatedResourceTemplateId;
-//    private ResourceRelationDTO resourceRelationDTO;
 }

@@ -172,7 +172,7 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     @Override
     public ResponseEntity<ResourceParameterDTO> saveParameter(Long templateId, ResourceParameterSaveDTO parameterDTO) {
         LOG.info("Creating a new Resource Parameter");
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.save(templateId, parameterDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceParameterService.checkIfParameterCanBeSaved(templateId, parameterDTO));
     }
 
     /**

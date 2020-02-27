@@ -41,8 +41,7 @@ public class ResourceRecordServiceImplTest {
     @Mock
     private UserService userService;
 
-    private Role role = new Role(3L, "REGISTER");
-    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null, Collections.emptyList(), Collections.emptyList());
+    private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null, Collections.emptyList(), null, Collections.emptyList());
 
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, null, Collections.emptyList(), Collections.emptyList());
     private HashMap<String, Object> firstDynamicParameters = new HashMap<String, Object>() {{
@@ -106,7 +105,7 @@ public class ResourceRecordServiceImplTest {
     }
 
     @Test(expected = NotFoundException.class)
-    public void getResourceRecordDTOByIdFailed() throws Exception {
+    public void getResourceRecordDTOByIdFailed() {
         doThrow(new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage()))
                 .when(resourceRecordService).findByIdDTO(anyString(), anyLong());
         resourceRecordService.findByIdDTO(anyString(), anyLong());
@@ -120,14 +119,14 @@ public class ResourceRecordServiceImplTest {
     }
 
     @Test(expected = NotFoundException.class)
-    public void deleteFailedByResourceTemplate() throws Exception {
+    public void deleteFailedByResourceTemplate() {
         doThrow(new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage()))
                 .when(resourceRecordService).delete(anyString(), anyLong());
         resourceRecordService.delete(anyString(), anyLong());
     }
 
     @Test(expected = NotDeletedException.class)
-    public void deleteFailedByResourceRecordId() throws Exception {
+    public void deleteFailedByResourceRecordId() {
         doThrow(new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage()))
                 .when(resourceRecordService).delete(anyString(), anyLong());
         resourceRecordService.delete(anyString(), anyLong());
@@ -162,11 +161,4 @@ public class ResourceRecordServiceImplTest {
         when(resourceTemplateService.findByName(anyString())).thenReturn(resourceTemplate);
         Whitebox.invokeMethod(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
     }
-
-//    @Test(expected = ResourceTemplateIsNotPublishedException.class)
-//    public void updateResourceRecordFailed() throws Exception {
-//        PowerMockito.doThrow(new ResourceTemplateIsNotPublishedException(ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage()))
-//                .when(resourceRecordService, "checkIfResourceTemplateIsPublished", anyString());
-//        resourceRecordService.update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecordUpdateDTO);
-//    }
 }
