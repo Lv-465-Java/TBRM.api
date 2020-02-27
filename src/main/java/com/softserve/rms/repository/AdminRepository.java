@@ -21,4 +21,5 @@ public interface AdminRepository extends JpaRepository<User, Long> {
     void deleteRoleById(Long id);
 
     List<User> getAllByEnabled(boolean enabled);
+
 }

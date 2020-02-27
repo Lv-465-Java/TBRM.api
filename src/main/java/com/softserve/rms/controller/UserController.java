@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -100,4 +97,24 @@ public class UserController {
         //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    /**
+     * Delete account
+     *
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("{id}/delete")
+    public ResponseEntity deleteAccount(@PathVariable long id){
+        userService.deleteAccount(id);
+        //TODO redirect to main page
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

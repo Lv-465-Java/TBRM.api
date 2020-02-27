@@ -90,6 +90,7 @@ public class ResourceParameterServiceImplTest {
     private List<ResourceParameter> parameters = Arrays.asList(
             new ResourceParameter(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, resourceTemplate, null),
             new ResourceParameter(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, resourceTemplate, null));
+    private ParameterType parameterType;
 
     @Before
     public void initializeMock() {
@@ -128,6 +129,20 @@ public class ResourceParameterServiceImplTest {
     }
 
     @Test
+    public void checkIfParameterCanBeAddedSuccess() throws Exception {
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        PowerMockito.doReturn(resourceParameterDTO).when(resourceParameterService, "save", anyLong(), any(ResourceParameterSaveDTO.class));
+        assertEquals(resourceParameterService.checkIfParameterCanBeSaved(resourceTemplate.getId(), resourceParameterSaveDTOUpdate), resourceParameterDTO);
+    }
+
+    @Test(expected = ResourceParameterCanNotBeModified.class)
+    public void checkIfParameterCanBeAddedFailed() {
+        resourceTemplate.setIsPublished(true);
+        when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
+        resourceParameterService.checkIfParameterCanBeSaved(resourceTemplate.getId(), resourceParameterSaveDTO);
+    }
+
+    @Test
     public void saveResourceParameterSuccess() throws Exception {
         PowerMockito.doReturn("resourceParameter").when(resourceParameterService, "verifyIfParameterNameIsUniquePerResourceTemplate", anyString(), anyLong());
         PowerMockito.doReturn("resource_parameter").when(resourceParameterService, "verifyIfParameterColumnNameIsUniquePerResourceTemplate", anyString(), anyLong());
@@ -144,6 +159,27 @@ public class ResourceParameterServiceImplTest {
         doReturn(resourceParameter).when(resourceParameterService).findById(anyLong());
         PowerMockito.doReturn(resourceParameterDTOUpdate).when(resourceParameterService, "updateById", anyLong(), any(ResourceParameter.class), any(ResourceParameterSaveDTO.class));
         assertEquals(resourceParameterService.checkIfParameterCanBeUpdated(resourceTemplate.getId(), resourceParameter.getId(), resourceParameterSaveDTOUpdate), resourceParameterDTOUpdate);
+    }
+
+    @Test
+    public void testParameterRelationVerificationPointReference() throws Exception {
+        PowerMockito.doReturn(resourceRelation).when(resourceParameterService, "updateParameterRelation",
+                Mockito.any(Long.class), Mockito.any(ResourceRelationDTO.class));
+        resourceParameterDTO.setParameterType(ParameterType.POINT_REFERENCE);
+        Whitebox.invokeMethod(resourceParameterService, "verifyParameterRelation", resourceParameter,
+                resourceParameterSaveDTO);
+        verifyPrivate(resourceParameterService, times(0)).
+                invoke("dropParameterRelation", Mockito.any(ResourceParameter.class));
+    }
+
+    @Test
+    public void testParameterRelationVerification() throws Exception {
+        PowerMockito.doNothing().when(resourceParameterService, "dropParameterRelation",
+                Mockito.any(ResourceParameter.class));
+        resourceParameterDTO.setParameterType(ParameterType.POINT_INT);
+        resourceParameterDTO.setResourceRelation(resourceRelationDTO);
+        Whitebox.invokeMethod(resourceParameterService, "verifyParameterRelation", resourceParameter,
+                resourceParameterSaveDTO);
     }
 
     @Test(expected = ResourceParameterCanNotBeModified.class)

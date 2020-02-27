@@ -1,6 +1,8 @@
 package com.softserve.rms.entities;
 
 import lombok.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
 @Table(name = "users")
 @Builder
 @Data
+@Audited
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
@@ -22,10 +25,10 @@ public class User {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column(nullable = false, length = 50)
+    @Column( nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false,unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -37,13 +40,18 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
+    @NotAudited
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @NotAudited
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<ResourceTemplate> resourceTemplates;
 
+    private String resetToken;
+
+    @NotAudited
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "groups_members",

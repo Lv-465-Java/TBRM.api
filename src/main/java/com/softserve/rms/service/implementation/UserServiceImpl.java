@@ -7,7 +7,8 @@ import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.exceptions.Message;
+import com.softserve.rms.exceptions.InvalidTokenException;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
@@ -16,16 +17,31 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import javax.sql.DataSource;
+import java.util.Map;
+import java.util.UUID;
+
+import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTION;
+import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
+
+
 @Service
-public class UserServiceImpl implements UserService, Message {
+@EnableAutoConfiguration
+public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
+    public final JavaMailSender javaMailSender;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Constructor with parameters
@@ -34,9 +50,13 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           JavaMailSender javaMailSender,
+                           DataSource dataSource) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.javaMailSender = javaMailSender;
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 
@@ -62,15 +82,30 @@ public class UserServiceImpl implements UserService, Message {
      * @author Mariia Shchur
      */
     @Override
+    public void deleteAccount(long id) {
+        try {
+            userRepository.deleteById(id);
+        }
+        catch (NotDeletedException e){
+            throw new NotDeletedException(ErrorMessage.USER_NOT_DELETE.getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
     @Transactional
     public void update(UserEditDto userEditDto, String currentUserEmail) {
-        User user = userRepository.findUserByEmail(currentUserEmail)
-                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
+        User user = getUserByEmail(currentUserEmail);
         user.setFirstName(userEditDto.getFirstName());
         user.setLastName(userEditDto.getLastName());
         user.setPhone(userEditDto.getPhone());
         userRepository.save(user);
     }
+
 
     /**
      * {@inheritDoc}
@@ -79,8 +114,7 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Override
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
-        User user = userRepository.findUserByEmail(currentUserEmail)
-                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
+        User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(passwordEditDto.getOldPassword(), user.getPassword())) {
             new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
@@ -95,8 +129,7 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Override
     public void editEmail(EmailEditDto emailEditDto, String currentUserEmail) {
-        User user = userRepository.findUserByEmail(currentUserEmail)
-                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL.getMessage() + currentUserEmail));
+        User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(emailEditDto.getPassword(), user.getPassword())) {
             new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
@@ -129,4 +162,67 @@ public class UserServiceImpl implements UserService, Message {
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_EXCEPTION, id)));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    @Transactional
+    public void sendLinkForPasswordResetting(String email) {
+        User user = getUserByEmail(email.trim());
+        user.setResetToken(UUID.randomUUID().toString());
+        userRepository.save(user);
+        SimpleMailMessage passwordResetEmail = new SimpleMailMessage();
+        passwordResetEmail.setTo(email);
+        passwordResetEmail.setSubject("Password reset request");
+        passwordResetEmail.setText("To complete the password reset process, please click here: "
+                + "http://localhost:3000/reset_password?token=" + user.getResetToken());
+        sendMail(passwordResetEmail);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void resetPassword(String token, String password) {
+        User user = userRepository.findUserByResetToken(token)
+                .orElseThrow(() -> new InvalidTokenException(ErrorMessage.INVALID_LINK_OR_TOKEN.getMessage()));
+        if (checkTokenDate(token)) {
+            user.setPassword(passwordEncoder.encode(password));
+            user.setResetToken(null);
+            userRepository.save(user);
+        } else throw new InvalidTokenException(ErrorMessage.TOKEN_EXPIRED.getMessage());
+    }
+
+    /**
+     * Method that send massage to mail
+     *
+     * @param mailMessage massage to send
+     */
+    private void sendMail(SimpleMailMessage mailMessage) {
+        javaMailSender.send(mailMessage);
+    }
+
+    /**
+     * Method that check if token is still valid
+     * (token is valid during 6 hours)
+     *
+     * @param token a value of {@link Long}
+     * @return boolean
+     */
+    private static final String IF_TOKEN_VALID = "select (to_timestamp(r.revtstmp/ 1000)+ interval '6 hour')>=now() from users_aud u,revinfo r where u.rev=r.rev \n" +
+            "and u.reset_token=?  ";
+    private Boolean checkTokenDate(String token) {
+        boolean q = false;
+        Map<String, Object> map = jdbcTemplate.queryForMap(IF_TOKEN_VALID, token);
+        for (Map.Entry<String, Object> w : map.entrySet()) {
+            if (w.getValue().equals(true)) {
+                q = true;
+            }
+        }
+        return q;
+    }
 }

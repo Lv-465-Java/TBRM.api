@@ -13,7 +13,8 @@ public enum FieldConstants {
     FROM("_from"),
     TO("_to"),
     REFERENCE("_ref"),
-    RESOURCE_TEMPLATES_TABLE("resource_templates");
+    RESOURCE_TEMPLATES_TABLE("resource_templates"),
+    RESOURCE_RELATION_TABLE("resource_relations");
 
     private String value;
 

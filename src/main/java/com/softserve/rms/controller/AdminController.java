@@ -6,24 +6,28 @@ import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.AdminService;
+import com.softserve.rms.service.UserHistoryService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @RestController
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserHistoryService userHistoryService;
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService,UserHistoryService userHistoryService) {
         this.adminService = adminService;
+        this.userHistoryService=userHistoryService;
     }
 
     @ApiResponses(value = {
@@ -81,4 +85,76 @@ public class AdminController {
     public void deleteUser(@PathVariable("id") String id) {
         adminService.deleteUser(Long.valueOf(id));
     }
+
+
+    /**
+     * Method that show all {@link User} history.
+     *
+     * @param id
+     * @return list of all user's history
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("user/{id}/history")
+    public ResponseEntity<List<Map<String,Object>>> getUserHistory(@PathVariable long id){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getUserHistory(id));
+    }
+
+    /**
+     * Method that returns all deleted accounts
+     *
+     * @return list of all deleted accounts
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/deleted_accounts")
+    public ResponseEntity<List<Map<String, Object>>> getAllDeletedAccounts(){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getDeletedAccounts());
+    }
+
+    /**
+     * Method that returns all ever created accounts(inactive,active and deleted)
+     *
+     * @return list of all accounts
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/all_accounts")
+    public ResponseEntity<List<Map<String, Object>>> getAllAccounts(){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllAccounts());
+    }
+
+    /**
+     * Method that returns all users history by accurate data
+     *
+     * @return list of all accounts
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/by_date")
+    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@RequestParam String date){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
+    }
+
+
 }

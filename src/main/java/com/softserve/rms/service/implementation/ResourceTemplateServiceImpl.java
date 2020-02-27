@@ -7,6 +7,7 @@ import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
+import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
@@ -16,6 +17,7 @@ import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.util.Formatter;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
@@ -46,6 +48,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private ModelMapper modelMapper = new ModelMapper();
     private DSLContext dslContext;
     private JooqDDL jooqDDL;
+    private Formatter formatter;
 
     private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
@@ -57,12 +60,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserServiceImpl userService, PermissionManagerService permissionManagerService,
-                                       DSLContext dslContext, JooqDDL jooqDDL) {
+                                       DSLContext dslContext, JooqDDL jooqDDL, Formatter formatter) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userService = userService;
         this.permissionManagerService = permissionManagerService;
         this.dslContext = dslContext;
         this.jooqDDL = jooqDDL;
+        this.formatter = formatter;
     }
 
     /**
@@ -85,7 +89,13 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return modelMapper.map(resourceTemplate, ResourceTemplateDTO.class);
     }
 
-    // javadoc
+    /**
+     * Method sets "write" access principle to created {@link ResourceTemplate}.
+     *
+     * @param resTempId of {@link ResourceTemplateDTO}
+     * @param principal of currently authenticated user
+     * @author Marian Dutchyn
+     */
     public void setAccessToTemplate(Long resTempId, Principal principal) {
         permissionManagerService.addPermission(
                 new PermissionDto(resTempId, principal.getName(), "write", true), principal, ResourceTemplate.class);
@@ -279,7 +289,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      */
     private void unPublishResourceTemplate(ResourceTemplate resourceTemplate) {
         if (verifyIfResourceTemplateIsPublished(resourceTemplate) &&
-                verifyIfResourceTableIsEmpty(resourceTemplate)) {
+                verifyIfResourceTableCanBeDropped(resourceTemplate)) {
             jooqDDL.dropResourceContainerTable(resourceTemplate);
             resourceTemplate.setIsPublished(false);
             resourceTemplateRepository.save(resourceTemplate);
@@ -287,17 +297,21 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     }
 
     /**
-     * Method verifies if {@link ResourceTemplate} table contains records.
+     * Method verifies if {@link ResourceTemplate} table contains records or have references to it.
      *
      * @param resourceTemplate of {@link ResourceTemplate}
-     * @return true value if {@link ResourceTemplate} table is empty
-     * @throws ResourceTemplateCanNotBeUnPublished if {@link ResourceTemplate} table contains records
+     * @return true value if {@link ResourceTemplate} table is empty and do not have references to it
+     * @throws ResourceTemplateCanNotBeUnPublished if {@link ResourceTemplate} table contains records or
+     *                                             has at least one reference to it
      * @author Halyna Yatseniuk
      */
-    public Boolean verifyIfResourceTableIsEmpty(ResourceTemplate resourceTemplate) {
+    public Boolean verifyIfResourceTableCanBeDropped(ResourceTemplate resourceTemplate) {
         if (jooqDDL.countTableRecords(resourceTemplate) > 0) {
             throw new ResourceTemplateCanNotBeUnPublished(
-                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROP.getMessage());
+                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DROPPED.getMessage());
+        } else if (jooqDDL.countReferencesToTable(resourceTemplate)) {
+            throw new ResourceTemplateCanNotBeUnPublished(
+                    ErrorMessage.RESOURCE_TEMPLATE_TABLE_CAN_NOT_BE_DELETED.getMessage());
         }
         return true;
     }
@@ -314,8 +328,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         return resourceTemplateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TEMPLATE.getMessage()));
     }
-
-
 
     @Override
     public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
@@ -415,7 +427,30 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (resourceTemplate.getResourceParameters().isEmpty()) {
             throw new ResourceTemplateParameterListIsEmpty
                     (ErrorMessage.RESOURCE_TEMPLATE_DO_NOT_HAVE_ANY_PARAMETERS.getMessage());
+        } else {
+            verifyIfReferencedTemplateIsPublished(resourceTemplate);
         }
         return true;
+    }
+
+    /**
+     * Method verifies if any parameter of {@link ResourceTemplate} references to unpublished template.
+     *
+     * @param resourceTemplate {@link ResourceTemplate}
+     * @throws ResourceTemplateIsNotPublishedException if resource template do not have attached parameters
+     * @author Halyna Yatseniuk
+     */
+    private void verifyIfReferencedTemplateIsPublished(ResourceTemplate resourceTemplate)
+            throws ResourceTemplateIsNotPublishedException {
+        List<ResourceTemplate> list = resourceTemplate.getResourceParameters().stream()
+                .filter(parameter -> parameter.getParameterType().equals(ParameterType.POINT_REFERENCE))
+                .filter(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate().getIsPublished().equals(false))
+                .map(parameter -> parameter.getResourceRelations().getRelatedResourceTemplate())
+                .collect(Collectors.toList());
+        if (!list.isEmpty()) {
+            throw new ResourceTemplateIsNotPublishedException(
+                    ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_PUBLISHED.getMessage()
+                            + formatter.errorMessageFormatter(list));
+        }
     }
 }

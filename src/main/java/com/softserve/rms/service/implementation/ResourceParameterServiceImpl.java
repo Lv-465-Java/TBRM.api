@@ -2,9 +2,10 @@ package com.softserve.rms.service.implementation;
 
 
 import com.softserve.rms.constants.ErrorMessage;
-import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
-import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
-import com.softserve.rms.dto.resourceParameter.ResourceRelationDTO;
+import com.softserve.rms.constants.FieldConstants;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceParameterSaveDTO;
+import com.softserve.rms.dto.resourceparameter.ResourceRelationDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceParameter;
@@ -30,6 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.table;
 
 /**
  * Implementation of {@link ResourceParameterService}
@@ -64,9 +68,27 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * {@inheritDoc}
      *
-     * @author Andrii Bren
+     * @author Halyna Yatseniuk
      */
     @Override
+    @Transactional
+    public ResourceParameterDTO checkIfParameterCanBeSaved(Long id, ResourceParameterSaveDTO parameterDTO)
+            throws NotFoundException, NotUniqueNameException {
+        if (resourceTemplateService.findEntityById(id).getIsPublished().equals(false)) {
+            return save(id, parameterDTO);
+        } else throw new ResourceParameterCanNotBeModified(
+                ErrorMessage.PARAMETER_CAN_NOT_BE_ADDED.getMessage());
+    }
+
+    /**
+     * Method saves {@link ResourceParameter}.
+     *
+     * @param id           {@link ResourceTemplate} id
+     * @param parameterDTO {@link ResourceParameterSaveDTO}
+     * @throws NotUniqueNameException if the resource parameter with provided name exists
+     * @throws NotFoundException      if the resource parameter with provided id is not found
+     * @author Andrii Bren
+     */
     @Transactional
     public ResourceParameterDTO save(Long id, ResourceParameterSaveDTO parameterDTO)
             throws NotFoundException, NotUniqueNameException {
@@ -89,10 +111,6 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             resourceParameter.setResourceRelations(saveParameterRelation(resourceParameter.getId(),
                     parameterDTO.getRelatedResourceTemplateId()));
         }
-//        if (parameterDTO.getResourceRelationDTO() != null) {
-//            resourceParameter.setResourceRelations(saveParameterRelation(resourceParameter.getId(),
-//                    parameterDTO.getResourceRelationDTO()));
-//        }
         return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
     }
 
@@ -150,15 +168,41 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
         resourceParameterRepository.save(resourceParameter);
-        if (parameterDTO.getRelatedResourceTemplateId() != null) {
+        verifyParameterRelation(resourceParameter, parameterDTO);
+        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
+    }
+
+    /**
+     * Method verifies {@link ResourceParameter} relation type.
+     *
+     * @param resourceParameter {@link ResourceParameter}
+     * @param parameterDTO      {@link ResourceParameterSaveDTO}
+     * @author Halyna Yatseniuk
+     */
+    private void verifyParameterRelation(ResourceParameter resourceParameter,
+                                         ResourceParameterSaveDTO parameterDTO) {
+        if (parameterDTO.getParameterType().equals(ParameterType.POINT_REFERENCE)) {
             resourceParameter.setResourceRelations(updateParameterRelation(
                     resourceParameter.getId(), parameterDTO.getRelatedResourceTemplateId()));
+        } else if (!parameterDTO.getParameterType().equals(ParameterType.POINT_REFERENCE)
+                && resourceParameter.getResourceRelations() != null) {
+            dropParameterRelation(resourceParameter);
         }
-//        if (parameterDTO.getResourceRelationDTO() != null) {
-//            resourceParameter.setResourceRelations(updateParameterRelation(
-//                    resourceParameter.getId(), parameterDTO.getResourceRelationDTO()));
-//        }
-        return modelMapper.map(resourceParameter, ResourceParameterDTO.class);
+    }
+
+    /**
+     * Method drops {@link ResourceRelation} of {@link ResourceParameter}.
+     *
+     * @param resourceParameter {@link ResourceParameter}
+     * @author Halyna Yatseniuk
+     */
+    private void dropParameterRelation(ResourceParameter resourceParameter) {
+        int deleted = dslContext.delete(table(FieldConstants.RESOURCE_RELATION_TABLE.getValue()))
+                .where(field(FieldConstants.ID.getValue()).eq(resourceParameter.getResourceRelations().getId()))
+                .execute();
+        if (deleted == 1) {
+            resourceParameter.setResourceRelations(null);
+        }
     }
 
     /**
@@ -184,24 +228,20 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * Method updates {@link ResourceRelation}.
      *
      * @param parameterId {@link ResourceParameter} id
-//     * @param relationDTO {@link ResourceRelationDTO}
+     * @param relationDTO {@link ResourceRelationDTO}
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
      * @throws ResourceTemplateIsNotPublishedException if resource template has not been published
      * @author Halyna Yatseniuk
      */
     private ResourceRelation updateParameterRelation(Long parameterId, Long relatedResourceParameterId)
-//    private ResourceRelation updateParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
             throws NotFoundException {
         ResourceRelation resourceRelation = resourceRelationRepository.findByResourceParameterId(parameterId);
         if (resourceRelation != null) {
             resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
                     .findEntityById(relatedResourceParameterId)));
-//            resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
-//                    .findEntityById(relationDTO.getRelatedResourceTemplateId())));
             return resourceRelation;
         } else return saveParameterRelation(parameterId, relatedResourceParameterId);
-//        } else return saveParameterRelation(parameterId, relationDTO);
     }
 
     /**
@@ -215,14 +255,11 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * @author Andrii Bren
      */
     private ResourceRelation saveParameterRelation(Long parameterId, Long relatedResourceParameterId)
-//    private ResourceRelation saveParameterRelation(Long parameterId, ResourceRelationDTO relationDTO)
             throws NotFoundException, ResourceTemplateIsNotPublishedException {
         ResourceRelation resourceRelation = new ResourceRelation();
         resourceRelation.setResourceParameter(findById(parameterId));
         resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
                 .findEntityById(relatedResourceParameterId)));
-//        resourceRelation.setRelatedResourceTemplate(verifyIfResourceTemplateIsPublished(resourceTemplateService
-//                .findEntityById(relationDTO.getRelatedResourceTemplateId())));
         return resourceRelationRepository.save(resourceRelation);
     }
 

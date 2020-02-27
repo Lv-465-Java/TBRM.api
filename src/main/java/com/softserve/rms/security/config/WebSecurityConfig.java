@@ -49,7 +49,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_WHITELIST = {
             "/registration",
             "/authentication",
-            "/refresh"
+            "/refresh",
+            "/reset_password",
+            "/forgot_password"
+
     };
 
     /**
