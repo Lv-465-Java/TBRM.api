@@ -96,7 +96,16 @@ public interface ResourceTemplateService {
      */
     ResourceTemplate findEntityById(Long id);
 
-    ResourceTemplate findByName(String name);
+    /**
+     * Method finds all published {@link ResourceTemplate}.
+     *
+     * @return list of published {@link ResourceTemplate}
+     * @author Andrii Bren
+     */
+    List<ResourceTemplateDTO> findAllPublishedTemplates();
+
+
+    ResourceTemplate findByTableName(String name);
 
     /**
      * Method verifies which action must be handled - publish or cancel publish resource template -

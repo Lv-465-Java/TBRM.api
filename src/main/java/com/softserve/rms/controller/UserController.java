@@ -104,6 +104,25 @@ public class UserController {
     }
 
     /**
+     * Delete account
+     *
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("{id}/delete")
+    public ResponseEntity deleteAccount(@PathVariable long id){
+        userService.deleteAccount(id);
+        //TODO redirect to main page
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
      * Set password and phone of user for full oauth authentication
      *
      * @param accessToken {@link String}
@@ -120,7 +139,8 @@ public class UserController {
     public ResponseEntity<Object> getFullAuthenticate(@RequestHeader(name = "authorization")  String accessToken, @RequestBody UserPasswordPhoneDto userPasswordPhoneDto, HttpServletResponse response) {
 
         String email=tokenManagementService.getUserEmail(accessToken.substring(7));
-       userService.setPasswordAndPhone(email, userPasswordPhoneDto);
+        userService.setPasswordAndPhone(email, userPasswordPhoneDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }

@@ -1,4 +1,4 @@
-package com.softserve.rms.dto.resourceparameter;
+package com.softserve.rms.dto.resourceParameter;
 
 import com.softserve.rms.entities.ParameterType;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,5 @@ public class ResourceParameterSaveDTO {
     private String name;
     private ParameterType parameterType;
     private String pattern;
-//    private Long resourceTemplateId;
-    private ResourceRelationDTO resourceRelationDTO;
+    private Long relatedResourceTemplateId;
 }
