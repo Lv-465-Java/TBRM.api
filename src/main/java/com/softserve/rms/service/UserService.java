@@ -1,5 +1,6 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
@@ -15,6 +16,16 @@ import java.util.List;
 
 @Service
 public interface UserService {
+
+    /**
+     * Method that return user data
+     *
+     * @param email
+     * @return {@link UserDto}
+     * @author Mariia Shchur
+     */
+    UserDto getUser(String email);
+
     /**
      * Method saves {@link User}.
      *
@@ -76,10 +87,10 @@ public interface UserService {
     /**
      * Method for deleting users's account
      *
-     * @param id
+     * @param email
      * @author Mariia Shchur
      */
-    void deleteAccount(long id);
+    void deleteAccount(String email);
 
     /**
      * Method that send link for password

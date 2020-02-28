@@ -3,6 +3,7 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.Validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.EmailEditDto;
@@ -46,6 +47,18 @@ public class UserController {
         this.userService = userService;
         this.trimmer = trimmer;
         this.tokenManagementService=tokenManagementService;
+    }
+
+    /**
+     * Method that return user's data.
+     *
+     * @return {@link UserDto}.
+     * @author Mariia Shchur
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getProfileData(
+            @ApiIgnore @AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(principal.getUsername()));
     }
 
     /**
@@ -119,9 +132,10 @@ public class UserController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @DeleteMapping("{id}/delete")
-    public ResponseEntity deleteAccount(@PathVariable long id){
-        userService.deleteAccount(id);
+    @DeleteMapping("/delete")
+    public ResponseEntity deleteAccount(@ApiIgnore
+                                            @AuthenticationPrincipal UserPrincipal principal){
+        userService.deleteAccount(principal.getUsername());
         //TODO redirect to main page
         return ResponseEntity.status(HttpStatus.OK).build();
     }

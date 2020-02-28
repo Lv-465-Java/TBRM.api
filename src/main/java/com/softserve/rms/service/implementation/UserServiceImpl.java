@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
@@ -99,9 +100,9 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Override
-    public void deleteAccount(long id) {
+    public void deleteAccount(String email) {
         try {
-            userRepository.deleteById(id);
+            userRepository.deleteByEmail(email);
         }
         catch (NotDeletedException e){
             throw new NotDeletedException(ErrorMessage.USER_NOT_DELETE.getMessage());
@@ -151,6 +152,16 @@ public class UserServiceImpl implements UserService {
         }
         user.setEmail(emailEditDto.getEmail());
         userRepository.save(user);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    public UserDto getUser(String email){
+        User user = getUserByEmail(email);
+        return modelMapper.map(user,UserDto.class);
     }
 
 
