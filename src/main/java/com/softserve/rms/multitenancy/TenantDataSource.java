@@ -4,7 +4,6 @@ import com.softserve.rms.entities.DataSourceConfig;
 import com.softserve.rms.repository.DataSourceConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;

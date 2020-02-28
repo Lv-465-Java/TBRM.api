@@ -1,21 +1,21 @@
 package com.softserve.rms.multitenancy;
 
 
+import com.softserve.rms.constants.DataBases;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TenantIdResolver implements CurrentTenantIdentifierResolver {
-    private String defaultTenant ="tbrm";
+
 
     @Override
     public String resolveCurrentTenantIdentifier() {
-        String t =  TenantContext.getCurrentTenant();
-        if(t!=null){
-            return t;
+        String tenant =  TenantContext.getCurrentTenant();
+        if(tenant!=null){
+            return tenant;
         } else {
-            return defaultTenant;
+            return DataBases.DEFAULT_DATABASE;
         }
     }
 

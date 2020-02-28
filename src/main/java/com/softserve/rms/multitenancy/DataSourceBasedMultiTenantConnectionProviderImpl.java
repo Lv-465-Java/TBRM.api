@@ -1,12 +1,9 @@
 package com.softserve.rms.multitenancy;
 
-import com.softserve.rms.entities.DataSourceConfig;
-import com.softserve.rms.service.implementation.DataSourceConfigServiceImpl;
+import com.softserve.rms.constants.DataBases;
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,9 +18,6 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
     private DataSource defaultDS;
     @Autowired
     private ApplicationContext context;
-    @Autowired
-    @Lazy
-    private DataSourceConfigServiceImpl dataSourceConfigService;
 
     private Map<String, DataSource> map = new HashMap<>();
 
@@ -31,45 +25,24 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
 
     @PostConstruct
     public void load() {
-        map.put("tbrm", defaultDS);
+        map.put(DataBases.DEFAULT_DATABASE, defaultDS);
     }
 
     @Override
     protected DataSource selectAnyDataSource() {
-        return map.get("tbrm");
+        return map.get(DataBases.DEFAULT_DATABASE);
     }
 
     @Override
     protected DataSource selectDataSource(String tenantIdentifier) {
-        tenantIdentifier = TenantContext.getCurrentTenant();
-        if(tenantIdentifier == null){
-            tenantIdentifier = "tbrm";
-        }
-
         if (!init) {
             TenantDataSource tenantDataSource = context.getBean(TenantDataSource.class);
             init = true;
             map.putAll(tenantDataSource.getAll());
 
         }
-        if (map.get(tenantIdentifier) == null) {
-            map.put(tenantIdentifier,createDataSource(tenantIdentifier));
-        }
-        return map.get(tenantIdentifier) != null ? map.get(tenantIdentifier) : map.get("tbrm");
+        return map.get(tenantIdentifier) != null ? map.get(tenantIdentifier) : map.get(DataBases.DEFAULT_DATABASE);
     }
 
-    private DataSource createDataSource(String name) {
-        DataSourceConfig config = dataSourceConfigService.findByName(name);
-        if (config != null) {
-            DataSourceBuilder factory = DataSourceBuilder
-                    .create().driverClassName(config.getDriverclassname())
-                    .username(config.getUsername())
-                    .password(config.getPassword())
-                    .url(config.getUrl());
-            DataSource ds = factory.build();
-            return ds;
-        }
-        return null;
-    }
 
 }
