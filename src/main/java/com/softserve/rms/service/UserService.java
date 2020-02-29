@@ -10,6 +10,7 @@ import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -58,6 +59,8 @@ public interface UserService {
      * @return {@link User}
      */
     User getUserByEmail(String email);
+
+    String uploadPhoto(MultipartFile multipartFile,String email);
 
     /**
      * Method that allow you to get {@link User} by ID.

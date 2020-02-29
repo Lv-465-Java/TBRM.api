@@ -106,7 +106,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             fileUrl = endpointUrl + fileName;
             //TODO change it to s3BucketTestRepository generated tableNameRepository from dynamic db
             //TODO change S3BucketTest to our table entity (with fileName field)
-            s3BucketTestRepository.save(S3BucketTest.builder().fileName(fileName).build());
+//            s3BucketTestRepository.save(S3BucketTest.builder().fileName(fileName).build());
             uploadFileTos3bucket(fileName, file);
             file.delete();
         } catch (Exception e) {

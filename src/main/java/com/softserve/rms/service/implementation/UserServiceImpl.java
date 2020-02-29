@@ -33,6 +33,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private AdminRepository adminRepository;
     private PasswordEncoder passwordEncoder;
+    private FileStorageServiceImpl fileStorageService;
     private ModelMapper modelMapper = new ModelMapper();
     public final JavaMailSender javaMailSender;
     private final JdbcTemplate jdbcTemplate;
@@ -67,16 +69,26 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository,
                            AdminRepository adminRepository,
                            PasswordEncoder passwordEncoder,
+                           FileStorageServiceImpl fileStorageService,
                            JavaMailSender javaMailSender,
                            DataSource dataSource) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileStorageService=fileStorageService;
         this.javaMailSender = javaMailSender;
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 
+    @Override
+    public String uploadPhoto(MultipartFile multipartFile,String email){
+        User user = getUserByEmail(email);
+        String url=fileStorageService.uploadFile(multipartFile);
+        user.setImageUrl(url);
+        userRepository.save(user);
+        return url;
+    }
     /**
      * {@inheritDoc }
      *

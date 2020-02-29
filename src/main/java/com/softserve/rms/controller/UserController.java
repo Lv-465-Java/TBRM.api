@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
@@ -79,6 +80,25 @@ public class UserController {
 
         userService.update(trimmer.trimEditData(userEditDto), principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for uploading profile picture.
+     *
+     * @param file to save.
+     * @return url of the saved file.
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PostMapping("/profile/upload_photo")
+    public ResponseEntity<String> uploadPhoto(@RequestPart(value = "file") MultipartFile file,
+                                              @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
+        return  ResponseEntity.status(HttpStatus.OK).
+                body(userService.uploadPhoto(file,principal.getUsername()));
     }
 
     /**
