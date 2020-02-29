@@ -3,6 +3,7 @@ package com.softserve.rms.repository.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ResourceRecord;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
@@ -114,12 +115,27 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
-        int deleted = dslContext.delete(table(tableName))
-                .where(field(FieldConstants.ID.getValue()).eq(id))
-                .execute();
-        if (deleted == 0) {
+        if (checkIfResourceHasDependency(tableName)) {
             throw new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage() + id);
         }
+        dslContext.delete(table(tableName))
+                .where(field(FieldConstants.ID.getValue()).eq(id))
+                .execute();
+    }
+
+    /**
+     * Method checks if the Resource Record has reference to given Resource Record.
+     *
+     * @param tableName {@link ResourceTemplate} table name
+     * @author Andrii Bren
+     */
+    private Boolean checkIfResourceHasDependency(String tableName) {
+        Table<?> foundTable = dslContext.meta().getTables(tableName).get(0);
+        long referencesAmount = dslContext
+                .meta().getTables().stream()
+                .map(table -> table.getReferencesTo((foundTable)))
+                .filter(size -> !(size.isEmpty())).count();
+        return !(referencesAmount == 0);
     }
 
     /**

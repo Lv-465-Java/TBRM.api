@@ -2,6 +2,7 @@ package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -56,7 +57,7 @@ public interface ResourceRecordRepository {
      *
      * @param tableName {@link ResourceTemplate} tableName
      * @param id        {@link ResourceRecord} id
-     * @throws NotFoundException if the resource with provided id is not found
+     * @throws {@link NotDeletedException}
      * @author Andrii Bren
      */
     void delete(String tableName, Long id);
