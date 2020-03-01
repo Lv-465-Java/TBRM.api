@@ -41,39 +41,39 @@ public class RegistratorController {
                 body(fileStorageService.uploadFile(file));
     }
 
-    /**
-     * Method for updating files.
-     *
-     * @param file to save.
-     * @return url of the updated file.
-     */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PutMapping("{resourceId}/updateFile/")
-    public ResponseEntity<String> updateFile(@RequestPart(value = "file") MultipartFile file,
-                                             @PathVariable long resourceId) {
-        return  ResponseEntity.status(HttpStatus.OK).
-                body(fileStorageService.updateFile(file,resourceId));
-    }
+//    /**
+//     * Method for updating files.
+//     *
+//     * @param file to save.
+//     * @return url of the updated file.
+//     */
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200,message = HttpStatuses.OK),
+//            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+//            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+//            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+//    })
+//    @PutMapping("{resourceId}/updateFile/")
+//    public ResponseEntity<String> updateFile(@RequestPart(value = "file") MultipartFile file,
+//                                             @PathVariable long resourceId) {
+//        return  ResponseEntity.status(HttpStatus.OK).
+//                body(fileStorageService.updateFile(file,resourceId));
+//    }
 
     /**
      * Method for deleting files.
      *
      * @param resourceId
      */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @DeleteMapping("{resourceId}/deleteFile")
-    public ResponseEntity deleteFile(@PathVariable long resourceId) {
-        fileStorageService.deleteFile(resourceId);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200,message = HttpStatuses.OK),
+//            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+//            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+//            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+//    })
+//    @DeleteMapping("{resourceId}/deleteFile")
+//    public ResponseEntity deleteFile(@PathVariable long resourceId) {
+//        fileStorageService.deleteFile(resourceId);
+//        return ResponseEntity.status(HttpStatus.OK).build();
+//    }
 }

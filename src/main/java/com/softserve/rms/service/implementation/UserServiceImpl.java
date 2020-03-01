@@ -26,6 +26,7 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -34,13 +35,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-
 import javax.sql.DataSource;
 import java.util.Map;
 import java.util.UUID;
@@ -59,6 +56,7 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper = new ModelMapper();
     public final JavaMailSender javaMailSender;
     private final JdbcTemplate jdbcTemplate;
+    private String endpointUrl;
 
     /**
      * Constructor with parameters
@@ -71,24 +69,58 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            FileStorageServiceImpl fileStorageService,
                            JavaMailSender javaMailSender,
-                           DataSource dataSource) {
+                           DataSource dataSource,
+                           @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService=fileStorageService;
         this.javaMailSender = javaMailSender;
         jdbcTemplate = new JdbcTemplate(dataSource);
+        this.endpointUrl = endpointUrl;
     }
 
 
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
     @Override
-    public String uploadPhoto(MultipartFile multipartFile,String email){
+    public void uploadPhoto(MultipartFile multipartFile,String email){
         User user = getUserByEmail(email);
-        String url=fileStorageService.uploadFile(multipartFile);
-        user.setImageUrl(url);
+        String photoName=fileStorageService.uploadFile(multipartFile);
+        user.setImageUrl(photoName);
         userRepository.save(user);
-        return url;
     }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void changePhoto(MultipartFile multipartFile, String email){
+        User user = getUserByEmail(email);
+        fileStorageService.deleteFile(user.getImageUrl());
+        String photoName=fileStorageService.uploadFile(multipartFile);
+        user.setImageUrl(photoName);
+        userRepository.save(user);
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void deletePhoto(String email){
+        User user = getUserByEmail(email);
+        fileStorageService.deleteFile(user.getImageUrl());
+        user.setImageUrl(null);
+        userRepository.save(user);
+    }
+
     /**
      * {@inheritDoc }
      *
@@ -145,7 +177,7 @@ public class UserServiceImpl implements UserService {
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
         User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(passwordEditDto.getOldPassword(), user.getPassword())) {
-            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+            throw new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
         user.setPassword(passwordEncoder.encode(passwordEditDto.getNewPassword()));
         userRepository.save(user);
@@ -160,7 +192,7 @@ public class UserServiceImpl implements UserService {
     public void editEmail(EmailEditDto emailEditDto, String currentUserEmail) {
         User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(emailEditDto.getPassword(), user.getPassword())) {
-            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+            throw new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
         user.setEmail(emailEditDto.getEmail());
         userRepository.save(user);
@@ -173,7 +205,20 @@ public class UserServiceImpl implements UserService {
      */
     public UserDto getUser(String email){
         User user = getUserByEmail(email);
-        return modelMapper.map(user,UserDto.class);
+        UserDto userDto=modelMapper.map(user,UserDto.class);
+        userDto.setImageUrl(getPhotoUrl(user.getImageUrl()));
+        return userDto;
+    }
+
+    /**
+     * Method that return full url of file from s3
+     *
+     * @param photoName a value of {@link String}
+     * @return {@link String}
+     * @author Mariia Shchur
+     */
+    private String getPhotoUrl(String photoName){
+        return endpointUrl+photoName;
     }
 
 

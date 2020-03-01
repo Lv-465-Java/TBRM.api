@@ -1,7 +1,7 @@
 package com.softserve.rms.controller;
 
 
-import com.softserve.rms.Validator.Trimmer;
+import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
@@ -86,7 +86,7 @@ public class UserController {
      * Method for uploading profile picture.
      *
      * @param file to save.
-     * @return url of the saved file.
+     * @return {@link ResponseEntity}.
      */
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = HttpStatuses.OK),
@@ -95,10 +95,44 @@ public class UserController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/profile/upload_photo")
-    public ResponseEntity<String> uploadPhoto(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity uploadPhoto(@RequestPart(value = "file") MultipartFile file,
                                               @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
-        return  ResponseEntity.status(HttpStatus.OK).
-                body(userService.uploadPhoto(file,principal.getUsername()));
+        userService.uploadPhoto(file,principal.getUsername());
+        return  ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for updating profile picture.
+     *
+     * @param file to save.
+     * @return url of the updated file.
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PutMapping("/profile/updatePhoto")
+    public ResponseEntity changePhoto(@RequestPart(value = "file") MultipartFile file,
+                                             @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
+       userService.changePhoto(file,principal.getUsername());
+        return  ResponseEntity.status(HttpStatus.OK).build();
+    }
+    /**
+     * Method for deleting profile picture
+     *
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/profile/deletePhoto")
+    public ResponseEntity deletePhoto(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
+        userService.deletePhoto(principal.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -119,6 +153,8 @@ public class UserController {
         userService.editPassword(passwordEditDto, principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+
 
     /**
      * Update user's email.
@@ -156,7 +192,6 @@ public class UserController {
     public ResponseEntity deleteAccount(@ApiIgnore
                                             @AuthenticationPrincipal UserPrincipal principal){
         userService.deleteAccount(principal.getUsername());
-        //TODO redirect to main page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
