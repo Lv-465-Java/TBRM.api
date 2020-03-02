@@ -29,16 +29,11 @@ public class JooqDDL {
                 .column(FieldConstants.ID.getValue(), SQLDataType.BIGINT.nullable(false).identity(true))
                 .column(FieldConstants.NAME.getValue(), SQLDataType.VARCHAR(255).nullable(false))
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
-//                .column(FieldConstants.RESOURCE_TEMPLATE_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
                 .constraints(
                         constraint(resourceTemplate.getTableName()
                                 .concat(FieldConstants.PRIMARY_KEY.getValue()))
                                 .primaryKey(FieldConstants.ID.getValue()))
-//                        constraint(FieldConstants.RESOURCE_TEMPLATE_ID.getValue()
-//                                .concat(FieldConstants.FOREIGN_KEY.getValue()))
-//                                .foreignKey(FieldConstants.RESOURCE_TEMPLATE_ID.getValue())
-//                                .references(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue(), FieldConstants.ID.getValue()))
                 .execute();
         addColumnsToResourceContainerTable(resourceTemplate);
     }

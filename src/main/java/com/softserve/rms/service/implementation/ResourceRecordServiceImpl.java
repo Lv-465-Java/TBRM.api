@@ -15,6 +15,7 @@ import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,6 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
-//        resourceRecord.setResourceTemplate(resourceTemplate);
         User user = userService.getById(resourceDTO.getUserId());
         resourceRecord.setUser(user);
         resourceRecord.setParameters(resourceDTO.getParameters());
@@ -67,6 +67,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public ResourceRecordDTO findByIdDTO(String tableName, Long id) throws NotFoundException {
+
         return modelMapper.map(findById(tableName, id), ResourceRecordDTO.class);
     }
 

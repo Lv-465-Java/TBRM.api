@@ -83,6 +83,21 @@ public interface ResourceTemplateControllerApi {
     ResponseEntity<List<ResourceTemplateDTO>> findAllPublishedTemplates();
 
     /**
+     * The controller which finds {@link ResourceTemplateDTO} by table name.
+     *
+     * @param tableName of {@link ResourceTemplateDTO}
+     * @return {@link ResourceTemplateDTO}
+     * @author Andrii Bren
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+    })
+    @GetMapping("/table/{tableName}")
+    ResponseEntity<ResourceTemplateDTO> findTemplateByTableName(@PathVariable String tableName);
+
+    /**
      * The controller which finds all {@link ResourceTemplateDTO} created by provided user id.
      *
      * @param userId {@link User} id
