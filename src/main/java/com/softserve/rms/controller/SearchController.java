@@ -2,11 +2,9 @@ package com.softserve.rms.controller;
 
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.repository.implementation.JooqSearch;
 import com.softserve.rms.repository.implementation.SearchImpl;
 import com.softserve.rms.service.implementation.SearchServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

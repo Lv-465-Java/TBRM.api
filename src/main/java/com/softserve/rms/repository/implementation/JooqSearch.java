@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
+//import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.*;
 
 @Repository
 public class JooqSearch {
@@ -27,8 +28,10 @@ public class JooqSearch {
 
     public List<ResourceTemplate> searchResourceTemplate() {
         Result<Record> searchResult = dslContext.selectFrom("resource_templates")
-                .where(field("name").eq("Room"))
-//                .and(field("description").eq("Room"))
+//                .where(field("name").likeIgnoreCase("room"))
+//                .and(field("description").likeIgnoreCase("template"))
+//                .and(field("creator_id").eq(5))
+                .where(field("is_published").eq(false))
                 .fetch();
         return convertOneRecordsToList(searchResult);
     }

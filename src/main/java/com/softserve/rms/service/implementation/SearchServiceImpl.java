@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class SearchServiceImpl implements SearchService {
     private JooqSearch jooqSearch;
     private DSLContext dslContext;
-    private ModelMapper modelMapper = new ModelMapper();
+    private ModelMapper modelMapper;
 
     @Autowired
     public SearchServiceImpl(JooqSearch jooqSearch, DSLContext dslContext, ModelMapper modelMapper) {
