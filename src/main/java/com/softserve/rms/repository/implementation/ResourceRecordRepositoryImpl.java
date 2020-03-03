@@ -84,6 +84,31 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      *
      * @author Andrii Bren
      */
+//    @Transactional(readOnly = true)
+//    @Override
+//    public List<ResourceRecord> findAll(String tableName) {
+//        List<Record> records = dslContext.select().from(table(tableName))
+//                .innerJoin(table("room")).onKey().fetch();
+//        return convertRecordsToResourceList(records);
+//    }
+
+//    @Transactional(readOnly = true)
+//    @Override
+//    public List<ResourceRecord> findAll(String tableName) {
+//        List<Record> records = dslContext.select().from(table(tableName)
+//                .innerJoin(table("room")).on(table(tableName).field("room_location_ref")
+//                        .eq(table("room").field("id")))).fetch();
+////                        .eq(table("room").field(FieldConstants.ID.getValue())))).fetch();
+//        return convertRecordsToResourceList(records);
+//    }
+
+//    private String getRelatedTableName(String tableName) {
+//        Table<?> table = dslContext.meta().getTables(tableName).get(0);
+//        for (ForeignKey<?, ?> fk : table.getReferences()) {
+//            fk.getTable().getName();
+//        }
+//    }
+
     @Transactional(readOnly = true)
     @Override
     public List<ResourceRecord> findAll(String tableName) {
@@ -182,7 +207,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
-            parameters.put(record.field(i).getName(), record.getValue(i));
+//            if (record.field(i).getName().equals("%ref")) {
+//                parameters.put(record.field(i).getName(), getRelatedResourceName((Long) record.getValue(i)));
+//            } else {
+                parameters.put(record.field(i).getName(), record.getValue(i));
+//            }
         }
         parameters.remove(FieldConstants.ID.getValue());
         parameters.remove(FieldConstants.NAME.getValue());
@@ -190,4 +219,9 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.USER_ID.getValue());
         return parameters;
     }
+//
+//    private ResourceRecord getRelatedResourceName(Long id) {
+//
+//        findById()
+//    }
 }
