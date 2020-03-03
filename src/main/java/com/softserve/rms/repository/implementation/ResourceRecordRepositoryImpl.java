@@ -129,7 +129,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return list of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    private List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
+    public List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
         List<ResourceRecord> resourceRecords = new ArrayList<>();
         for (Record record : records) {
             ResourceRecord resourceRecord = convertRecordToResource(record);
@@ -145,7 +145,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    private ResourceRecord convertRecordToResource(Record record) {
+    public ResourceRecord convertRecordToResource(Record record) {
         Long userId = (Long) record.getValue(field(FieldConstants.USER_ID.getValue()).getName());
         return ResourceRecord.builder()
                 .id((Long) record.getValue(field(FieldConstants.ID.getValue()).getName()))
@@ -163,7 +163,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return map of dynamic resource parameters
      * @author Andrii Bren
      */
-    private Map<String, Object> getParameters(Record record) {
+    public Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
             parameters.put(record.field(i).getName(), record.getValue(i));
