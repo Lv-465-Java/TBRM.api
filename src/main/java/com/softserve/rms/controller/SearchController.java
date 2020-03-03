@@ -15,27 +15,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/search")
 public class SearchController {
-
-    private SearchImpl search;
     private SearchServiceImpl searchService;
 
     @Autowired
-    public SearchController(SearchImpl search, SearchServiceImpl searchService) {
-        this.search = search;
+    public SearchController(SearchServiceImpl searchService) {
         this.searchService = searchService;
     }
 
-    @PostMapping
-    public ResponseEntity<List<ResourceTemplate>> searchContr(@RequestParam Map<String, Object> body) {
-        return ResponseEntity.status(HttpStatus.OK).body(search.searchResourceTemp(body));
-
-    }
-
     @GetMapping
-    public ResponseEntity<List<ResourceTemplateDTO>> searching(@RequestParam(value = "search") String search) {
-
-
+    public ResponseEntity<List<ResourceTemplateDTO>> searching() {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.searchMethod());
-
     }
+
+//    @RequestParam(value = "search") String search,
+//    @PathVariable String tableName)
 }

@@ -1,6 +1,5 @@
 package com.softserve.rms.repository.implementation;
 
-import com.softserve.rms.dto.search.SearchCriteriaDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import org.springframework.stereotype.Repository;
 

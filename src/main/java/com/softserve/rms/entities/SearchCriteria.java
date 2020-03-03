@@ -1,4 +1,4 @@
-package com.softserve.rms.dto.search;
+package com.softserve.rms.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SearchCriteriaDTO {
+public class SearchCriteria {
     private String key;
+    private String operation;
     private Object value;
-//    private Object entityName;
 }
