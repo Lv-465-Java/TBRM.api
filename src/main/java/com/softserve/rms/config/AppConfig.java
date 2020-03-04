@@ -1,7 +1,7 @@
 package com.softserve.rms.config;
 
 import com.softserve.rms.repository.implementation.JooqDDL;
-import com.softserve.rms.repository.implementation.JooqSearching;
+import com.softserve.rms.repository.implementation.JooqSearch;
 import com.softserve.rms.repository.implementation.ResourceRecordRepositoryImpl;
 import com.softserve.rms.service.UserService;
 import org.jooq.DSLContext;
@@ -32,7 +32,7 @@ public class AppConfig {
     }
 
     @Bean
-    public JooqSearching createJooqSearch() {
-        return new JooqSearching(dslContext, userService, resourceRepository);
+    public JooqSearch createJooqSearch() {
+        return new JooqSearch(dslContext, userService, resourceRepository);
     }
 }

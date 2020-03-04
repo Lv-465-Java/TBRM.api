@@ -3,7 +3,7 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.SearchCriteria;
-import com.softserve.rms.repository.implementation.JooqSearching;
+import com.softserve.rms.repository.implementation.JooqSearch;
 import com.softserve.rms.service.SearchService;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -20,19 +20,19 @@ import static org.jooq.impl.DSL.field;
 
 @Service
 public class SearchServiceImpl implements SearchService {
-    private JooqSearching jooqSearching;
+    private JooqSearch jooqSearch;
     private DSLContext dslContext;
     private ModelMapper modelMapper;
 
     @Autowired
-    public SearchServiceImpl(JooqSearching jooqSearching, DSLContext dslContext, ModelMapper modelMapper) {
-        this.jooqSearching = jooqSearching;
+    public SearchServiceImpl(JooqSearch jooqSearch, DSLContext dslContext, ModelMapper modelMapper) {
+        this.jooqSearch = jooqSearch;
         this.dslContext = dslContext;
         this.modelMapper = modelMapper;
     }
 
     public List<ResourceRecordDTO> filterByCriteria(List<SearchCriteria> criteriaList, String tableName) {
-        List<ResourceRecord> resourceRecordList = jooqSearching.searchResourceTemplate(
+        List<ResourceRecord> resourceRecordList = jooqSearch.searchResourceTemplate(
                 getSearchCriteria(criteriaList), tableName);
         return resourceRecordList.stream()
                 .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class))

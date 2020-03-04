@@ -14,7 +14,15 @@ public enum FieldConstants {
     TO("_to"),
     REFERENCE("_ref"),
     RESOURCE_TEMPLATES_TABLE("resource_templates"),
-    RESOURCE_RELATION_TABLE("resource_relations");
+    RESOURCE_RELATION_TABLE("resource_relations"),
+
+    DOUBLE("Double"),
+    INTEGER("Integer"),
+    LONG("Long"),
+
+    COMMA(","),
+    UNDERSCORE("_"),
+    SPACE(" ");
 
     private String value;
 
