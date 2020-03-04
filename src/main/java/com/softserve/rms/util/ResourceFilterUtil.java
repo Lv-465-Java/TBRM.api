@@ -39,6 +39,7 @@ public class ResourceFilterUtil {
     public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
         List<String> searchStringList = splitSearchCriteriaByPoint(search);
         List<SearchCriteria> criteria = new ArrayList<>();
+
         for (String string : searchStringList) {
             int searchCriteriaLength = string.length();
             Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);

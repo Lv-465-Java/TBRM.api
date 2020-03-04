@@ -14,7 +14,6 @@ import java.util.List;
 
 //@Repository
 public class JooqSearch {
-
     private DSLContext dslContext;
     private UserService userService;
     private ResourceRecordRepositoryImpl resourceRepository;
