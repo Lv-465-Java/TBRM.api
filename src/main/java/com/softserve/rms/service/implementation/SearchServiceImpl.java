@@ -1,21 +1,18 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
+import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.repository.implementation.JooqSearching;
 import com.softserve.rms.service.SearchService;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.softserve.rms.constants.SearchOperation.*;
@@ -34,7 +31,15 @@ public class SearchServiceImpl implements SearchService {
         this.modelMapper = modelMapper;
     }
 
-    public List<ResourceTemplateDTO> getSearchCriteria(List<SearchCriteria> criteriaList) {
+    public List<ResourceRecordDTO> filterByCriteria(List<SearchCriteria> criteriaList, String tableName) {
+        List<ResourceRecord> resourceRecordList = jooqSearching.searchResourceTemplate(
+                getSearchCriteria(criteriaList), tableName);
+        return resourceRecordList.stream()
+                .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<Condition> getSearchCriteria(List<SearchCriteria> criteriaList) {
         List<Condition> conditionList = new ArrayList<>();
         for (SearchCriteria criteria : criteriaList) {
             switch (criteria.getOperation()) {
@@ -62,15 +67,9 @@ public class SearchServiceImpl implements SearchService {
                     return null;
             }
         }
-        return filterByCriteria(conditionList);
+        return conditionList;
     }
 
-    public List<ResourceTemplateDTO> filterByCriteria(List<Condition> conditionList) {
-        List<ResourceTemplate> resourceTemplates = jooqSearching.searchResourceTemplate(conditionList);
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
-    }
 
 //    public List<ResourceTemplateDTO> searchMethod() {
 //        Field<Object> film = field("creator_id");

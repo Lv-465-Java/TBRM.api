@@ -1,45 +1,49 @@
 package com.softserve.rms.repository.implementation;
 
-import com.softserve.rms.constants.FieldConstants;
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.ResourceRecord;
-import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.SqlGrammarException;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
-import org.springframework.stereotype.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.BadSqlGrammarException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.jooq.impl.DSL.*;
 
 //@Repository
 public class JooqSearching {
 
     private DSLContext dslContext;
     private UserService userService;
-    private Map<String, Object> myMap = new HashMap<>();
+    private ResourceRecordRepositoryImpl resourceRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(JooqSearching.class);
 
-    public JooqSearching(DSLContext dslContext, UserService userService) {
+    @Autowired
+    public JooqSearching(DSLContext dslContext, UserService userService, ResourceRecordRepositoryImpl resourceRepository) {
         this.dslContext = dslContext;
         this.userService = userService;
+        this.resourceRepository = resourceRepository;
     }
-//    String string = new String("name=room");
+
+    public List<ResourceRecord> searchResourceTemplate(List<Condition> conditionList, String tableName) {
+        Result<Record> searchResult;
+        try {
+            searchResult = dslContext.selectFrom(tableName)
+                    .where(conditionList).fetch();
+        } catch (BadSqlGrammarException exception) {
+            throw new SqlGrammarException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
+        }
+        return resourceRepository.convertRecordsToResourceList((searchResult));
+    }
+
+    //    String string = new String("name=room");
 //    Condition condition(string);
 //    myMap.put("name", "room");
 
-    String tab = new String("room");
-
-    public List<ResourceRecord> searchResourceTemplate(List<Condition> conditionList) {
-//        Condition withBoolean = field("is_published").eq("false");
+    //        Condition withBoolean = field("is_published").eq("false");
 //        Condition withB = field("is_published").eq(false);
-
-        Result<Record> searchResult = dslContext.selectFrom(tab)
-                .where(conditionList).fetch();
-        return convertOneRecordsToList(searchResult);
-    }
-
 
 //    public List<ResourceTemplate> searchResourceTemplate(Map<Field<?>, Object> myMap) {
 ////        String myString = "is_published = false and creator_id = 5";

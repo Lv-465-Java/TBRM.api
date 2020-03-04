@@ -86,7 +86,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional(readOnly = true)
     @Override
     public List<ResourceRecord> findAll(String tableName) {
-        List<Record> records = dslContext.selectFrom(tableName).fetch();
+        Result<Record> records = dslContext.selectFrom(tableName).fetch();
         return convertRecordsToResourceList(records);
     }
 
@@ -129,7 +129,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return list of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    public List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
+    public List<ResourceRecord> convertRecordsToResourceList(Result<Record> records) {
         List<ResourceRecord> resourceRecords = new ArrayList<>();
         for (Record record : records) {
             ResourceRecord resourceRecord = convertRecordToResource(record);

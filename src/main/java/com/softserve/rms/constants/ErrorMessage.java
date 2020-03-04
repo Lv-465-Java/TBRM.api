@@ -51,7 +51,9 @@ public enum ErrorMessage {
 
     WRONG_PASSWORD("Wrong password"),
     INVALID_LINK_OR_TOKEN("Link is invalid or broken"),
-    TOKEN_EXPIRED("Token is already expired");
+    TOKEN_EXPIRED("Token is already expired"),
+
+    WRONG_SEARCH_CRITERIA("Search criteria are not valid");
 
     private String message;
 
