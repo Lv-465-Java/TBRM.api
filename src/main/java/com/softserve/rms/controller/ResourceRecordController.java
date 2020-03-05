@@ -5,7 +5,6 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.security.UserPrincipal;
 import com.softserve.rms.service.ResourceRecordService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -14,13 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/resource-template/resource/{tableName}")
@@ -139,28 +136,38 @@ public class ResourceRecordController {
         resourceRecordService.delete(tableName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
     /**
      * Method for uploading resource photo.
      *
-     * @param file to save.
+     * @param request files to save.
      * @return {@link ResponseEntity}.
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/{id}/updatePhoto")
-    public ResponseEntity changePhoto(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity changePhoto(@RequestPart List<MultipartFile> files,
                                       @PathVariable String tableName,
-                                      @PathVariable Long id ) {
-        resourceRecordService.changePhoto(file,tableName,id);
-        return  ResponseEntity.status(HttpStatus.OK).build();
+                                      @PathVariable Long id) {
+        for(MultipartFile file:files){
+            resourceRecordService.changePhoto(file, tableName, id);
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
+
     @DeleteMapping("/{id}/deletePhoto")
-    public ResponseEntity deletePhoto(@PathVariable String tableName, @PathVariable Long id) {
-        resourceRecordService.deletePhoto(tableName,id);
+    public ResponseEntity deleteAllPhoto(@PathVariable String tableName, @PathVariable Long id) {
+        resourceRecordService.deleteAllPhotos(tableName, id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @DeleteMapping("/{id}/{photo}/delete")
+    public ResponseEntity deletePhoto(@PathVariable String tableName, @PathVariable Long id, @PathVariable String photo) {
+        resourceRecordService.deletePhoto(tableName, id,photo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

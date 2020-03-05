@@ -8,6 +8,7 @@ import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ResourceRecordService {
 
@@ -80,6 +81,7 @@ public interface ResourceRecordService {
      */
     void delete(String tableName, Long id);
 
-    void changePhoto(MultipartFile file, String tableName,Long id);
-    void deletePhoto(String tableName,Long id);
+    void changePhoto(MultipartFile files, String tableName, Long id);
+    void deleteAllPhotos(String tableName, Long id);
+    void deletePhoto(String tableName, Long id,String photo);
 }

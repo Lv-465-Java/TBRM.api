@@ -41,10 +41,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserService userService,FileStorageServiceImpl fileStorageService,@Value("${ENDPOINT_URL}") String endpointUrl) {
+    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserService userService, FileStorageServiceImpl fileStorageService, @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.resourceRecordRepository = resourceRecordRepository;
         this.resourceTemplateService = resourceTemplateService;
-        this.fileStorageService=fileStorageService;
+        this.fileStorageService = fileStorageService;
         this.userService = userService;
         this.endpointUrl = endpointUrl;
     }
@@ -63,6 +63,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
 //        resourceRecord.setResourceTemplate(resourceTemplate);
         User user = userService.getById(resourceDTO.getUserId());
         resourceRecord.setUser(user);
+        resourceRecord.setPhotoName(null);
         resourceRecord.setParameters(resourceDTO.getParameters());
         resourceRecordRepository.save(tableName, resourceRecord);
     }
@@ -74,7 +75,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public ResourceRecordDTO findByIdDTO(String tableName, Long id) throws NotFoundException {
-        return modelMapper.map(findById(tableName, id), ResourceRecordDTO.class);
+        ResourceRecord resourceRecord = findById(tableName, id);
+        resourceRecord.setPhotoName(generateUrlForPhoto(resourceRecord.getPhotoName()));
+        return modelMapper.map(resourceRecord, ResourceRecordDTO.class);
     }
 
     /**
@@ -84,11 +87,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     public ResourceRecord findById(String tableName, Long id) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
-        ResourceRecord resourceRecord = resourceRecordRepository.findById(tableName, id)
+        return resourceRecordRepository.findById(tableName, id)
                 .orElseThrow(() -> new NotFoundException(
                         ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + id));
-        resourceRecord.setPhotoName(endpointUrl + resourceRecord.getName());
-        return resourceRecord;
     }
 
     /**
@@ -101,7 +102,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         checkIfResourceTemplateIsPublished(tableName);
         List<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName);
         resourceRecords.stream()
-                .forEach(resource->resource.setPhotoName(endpointUrl+resource.getPhotoName()));
+                .forEach(resource -> resource.setPhotoName(generateUrlForPhoto(resource.getPhotoName())));
         return resourceRecords.stream()
                 .map(resource -> modelMapper.map(resource, ResourceRecordDTO.class))
                 .collect(Collectors.toList());
@@ -138,8 +139,8 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     public void delete(String tableName, Long id) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = findById(tableName, id);
-        if(resourceRecord.getPhotoName()!=null){
-            fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        if (resourceRecord.getPhotoName() != null) {
+            deletePhotosFromS3(resourceRecord.getPhotoName());
         }
         resourceRecordRepository.delete(tableName, id);
     }
@@ -154,22 +155,53 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
 
 
     @Override
-    public void changePhoto(MultipartFile file, String tableName,Long id){
+    public void changePhoto(MultipartFile files,
+                            String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
-        if(resourceRecord.getPhotoName()!=null) {
-            fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        String photoName = fileStorageService.uploadFile(files);
+        if (resourceRecord.getPhotoName() != null) {
+            resourceRecord.setPhotoName(resourceRecord.getPhotoName() + photoName + ',');
+        } else {
+            resourceRecord.setPhotoName(photoName + ',');
         }
-        String photoName=fileStorageService.uploadFile(file);
-        resourceRecord.setPhotoName(photoName);
         resourceRecordRepository.update(tableName, id, resourceRecord);
     }
 
     @Override
-    public void deletePhoto(String tableName,Long id){
+    public void deleteAllPhotos(String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
-        fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        deletePhotosFromS3(resourceRecord.getPhotoName());
         resourceRecord.setPhotoName(null);
         resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
+    private void deletePhotosFromS3(String photos){
+        String[] allPhotos = photos.split(",");
+        for(String photo: allPhotos){
+            fileStorageService.deleteFile(photo);
+        }
+    }
+
+    @Override
+    public void deletePhoto(String tableName, Long id,String photo) {
+        ResourceRecord resourceRecord = findById(tableName, id);
+        String[] allPhotos = resourceRecord.getPhotoName().split(",");
+        for(String p: allPhotos){
+            if(p.equals(photo)){
+                fileStorageService.deleteFile(p);
+            }
+        }
+        resourceRecord.setPhotoName(resourceRecord.getPhotoName().replace((photo+','),""));
+        resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
+    private String generateUrlForPhoto(String photo) {
+        StringBuilder result = new StringBuilder();
+        String[] words = photo.split(",");
+        for (String s : words) {
+            result.append(endpointUrl + s + ',');
+        }
+        return (result.toString());
     }
 
 }
