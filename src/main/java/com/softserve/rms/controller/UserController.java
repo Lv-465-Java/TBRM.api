@@ -83,25 +83,6 @@ public class UserController {
     }
 
     /**
-     * Method for uploading profile picture.
-     *
-     * @param file to save.
-     * @return {@link ResponseEntity}.
-     */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-    })
-    @PostMapping("/profile/upload_photo")
-    public ResponseEntity uploadPhoto(@RequestPart(value = "file") MultipartFile file,
-                                              @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
-        userService.uploadPhoto(file,principal.getUsername());
-        return  ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    /**
      * Method for updating profile picture.
      *
      * @param file to save.

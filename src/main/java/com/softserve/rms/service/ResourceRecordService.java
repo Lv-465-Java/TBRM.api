@@ -5,6 +5,7 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -78,4 +79,7 @@ public interface ResourceRecordService {
      * @author Andrii Bren
      */
     void delete(String tableName, Long id);
+
+    void changePhoto(MultipartFile file, String tableName,Long id);
+    void deletePhoto(String tableName,Long id);
 }

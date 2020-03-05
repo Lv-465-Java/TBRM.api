@@ -61,15 +61,6 @@ public interface UserService {
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
 
     /**
-     * Method that allow you to upload profile picture
-     *
-     * @param multipartFile photo for saving.
-     * @param email a value of {@link String}
-     * @author Mariia Shchur
-     */
-    void uploadPhoto(MultipartFile multipartFile,String email);
-
-    /**
      * Method that allow you to change profile picture
      *
      * @param multipartFile photo for saving.

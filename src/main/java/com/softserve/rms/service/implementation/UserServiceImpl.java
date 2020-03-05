@@ -80,20 +80,6 @@ public class UserServiceImpl implements UserService {
         this.endpointUrl = endpointUrl;
     }
 
-
-    /**
-     * {@inheritDoc }
-     *
-     * @author Mariia Shchur
-     */
-    @Override
-    public void uploadPhoto(MultipartFile multipartFile,String email){
-        User user = getUserByEmail(email);
-        String photoName=fileStorageService.uploadFile(multipartFile);
-        user.setImageUrl(photoName);
-        userRepository.save(user);
-    }
-
     /**
      * {@inheritDoc }
      *
@@ -102,7 +88,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePhoto(MultipartFile multipartFile, String email){
         User user = getUserByEmail(email);
-        fileStorageService.deleteFile(user.getImageUrl());
+        if(user.getImageUrl()!=null) {
+            fileStorageService.deleteFile(user.getImageUrl());
+        }
         String photoName=fileStorageService.uploadFile(multipartFile);
         user.setImageUrl(photoName);
         userRepository.save(user);
@@ -144,8 +132,15 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Override
+    @Transactional
+
+
     public void deleteAccount(String email) {
+        User user = getUserByEmail(email);
         try {
+            if((user.getImageUrl()!=null)&&(user.getProvider()==null)){
+                fileStorageService.deleteFile(user.getImageUrl());
+            }
             userRepository.deleteByEmail(email);
         }
         catch (NotDeletedException e){

@@ -1,6 +1,5 @@
 package com.softserve.rms.service.implementation;
 
-import com.softserve.rms.repository.S3BucketTestRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

@@ -28,6 +28,8 @@ public class ResourceRecord {
 
     private User user;
 
+    private String photoName;
+
     private Map<String, Object> parameters;
 
 

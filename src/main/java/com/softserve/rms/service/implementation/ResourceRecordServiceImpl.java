@@ -14,7 +14,10 @@ import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     private ResourceRecordRepository resourceRecordRepository;
     private ResourceTemplateService resourceTemplateService;
     private UserService userService;
+    private FileStorageServiceImpl fileStorageService;
     private ModelMapper modelMapper = new ModelMapper();
+    private String endpointUrl;
 
     /**
      * Constructor with parameters
@@ -36,10 +41,12 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserService userService) {
+    public ResourceRecordServiceImpl(ResourceRecordRepository resourceRecordRepository, ResourceTemplateService resourceTemplateService, UserService userService,FileStorageServiceImpl fileStorageService,@Value("${ENDPOINT_URL}") String endpointUrl) {
         this.resourceRecordRepository = resourceRecordRepository;
         this.resourceTemplateService = resourceTemplateService;
+        this.fileStorageService=fileStorageService;
         this.userService = userService;
+        this.endpointUrl = endpointUrl;
     }
 
     /**
@@ -77,9 +84,11 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     public ResourceRecord findById(String tableName, Long id) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
-        return resourceRecordRepository.findById(tableName, id)
+        ResourceRecord resourceRecord = resourceRecordRepository.findById(tableName, id)
                 .orElseThrow(() -> new NotFoundException(
                         ErrorMessage.CAN_NOT_FIND_A_RESOURCE_TABLE.getMessage() + id));
+        resourceRecord.setPhotoName(endpointUrl + resourceRecord.getName());
+        return resourceRecord;
     }
 
     /**
@@ -91,6 +100,8 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     public List<ResourceRecordDTO> findAll(String tableName) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
         List<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName);
+        resourceRecords.stream()
+                .forEach(resource->resource.setPhotoName(endpointUrl+resource.getPhotoName()));
         return resourceRecords.stream()
                 .map(resource -> modelMapper.map(resource, ResourceRecordDTO.class))
                 .collect(Collectors.toList());
@@ -126,6 +137,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     @Override
     public void delete(String tableName, Long id) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
+        ResourceRecord resourceRecord = findById(tableName, id);
+        if(resourceRecord.getPhotoName()!=null){
+            fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        }
         resourceRecordRepository.delete(tableName, id);
     }
 
@@ -136,4 +151,25 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
                     ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage() + tableName);
         }
     }
+
+
+    @Override
+    public void changePhoto(MultipartFile file, String tableName,Long id){
+        ResourceRecord resourceRecord = findById(tableName, id);
+        if(resourceRecord.getPhotoName()!=null) {
+            fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        }
+        String photoName=fileStorageService.uploadFile(file);
+        resourceRecord.setPhotoName(photoName);
+        resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
+    @Override
+    public void deletePhoto(String tableName,Long id){
+        ResourceRecord resourceRecord = findById(tableName, id);
+        fileStorageService.deleteFile(resourceRecord.getPhotoName());
+        resourceRecord.setPhotoName(null);
+        resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
 }
