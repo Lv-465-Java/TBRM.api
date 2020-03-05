@@ -27,9 +27,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -42,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(GroupServiceImpl.class)
+@PrepareForTest({GroupServiceImpl.class, PageRequest.class})
 public class GroupServiceImplTest {
     private final String verifyGroupPermission = "verifyGroupPermission";
     private final String verifyIfGroupMemberIsUnique = "verifyIfGroupMemberIsUnique";
@@ -64,6 +66,8 @@ public class GroupServiceImplTest {
     private SecurityContext securityContext;
     @Mock
     private Principal principal;
+    @Mock
+    private Page<Group> page;
 
     @InjectMocks
     private GroupServiceImpl groupService;
@@ -85,14 +89,16 @@ public class GroupServiceImplTest {
     public void init() {
         groupService = PowerMockito.spy(new GroupServiceImpl(userRepository, groupRepository,
                 groupMemberRepository, permissionManagerService, modelMapper));
+        page = PowerMockito.mock(Page.class);
     }
 
     @Test
     public void getAllOk() {
-        doReturn(groups).when(groupRepository).findAll();
-        doReturn(groupDto).when(modelMapper).map(any(Group.class), any(Class.class));
-        List<GroupDto> actual = groupService.getAll();
-        List<GroupDto> expected = Collections.singletonList(groupDto);
+        Page<GroupDto> expected = new PageImpl<>(Collections.singletonList(groupDto));
+        Page<Group> expectedPage = new PageImpl<>(Collections.singletonList(group));
+        doReturn(page).when(groupRepository).findAll(any(Pageable.class));
+        doReturn(expected).when(page).map(any());
+        Page<GroupDto> actual = groupService.getAll(1, 5);
         assertEquals(actual, expected);
     }
 
@@ -115,7 +121,7 @@ public class GroupServiceImplTest {
         String email = "mail";
         doNothing().when(groupService, verifyIfGroupNameIsUnique, anyString());
         doReturn(group).when(modelMapper).map(any(GroupSaveDto.class), any(Class.class));
-        doReturn(group).when(groupRepository).saveAndFlush(any(Group.class));
+        doReturn(group).when(groupRepository).save(any(Group.class));
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         doReturn(email).when(authentication).getName();
@@ -131,7 +137,7 @@ public class GroupServiceImplTest {
         String email = "mail";
         doNothing().when(groupService, verifyIfGroupNameIsUnique, anyString());
         doReturn(group).when(modelMapper).map(any(GroupSaveDto.class), any(Class.class));
-        doReturn(group).when(groupRepository).saveAndFlush(any(Group.class));
+        doReturn(group).when(groupRepository).save(any(Group.class));
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
         doReturn(email).when(authentication).getName();
