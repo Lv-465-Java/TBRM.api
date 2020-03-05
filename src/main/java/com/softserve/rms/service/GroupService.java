@@ -3,12 +3,16 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 public interface GroupService {
-    List<GroupDto> getAll();
+    Page<GroupDto> getAll(Integer page, Integer pageSize);
 
     GroupDto getByName(String name);
 

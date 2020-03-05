@@ -9,12 +9,18 @@ import com.softserve.rms.service.GroupService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @RestController
 @RequestMapping("/group")
@@ -33,9 +39,10 @@ public class GroupController {
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @GetMapping
-    public ResponseEntity<List<GroupDto>> getAll() {
+    public ResponseEntity<Page<GroupDto>> getAll(@RequestParam Optional<Integer> page,
+                                                 @RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(groupService.getAll());
+                .body(groupService.getAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     @ApiResponses(value = {
