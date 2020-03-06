@@ -15,14 +15,11 @@ import java.util.List;
 //@Repository
 public class JooqSearch {
     private DSLContext dslContext;
-    private UserService userService;
     private ResourceRecordRepositoryImpl resourceRepository;
-    private static final Logger LOG = LoggerFactory.getLogger(JooqSearch.class);
 
     @Autowired
-    public JooqSearch(DSLContext dslContext, UserService userService, ResourceRecordRepositoryImpl resourceRepository) {
+    public JooqSearch(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
         this.dslContext = dslContext;
-        this.userService = userService;
         this.resourceRepository = resourceRepository;
     }
 

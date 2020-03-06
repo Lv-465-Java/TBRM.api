@@ -25,9 +25,10 @@ public class ResourceFilterUtil {
     @Autowired
     public ResourceFilterUtil(DSLContext dslContext) {
         this.dslContext = dslContext;
-        map.put("Long", l -> Long.valueOf((String) l));
-        map.put("Integer", i -> Integer.valueOf((String) i));
-        map.put("String", s -> replaceUnderscoresToSpaces((String) s));
+        map.put(FieldConstants.LONG.getValue(), l -> Long.valueOf((String) l));
+        map.put(FieldConstants.INTEGER.getValue(), i -> Integer.valueOf((String) i));
+        map.put(FieldConstants.DOUBLE.getValue(), d -> Double.valueOf((String) d));
+        map.put(FieldConstants.STRING.getValue(), s -> s);
     }
 
     /**
@@ -97,59 +98,40 @@ public class ResourceFilterUtil {
                 try {
                     searchCriteria.setValue(parser.apply(matcherGroup[2]));
                 } catch (NumberFormatException e) {
-                    throw new InvalidParametersException("error");
+                    throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
                 }
             }
         }
         return searchCriteria;
     }
-//    public SearchCriteria checkColumnParameterType(String tableName, String... matcherGroup) {
-//        SearchCriteria searchCriteria = SearchCriteria.builder()
-//                .key(matcherGroup[0])
-//                .operation(matcherGroup[1]).build();
-//
-//        List<Field<?>> fields = getColumns(tableName);
-//        for (Field<?> field : fields) {
-//            if (field.getName().equals(matcherGroup[0])) {
-//                if (field.getDataType().getSQLDataType().getType().getSimpleName()
-//                        .equals(FieldConstants.DOUBLE.getValue())) {
-//                    searchCriteria.setValue(Double.parseDouble(matcherGroup[2]));
-//                } else if (field.getDataType().getSQLDataType().getType().getSimpleName()
-//                        .equals(FieldConstants.LONG.getValue())) {
-//                    Long number = Long.parseLong(matcherGroup[2]);
-//                    searchCriteria.setValue(number);
-//                } else if (field.getDataType().getSQLDataType().getType().getSimpleName()
-//                        .equals(FieldConstants.INTEGER.getValue())) {
-//                    searchCriteria.setValue(Integer.parseInt(matcherGroup[2]));
-//                } else {
-//                    searchCriteria.setValue(replaceUnderscoresToSpaces(matcherGroup[2]));
-//                }
-//            }
-//        }
-//        return searchCriteria;
-//    }
 
     /**
      * Method selects all columns from a table by provided table name.
      *
      * @param tableName name of a table where entities are searched
      * @return list of {@link Field}
+     * @throws InvalidParametersException if the table doesn't exist
      * @author Halyna Yatseniuk
      */
 
     public List<Field<?>> getColumns(String tableName) {
-        Table<?> foundTable = dslContext.meta().getTables(tableName).get(0);
+        Table<?> foundTable;
+        try {
+            foundTable = dslContext.meta().getTables(tableName).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            throw new InvalidParametersException(ErrorMessage.INVALID_TABLE_CRITERIA.getMessage());
+        }
         return Arrays.asList(foundTable.fields());
     }
 
-    /**
-     * Method replaces underscores to spaces for a provided string.
-     *
-     * @param searchedText string to be modified
-     * @return modified string
-     * @author Halyna Yatseniuk
-     */
-    public String replaceUnderscoresToSpaces(String searchedText) {
-        return searchedText.replace(FieldConstants.UNDERSCORE.getValue(), FieldConstants.SPACE.getValue());
-    }
+//    /**
+//     * Method replaces underscores to spaces for a provided string.
+//     *
+//     * @param searchedText string to be modified
+//     * @return modified string
+//     * @author Halyna Yatseniuk
+//     */
+//    public String replaceUnderscoresToSpaces(String searchedText) {
+//        return searchedText.replace(FieldConstants.UNDERSCORE.getValue(), FieldConstants.SPACE.getValue());
+//    }
 }

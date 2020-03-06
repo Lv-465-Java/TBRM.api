@@ -19,6 +19,7 @@ public enum FieldConstants {
     DOUBLE("Double"),
     INTEGER("Integer"),
     LONG("Long"),
+    STRING("String"),
 
     COMMA(","),
     UNDERSCORE("_"),

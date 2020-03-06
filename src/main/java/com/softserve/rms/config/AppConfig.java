@@ -33,6 +33,6 @@ public class AppConfig {
 
     @Bean
     public JooqSearch createJooqSearch() {
-        return new JooqSearch(dslContext, userService, resourceRepository);
+        return new JooqSearch(dslContext, resourceRepository);
     }
 }
