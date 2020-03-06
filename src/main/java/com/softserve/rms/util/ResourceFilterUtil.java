@@ -93,25 +93,3 @@ public class ResourceFilterUtil {
         return searchedText.replace(FieldConstants.UNDERSCORE.getValue(), FieldConstants.SPACE.getValue());
     }
 }
-
-
-//            if (parameter.getColumnName().equals(matcherGroup[0])) {
-//                String type = parameter.getParameterType().getType();
-//                if (type.equals("Integer")) {
-//                    Integer number = Integer.parseInt(matcherGroup[3]);
-//                    searchCriteria.setValue(number);
-//                }
-//                if (type.equals("Double")) {
-//                    Double number = Double.parseDouble(matcherGroup[3]);
-//                    searchCriteria.setValue(number);
-//                }
-//                //needed for testing
-//                if (type.equals("String")) {
-//                    searchCriteria.setValue(matcherGroup[3]);
-//                }
-//                //needed for testing
-//                else {
-//                    Boolean bool = Boolean.getBoolean(matcherGroup[3]);
-//                    searchCriteria.setValue(bool);
-//                }
-//            }

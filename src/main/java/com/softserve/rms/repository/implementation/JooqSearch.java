@@ -36,32 +36,4 @@ public class JooqSearch {
         }
         return resourceRepository.convertRecordsToResourceList((searchResult));
     }
-
-    //    String string = new String("name=room");
-//    Condition condition(string);
-//    myMap.put("name", "room");
-
-    //        Condition withBoolean = field("is_published").eq("false");
-//        Condition withB = field("is_published").eq(false);
-
-//    public List<ResourceTemplate> searchResourceTemplate(Map<Field<?>, Object> myMap) {
-////        String myString = "is_published = false and creator_id = 5";
-//        Condition withString = condition("is_published = true and creator_id = 5");
-//        Condition withField = field("name").containsIgnoreCase("Room");
-//
-//        List<Condition> list = new ArrayList<>();
-//        list.add(withField);
-//        list.add(withString);
-//        System.out.println(list);
-//
-////        String myStr = "name != 'Room'";
-////        Condition my = condition(myMap);
-//        Result<Record> searchResult = dslContext.selectFrom(tab)
-//                .where(list).fetch();
-//
-////                .where(condition())
-////                .where(field("is_published").contains(false));
-////                .fetch();
-//        return convertOneRecordsToList(searchResult);
-//    }
 }

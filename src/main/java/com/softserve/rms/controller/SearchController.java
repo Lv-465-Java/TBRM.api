@@ -30,22 +30,3 @@ public class SearchController {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.filterByCriteria(searchCriteriaList, tableName));
     }
 }
-//        List<SearchCriteria> criteria = new ArrayList<>();
-//
-//        if (search != null) {
-//            List<String> searchStringList = Arrays.asList(search.split(","));
-//            System.out.println(searchStringList);
-//            for (String string : searchStringList) {
-//                int matcherLength = string.length();
-//                Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
-//                Matcher matcher = pattern.matcher(string);
-//                while (matcher.find()) {
-//                    int neededLength = matcher.group(1).length() + matcher.group(2).length() + matcher.group(3).length();
-//                    if (neededLength == matcherLength) {
-//                        SearchCriteria searchCriteria = new SearchCriteria(
-//                                matcher.group(1), matcher.group(2), matcher.group(3));
-//                        criteria.add(searchCriteria);
-//                    } else throw new RuntimeException("lalala");
-//                }
-//            }
-//        }

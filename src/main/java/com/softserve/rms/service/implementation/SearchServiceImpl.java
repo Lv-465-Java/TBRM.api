@@ -6,7 +6,6 @@ import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.repository.implementation.JooqSearch;
 import com.softserve.rms.service.SearchService;
 import org.jooq.Condition;
-import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,11 @@ import static org.jooq.impl.DSL.field;
 @Service
 public class SearchServiceImpl implements SearchService {
     private JooqSearch jooqSearch;
-    private DSLContext dslContext;
     private ModelMapper modelMapper;
 
     @Autowired
-    public SearchServiceImpl(JooqSearch jooqSearch, DSLContext dslContext, ModelMapper modelMapper) {
+    public SearchServiceImpl(JooqSearch jooqSearch, ModelMapper modelMapper) {
         this.jooqSearch = jooqSearch;
-        this.dslContext = dslContext;
         this.modelMapper = modelMapper;
     }
 
@@ -69,26 +66,4 @@ public class SearchServiceImpl implements SearchService {
         }
         return conditionList;
     }
-
-
-//    public List<ResourceTemplateDTO> searchMethod() {
-//        Field<Object> film = field("creator_id");
-//        Field<Object> isPublished = field("is_published");
-//
-////        String myString = "is_published = false and creator_id = 5";
-////        Condition withString = condition(myString);
-////        Condition withField = field("name").containsIgnoreCase("Room");
-////
-////        List<Condition> list = new ArrayList<>();
-////        list.add(withField);
-////        list.add(withString);
-//
-//        Map<Field<?>, Object> map = new HashMap<>();
-//        map.put(film, 5);
-//        map.put(isPublished, true);
-//        List<ResourceTemplate> resourceTemplates = jooqSearching.searchResourceTemplate(map);
-//        return resourceTemplates.stream()
-//                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-//                .collect(Collectors.toList());
-//    }
 }
