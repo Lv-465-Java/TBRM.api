@@ -67,7 +67,7 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
     )
 
-    private List<Group> groups=new ArrayList<>();
+    private List<Group> groups;
 //    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
 //        this.firstName=firstName;
 //        this.email=email;
