@@ -21,9 +21,8 @@ public enum FieldConstants {
     LONG("Long"),
     STRING("String"),
 
-    COMMA(","),
-    UNDERSCORE("_"),
-    SPACE(" ");
+    QUOTE_AND_COMMA("',"),
+    QUOTE("'");
 
     private String value;
 

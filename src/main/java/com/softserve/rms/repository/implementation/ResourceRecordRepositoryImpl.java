@@ -6,7 +6,6 @@ import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
-import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import static org.jooq.impl.DSL.*;
 @Repository
 public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private DSLContext dslContext;
-    private ResourceTemplateService resourceTemplateService;
     private UserService userService;
 
     /**
@@ -34,9 +32,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordRepositoryImpl(DSLContext dslContext, ResourceTemplateService resourceTemplateService, UserService userService) {
+    public ResourceRecordRepositoryImpl(DSLContext dslContext, UserService userService) {
         this.dslContext = dslContext;
-        this.resourceTemplateService = resourceTemplateService;
         this.userService = userService;
     }
 

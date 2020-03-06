@@ -3,10 +3,7 @@ package com.softserve.rms.repository.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.exceptions.SqlGrammarException;
-import com.softserve.rms.service.UserService;
 import org.jooq.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
 

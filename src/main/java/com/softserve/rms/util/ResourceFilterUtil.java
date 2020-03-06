@@ -20,14 +20,14 @@ import java.util.regex.Pattern;
 @Component
 public class ResourceFilterUtil {
     private DSLContext dslContext;
-    private Map<String, Function> map = new HashMap<>();
+    private Map<String, Function<String, ?>> map = new HashMap<>();
 
     @Autowired
     public ResourceFilterUtil(DSLContext dslContext) {
         this.dslContext = dslContext;
-        map.put(FieldConstants.LONG.getValue(), l -> Long.valueOf((String) l));
-        map.put(FieldConstants.INTEGER.getValue(), i -> Integer.valueOf((String) i));
-        map.put(FieldConstants.DOUBLE.getValue(), d -> Double.valueOf((String) d));
+        map.put(FieldConstants.LONG.getValue(), Long::valueOf);
+        map.put(FieldConstants.INTEGER.getValue(), Integer::valueOf);
+        map.put(FieldConstants.DOUBLE.getValue(), Double::valueOf);
         map.put(FieldConstants.STRING.getValue(), s -> s);
     }
 
@@ -41,14 +41,14 @@ public class ResourceFilterUtil {
      * @author Halyna Yatseniuk
      */
     public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
-        List<String> searchStringList = splitSearchCriteriaByPoint(search);
+        List<String> searchStringList = splitSearchCriteriaByQuoteAndComma(search);
         List<SearchCriteria> criteria = new ArrayList<>();
 
         for (String string : searchStringList) {
             int searchCriteriaLength = string.length();
             Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
             Matcher matcher = pattern.matcher(string);
-            while (matcher.find()) {
+            if (matcher.find()) {
                 int matcherLength = matcher.group(1).length() + matcher.group(2).length() + matcher.group(3).length();
                 if (searchCriteriaLength == matcherLength) {
                     SearchCriteria searchCriteria = checkColumnParameterType(tableName,
@@ -69,12 +69,40 @@ public class ResourceFilterUtil {
      * @return list of {@link String}
      * @author Halyna Yatseniuk
      */
-
-    public List<String> splitSearchCriteriaByPoint(String search) {
+    public List<String> splitSearchCriteriaByQuoteAndComma(String search) {
         if (search != null) {
-            return Arrays.asList(search.split(FieldConstants.COMMA.getValue()));
+            return verifyIfCriteriaContainsExtraQuotes(Arrays.asList
+                    (search.split(FieldConstants.QUOTE_AND_COMMA.getValue())));
         }
         return null;
+    }
+
+    /**
+     * Method verifies if string of search criteria value contains an extra quotes.
+     *
+     * @param searchCriteria list of search criteria valuee {@link String}
+     * @return list of trimmed search criteria values {@link String}
+     * @author Halyna Yatseniuk
+     */
+    public List<String> verifyIfCriteriaContainsExtraQuotes(List<String> searchCriteria) {
+        for (int i = 0; i < searchCriteria.size(); i++) {
+            while (searchCriteria.get(i).contains(FieldConstants.QUOTE.getValue())) {
+                searchCriteria.set(i, trimExtraQuotes(searchCriteria.get(i)));
+            }
+        }
+        return searchCriteria;
+    }
+
+    /**
+     * Method trims extra quotes for search criteria values.
+     *
+     * @param string search criteria {@link String}
+     * @return modified search criteria {@link String}
+     * @author Halyna Yatseniuk
+     */
+    public String trimExtraQuotes(String string) {
+        StringBuilder stringBuilder = new StringBuilder(string);
+        return stringBuilder.deleteCharAt(stringBuilder.indexOf(FieldConstants.QUOTE.getValue())).toString();
     }
 
     /**
@@ -94,7 +122,7 @@ public class ResourceFilterUtil {
         for (Field<?> field : fields) {
             if (field.getName().equals(matcherGroup[0])) {
                 String columnType = field.getDataType().getSQLDataType().getType().getSimpleName();
-                Function parser = map.get(columnType);
+                Function<String, ?> parser = map.get(columnType);
                 try {
                     searchCriteria.setValue(parser.apply(matcherGroup[2]));
                 } catch (NumberFormatException e) {
@@ -123,15 +151,4 @@ public class ResourceFilterUtil {
         }
         return Arrays.asList(foundTable.fields());
     }
-
-//    /**
-//     * Method replaces underscores to spaces for a provided string.
-//     *
-//     * @param searchedText string to be modified
-//     * @return modified string
-//     * @author Halyna Yatseniuk
-//     */
-//    public String replaceUnderscoresToSpaces(String searchedText) {
-//        return searchedText.replace(FieldConstants.UNDERSCORE.getValue(), FieldConstants.SPACE.getValue());
-//    }
 }
