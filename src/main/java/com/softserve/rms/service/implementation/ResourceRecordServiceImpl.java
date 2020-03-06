@@ -61,7 +61,6 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
-//        resourceRecord.setResourceTemplate(resourceTemplate);
         User user = userService.getById(resourceDTO.getUserId());
         resourceRecord.setUser(user);
         resourceRecord.setPhotosNames(null);
