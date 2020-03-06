@@ -1,6 +1,7 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
@@ -25,6 +26,7 @@ import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -32,13 +34,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-
 import javax.sql.DataSource;
 import java.util.Map;
 import java.util.UUID;
@@ -53,9 +52,11 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private AdminRepository adminRepository;
     private PasswordEncoder passwordEncoder;
+    private FileStorageServiceImpl fileStorageService;
     private ModelMapper modelMapper = new ModelMapper();
     public final JavaMailSender javaMailSender;
     private final JdbcTemplate jdbcTemplate;
+    private String endpointUrl;
 
     /**
      * Constructor with parameters
@@ -66,15 +67,47 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository,
                            AdminRepository adminRepository,
                            PasswordEncoder passwordEncoder,
+                           FileStorageServiceImpl fileStorageService,
                            JavaMailSender javaMailSender,
-                           DataSource dataSource) {
+                           DataSource dataSource,
+                           @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileStorageService=fileStorageService;
         this.javaMailSender = javaMailSender;
         jdbcTemplate = new JdbcTemplate(dataSource);
+        this.endpointUrl = endpointUrl;
     }
 
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void changePhoto(MultipartFile multipartFile, String email){
+        User user = getUserByEmail(email);
+        if(user.getImageUrl()!=null) {
+            fileStorageService.deleteFile(user.getImageUrl());
+        }
+        String photoName=fileStorageService.uploadFile(multipartFile);
+        user.setImageUrl(photoName);
+        userRepository.save(user);
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void deletePhoto(String email){
+        User user = getUserByEmail(email);
+        fileStorageService.deleteFile(user.getImageUrl());
+        user.setImageUrl(null);
+        userRepository.save(user);
+    }
 
     /**
      * {@inheritDoc }
@@ -99,9 +132,16 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Override
-    public void deleteAccount(long id) {
+    @Transactional
+
+
+    public void deleteAccount(String email) {
+        User user = getUserByEmail(email);
         try {
-            userRepository.deleteById(id);
+            if((user.getImageUrl()!=null)&&(user.getProvider()==null)){
+                fileStorageService.deleteFile(user.getImageUrl());
+            }
+            userRepository.deleteByEmail(email);
         }
         catch (NotDeletedException e){
             throw new NotDeletedException(ErrorMessage.USER_NOT_DELETE.getMessage());
@@ -132,7 +172,7 @@ public class UserServiceImpl implements UserService {
     public void editPassword(PasswordEditDto passwordEditDto, String currentUserEmail) {
         User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(passwordEditDto.getOldPassword(), user.getPassword())) {
-            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+            throw new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
         user.setPassword(passwordEncoder.encode(passwordEditDto.getNewPassword()));
         userRepository.save(user);
@@ -147,10 +187,33 @@ public class UserServiceImpl implements UserService {
     public void editEmail(EmailEditDto emailEditDto, String currentUserEmail) {
         User user = getUserByEmail(currentUserEmail);
         if (!passwordEncoder.matches(emailEditDto.getPassword(), user.getPassword())) {
-            new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
+            throw new WrongPasswordException(ErrorMessage.WRONG_PASSWORD.getMessage());
         }
         user.setEmail(emailEditDto.getEmail());
         userRepository.save(user);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Mariia Shchur
+     */
+    public UserDto getUser(String email){
+        User user = getUserByEmail(email);
+        UserDto userDto=modelMapper.map(user,UserDto.class);
+        userDto.setImageUrl(getPhotoUrl(user.getImageUrl()));
+        return userDto;
+    }
+
+    /**
+     * Method that return full url of file from s3
+     *
+     * @param photoName a value of {@link String}
+     * @return {@link String}
+     * @author Mariia Shchur
+     */
+    private String getPhotoUrl(String photoName){
+        return endpointUrl+photoName;
     }
 
 

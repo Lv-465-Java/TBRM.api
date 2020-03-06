@@ -1,4 +1,4 @@
-package com.softserve.rms.Validator;
+package com.softserve.rms.validator;
 
 
 import com.softserve.rms.constants.ValidationErrorConstants;

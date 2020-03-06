@@ -66,13 +66,14 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")}
     )
-    private List<Group> groups=new ArrayList<>();
-    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
-        this.firstName=firstName;
-        this.email=email;
-        this.role=role;
-        this.imageUrl=imageUrl;
-        this.provider=provider;
-        this.providerId=providerId;
-    }
+
+    private List<Group> groups;
+//    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
+//        this.firstName=firstName;
+//        this.email=email;
+//        this.role=role;
+//        this.imageUrl=imageUrl;
+//        this.provider=provider;
+//        this.providerId=providerId;
+//    }
 }
