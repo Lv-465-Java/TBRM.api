@@ -14,6 +14,6 @@ public class ResourceRecordDTO {
     private String name;
     private String description;
     private Long userId;
-    private String photo;
+    private String photos;
     private Map<String, Object> parameters;
 }
