@@ -49,14 +49,15 @@ public class JooqDDL {
         for (ResourceParameter parameter : resourceParameterList) {
             if (parameter.getParameterType().equals(ParameterType.POINT_INT) ||
                     parameter.getParameterType().equals(ParameterType.POINT_DOUBLE) ||
-                    parameter.getParameterType().equals(ParameterType.POINT_STRING) ||
-                    parameter.getParameterType().equals(ParameterType.COORDINATES)) {
-                addColumnWithPointOrCoordinatesParameterType(resourceTemplate, parameter);
+                    parameter.getParameterType().equals(ParameterType.POINT_STRING)) {
+                addColumnWithPointParameterType(resourceTemplate, parameter);
             } else if (parameter.getParameterType().equals(ParameterType.RANGE_INT) ||
                     parameter.getParameterType().equals(ParameterType.RANGE_DOUBLE)) {
                 addColumnsWithRangeParameterType(resourceTemplate, parameter);
             } else if (parameter.getParameterType().equals(ParameterType.POINT_REFERENCE)) {
                 addColumnWithPointReferenceParameterType(resourceTemplate, parameter);
+            } else if (parameter.getParameterType().equals(ParameterType.COORDINATES_STRING)) {
+                addColumnsWithCoordinateParameterType(resourceTemplate, parameter);
             }
         }
     }
@@ -68,8 +69,8 @@ public class JooqDDL {
      * @param parameter        {@link ResourceParameter}
      * @author Halyna Yatseniuk
      */
-    private void addColumnWithPointOrCoordinatesParameterType(ResourceTemplate resourceTemplate,
-                                                              ResourceParameter parameter) {
+    private void addColumnWithPointParameterType(ResourceTemplate resourceTemplate,
+                                                 ResourceParameter parameter) {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .addColumn(parameter.getColumnName(), parameter.getParameterType().getSqlType().nullable(false))
                 .execute();
@@ -93,6 +94,13 @@ public class JooqDDL {
                 .execute();
     }
 
+    private void addColumnsWithCoordinateParameterType(ResourceTemplate resourceTemplate, ResourceParameter parameter) {
+        dslContext.alterTable(resourceTemplate.getTableName())
+                .addColumn(parameter.getColumnName().concat(FieldConstants.COORDINATE.getValue()),
+                        parameter.getParameterType().getSqlType().nullable(false))
+                .execute();
+    }
+
     /**
      * Method alters {@link ResourceRecord} container table and adds a new column based on Point Reference parameter type.
      *
@@ -106,6 +114,10 @@ public class JooqDDL {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .addColumn(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue()),
                         parameter.getParameterType().getSqlType().nullable(true))
+                .execute();
+        dslContext.alterTable(resourceTemplate.getTableName())
+                .addColumn(parameter.getColumnName().concat(FieldConstants.REFERENCE_NAME.getValue()),
+                        ParameterType.POINT_STRING.getSqlType().nullable(true))
                 .execute();
         addConstraint(resourceTemplate, parameter, resourceRelation);
     }

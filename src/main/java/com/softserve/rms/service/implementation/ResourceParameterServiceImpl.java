@@ -98,7 +98,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                 verifyIfParameterColumnNameIsUniquePerResourceTemplate(parameterDTO.getName(), id));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null ||
-                parameterDTO.getParameterType() == ParameterType.COORDINATES) {
+                parameterDTO.getParameterType() == ParameterType.COORDINATES_STRING) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
@@ -124,7 +124,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private String getMatchedPatternToParameterType(ParameterType type, String pattern) {
         if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
             return patternGenerator.generateRangeIntegerRegex(pattern);
-        } else if (type == ParameterType.COORDINATES) {
+        } else if (type == ParameterType.COORDINATES_STRING) {
             return Validator.COORDINATES_PATTERN;
         }
         return null;
@@ -226,7 +226,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * Method updates {@link ResourceRelation}.
      *
-     * @param parameterId {@link ResourceParameter} id
+     * @param parameterId                {@link ResourceParameter} id
      * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
@@ -246,7 +246,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * Method saves {@link ResourceRelation}.
      *
-     * @param parameterId {@link ResourceParameter} id
+     * @param parameterId                {@link ResourceParameter} id
      * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found

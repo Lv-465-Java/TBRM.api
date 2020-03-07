@@ -58,8 +58,8 @@ public class ResourceRecordServiceImplTest {
     private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user, firstDynamicParameters);
     private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), firstDynamicParameters);
 
-    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description", user.getId(), firstDynamicParameters);
-    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), secondDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description",  firstDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
             new ResourceRecord(1L, "TestName1", "Some description", user, firstDynamicParameters),
             new ResourceRecord(2L, "TestName2", "Some description2",user, secondDynamicParameters));

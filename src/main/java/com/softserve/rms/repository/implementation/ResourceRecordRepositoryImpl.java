@@ -73,8 +73,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            query.addValue(field(entry.getKey()), entry.getValue());
+            if (entry.getValue() != null) {
+                query.addValue(field(entry.getKey()), entry.getValue());
+            }
         }
+
         query.addConditions(field(FieldConstants.ID.getValue()).eq(id));
         query.execute();
     }
@@ -108,7 +111,6 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
 //            fk.getTable().getName();
 //        }
 //    }
-
     @Transactional(readOnly = true)
     @Override
     public List<ResourceRecord> findAll(String tableName) {
@@ -207,11 +209,15 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
-//            if (record.field(i).getName().equals("%ref")) {
-//                parameters.put(record.field(i).getName(), getRelatedResourceName((Long) record.getValue(i)));
-//            } else {
-                parameters.put(record.field(i).getName(), record.getValue(i));
+            if (record.field(i).getName().endsWith("_coordinate")) {
+                parameters.put("coordinates", getAllCoordinates((String) record.getValue(i)));
+            }
+//            else if (record.field(i).getName().endsWith("_ref")) {
+////                parameters.put()
 //            }
+            else {
+                parameters.put(record.field(i).getName(), record.getValue(i));
+            }
         }
         parameters.remove(FieldConstants.ID.getValue());
         parameters.remove(FieldConstants.NAME.getValue());
@@ -219,9 +225,25 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.USER_ID.getValue());
         return parameters;
     }
-//
-//    private ResourceRecord getRelatedResourceName(Long id) {
-//
-//        findById()
-//    }
+
+    private List<String> getLatitudeAndLongitude(String name) {
+        return Arrays.asList(name.split(","));
+    }
+
+    private List<String> getCoordinate(String name) {
+        return Arrays.asList(name.split(";"));
+    }
+
+    private List<Map<String, Double>> getAllCoordinates(String coordinateRecord) {
+        List<Map<String, Double>> coordinates = new ArrayList<>();
+        getCoordinate(coordinateRecord).forEach(element -> {
+            Map<String, Double> coordinate = new LinkedHashMap<>();
+            coordinate.put(FieldConstants.LATITUDE.getValue(),
+                    Double.parseDouble(getLatitudeAndLongitude(element).get(0)));
+            coordinate.put(FieldConstants.LONGITUDE.getValue(),
+                    Double.parseDouble(getLatitudeAndLongitude(element).get(1)));
+            coordinates.add(coordinate);
+        });
+        return coordinates;
+    }
 }

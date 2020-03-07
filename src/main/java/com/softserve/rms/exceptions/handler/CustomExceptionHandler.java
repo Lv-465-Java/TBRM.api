@@ -27,11 +27,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntimeException
-    (RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<Object> handleRuntimeException
+//    (RuntimeException exception) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+//    }
 
     /**
      * Method with handles {@link NotUniqueMemberException} exception.
