@@ -46,26 +46,43 @@ public class ResourceFilterUtil {
      * @author Halyna Yatseniuk
      */
     public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
-        List<String> searchStringList = splitSearchCriteriaByQuoteAndComma(search);
-        List<SearchCriteria> criteria = new ArrayList<>();
+        List<String> newStrings = splitSearchCriteriaByQuoteAndComma(search);
 
-        for (String string : searchStringList) {
-            int searchCriteriaLength = string.length();
-            Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
-            Matcher matcher = pattern.matcher(string);
-            if (matcher.find()) {
-                int matcherLength = matcher.group(1).length() + matcher.group(2).length() + matcher.group(3).length();
-                if (searchCriteriaLength == matcherLength) {
-                    SearchCriteria searchCriteria = checkColumnParameterType(tableName,
-                            matcher.group(1), matcher.group(2), matcher.group(3));
-                    criteria.add(searchCriteria);
-                } else {
-                    throw new BadRequestException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
-                }
+        List<SearchCriteria> searchStringList = new ArrayList<>();
+        Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
+        for (String newString : newStrings) {
+            Matcher matcher = pattern.matcher(newString);
+            if (matcher.matches()) {
+                SearchCriteria searchCriteria = checkColumnParameterType(tableName,
+                        matcher.group(1), matcher.group(2), matcher.group(3));
+                searchStringList.add(searchCriteria);
+            } else {
+                throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
             }
         }
-        return criteria;
+        return searchStringList;
     }
+//  public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
+//        List<String> searchStringList = splitSearchCriteriaByQuoteAndComma(search);
+//        List<SearchCriteria> criteria = new ArrayList<>();
+//
+//        for (String string : searchStringList) {
+//            int searchCriteriaLength = string.length();
+//            Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
+//            Matcher matcher = pattern.matcher(string);
+//            if (matcher.find()) {
+//                int matcherLength = matcher.group(1).length() + matcher.group(2).length() + matcher.group(3).length();
+//                if (searchCriteriaLength == matcherLength) {
+//                    SearchCriteria searchCriteria = checkColumnParameterType(tableName,
+//                            matcher.group(1), matcher.group(2), matcher.group(3));
+//                    criteria.add(searchCriteria);
+//                } else {
+//                    throw new BadRequestException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
+//                }
+//            }
+//        }
+//        return criteria;
+//    }
 
     /**
      * Method splits string with search criteria by point.
