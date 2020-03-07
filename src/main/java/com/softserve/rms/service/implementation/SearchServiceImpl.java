@@ -1,8 +1,10 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.SearchCriteria;
+import com.softserve.rms.exceptions.InvalidParametersException;
 import com.softserve.rms.repository.implementation.JooqSearch;
 import com.softserve.rms.service.SearchService;
 import org.jooq.Condition;
@@ -22,21 +24,41 @@ public class SearchServiceImpl implements SearchService {
     private JooqSearch jooqSearch;
     private ModelMapper modelMapper;
 
+    /**
+     * Constructor with parameters
+     *
+     * @author Halyna Yatseniuk
+     */
     @Autowired
     public SearchServiceImpl(JooqSearch jooqSearch, ModelMapper modelMapper) {
         this.jooqSearch = jooqSearch;
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Method filters {@link ResourceRecord} by search criteria.
+     *
+     * @param criteriaList list of {@link SearchCriteria}
+     * @param tableName    name of a table where entities are searched
+     * @return list of {@link ResourceRecordDTO}
+     * @author Halyna Yatseniuk
+     */
     public List<ResourceRecordDTO> filterByCriteria(List<SearchCriteria> criteriaList, String tableName) {
         List<ResourceRecord> resourceRecordList = jooqSearch.searchResourceTemplate(
-                getSearchCriteria(criteriaList), tableName);
+                convertCriteriaToCondition(criteriaList), tableName);
         return resourceRecordList.stream()
                 .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class))
                 .collect(Collectors.toList());
     }
 
-    public List<Condition> getSearchCriteria(List<SearchCriteria> criteriaList) {
+    /**
+     * Method converts {@link SearchCriteria} to {@link Condition} due to search criteria operation type.
+     *
+     * @param criteriaList list of {@link SearchCriteria}
+     * @return list of {@link Condition}
+     * @author Halyna Yatseniuk
+     */
+    public List<Condition> convertCriteriaToCondition(List<SearchCriteria> criteriaList) {
         List<Condition> conditionList = new ArrayList<>();
         for (SearchCriteria criteria : criteriaList) {
             switch (criteria.getOperation()) {
@@ -61,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
                     conditionList.add(conditionWithContainsOperation);
                     break;
                 default:
-                    return null;
+                    throw new InvalidParametersException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
             }
         }
         return conditionList;

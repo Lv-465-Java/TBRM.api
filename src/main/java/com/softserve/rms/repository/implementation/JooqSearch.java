@@ -2,24 +2,39 @@ package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.ResourceRecord;
+import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.exceptions.SqlGrammarException;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-//@Repository
+@Repository
 public class JooqSearch {
     private DSLContext dslContext;
     private ResourceRecordRepositoryImpl resourceRepository;
 
+    /**
+     * Constructor with parameters
+     *
+     * @author Halyna Yatseniuk
+     */
     @Autowired
     public JooqSearch(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
         this.dslContext = dslContext;
         this.resourceRepository = resourceRepository;
     }
 
+    /**
+     * Method converts {@link SearchCriteria} to {@link Condition} due to search criteria operation type.
+     *
+     * @param conditionList list of {@link Condition}
+     * @param tableName     name of a table where entities are searched
+     * @return list of filtered {@link ResourceRecord}
+     * @author Halyna Yatseniuk
+     */
     public List<ResourceRecord> searchResourceTemplate(List<Condition> conditionList, String tableName) {
         Result<Record> searchResult;
         try {

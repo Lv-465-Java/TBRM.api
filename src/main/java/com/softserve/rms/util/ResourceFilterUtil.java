@@ -22,6 +22,11 @@ public class ResourceFilterUtil {
     private DSLContext dslContext;
     private Map<String, Function<String, ?>> map = new HashMap<>();
 
+    /**
+     * Constructor with parameters
+     *
+     * @author Halyna Yatseniuk
+     */
     @Autowired
     public ResourceFilterUtil(DSLContext dslContext) {
         this.dslContext = dslContext;
