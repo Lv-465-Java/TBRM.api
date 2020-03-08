@@ -95,7 +95,6 @@ public class GroupServiceImplTest {
     @Test
     public void getAllOk() {
         Page<GroupDto> expected = new PageImpl<>(Collections.singletonList(groupDto));
-        Page<Group> expectedPage = new PageImpl<>(Collections.singletonList(group));
         doReturn(page).when(groupRepository).findAll(any(Pageable.class));
         doReturn(expected).when(page).map(any());
         Page<GroupDto> actual = groupService.getAll(1, 5);

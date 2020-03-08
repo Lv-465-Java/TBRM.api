@@ -21,10 +21,7 @@ import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,10 +58,16 @@ public class GroupServiceImpl  implements GroupService {
 
     @Override
     public Page<GroupDto> getAll(Integer page, Integer pageSize) {
-        int pageNumber = page <= 0 ? 0 : page - 1;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(validatePage(page), pageSize, Sort.Direction.DESC, "id");
         return groupRepository.findAll(pageable)
                 .map((group) -> modelMapper.map(group, GroupDto.class));
+    }
+
+    @Override
+    public Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Page<User> users = groupRepository.findAllMembers(groupId, pageable);
+        return users.map(user -> modelMapper.map(user, MemberDto.class));
     }
 
     @Override
@@ -206,5 +209,9 @@ public class GroupServiceImpl  implements GroupService {
         if (mask == null || mask != BasePermission.WRITE.getMask()) {
             throw new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage());
         }
+    }
+
+    private int validatePage(Integer page) {
+        return page <= 0 ? 0 : page - 1;
     }
 }
