@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class JooqSearch {
+public class DynamicSearchRepository {
     private DSLContext dslContext;
     private ResourceRecordRepositoryImpl resourceRepository;
 
@@ -22,7 +22,7 @@ public class JooqSearch {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public JooqSearch(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
+    public DynamicSearchRepository(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
         this.dslContext = dslContext;
         this.resourceRepository = resourceRepository;
     }

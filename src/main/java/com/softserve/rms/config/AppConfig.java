@@ -2,6 +2,7 @@ package com.softserve.rms.config;
 
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.UserService;
+import com.softserve.rms.util.ResourceFilterUtil;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,10 @@ public class AppConfig {
     @Bean
     public JooqDDL createJooqDDL() {
         return new JooqDDL(dslContext);
+    }
+
+    @Bean
+    public ResourceFilterUtil createResourceFilterUtil() {
+        return new ResourceFilterUtil(dslContext);
     }
 }

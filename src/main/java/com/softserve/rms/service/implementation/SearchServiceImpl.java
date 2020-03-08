@@ -2,14 +2,23 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
+import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.user.UserSearchDTO;
 import com.softserve.rms.entities.ResourceRecord;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.SearchCriteria;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidParametersException;
-import com.softserve.rms.repository.implementation.JooqSearch;
+import com.softserve.rms.repository.ResourceTemplateRepository;
+import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.repository.implementation.DynamicSearchRepository;
 import com.softserve.rms.service.SearchService;
+import com.softserve.rms.util.ResourceFilterUtil;
+import com.softserve.rms.util.SpecificationsBuilder;
 import org.jooq.Condition;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,8 +30,10 @@ import static org.jooq.impl.DSL.field;
 
 @Service
 public class SearchServiceImpl implements SearchService {
-    private JooqSearch jooqSearch;
+    private DynamicSearchRepository dynamicSearchRepository;
     private ModelMapper modelMapper;
+    private ResourceTemplateRepository templateRepository;
+    private ResourceFilterUtil resourceFilterUtil;
 
     /**
      * Constructor with parameters
@@ -30,10 +41,37 @@ public class SearchServiceImpl implements SearchService {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public SearchServiceImpl(JooqSearch jooqSearch, ModelMapper modelMapper) {
-        this.jooqSearch = jooqSearch;
+    public SearchServiceImpl(DynamicSearchRepository dynamicSearchRepository, ModelMapper modelMapper,
+                             ResourceTemplateRepository templateRepository, ResourceFilterUtil resourceFilterUtil) {
+        this.dynamicSearchRepository = dynamicSearchRepository;
         this.modelMapper = modelMapper;
+        this.templateRepository = templateRepository;
+        this.resourceFilterUtil = resourceFilterUtil;
     }
+
+//    public List<UserSearchDTO> check(List<Specification> specifications) {
+//        List<User> list = userRepository.findAll((Specification<User>) (root, criteriaQuery, criteriaBuilder) -> {
+//            Predicate predicate = criteriaBuilder.conjunction();
+//            for (Specification spec : specifications) {
+//                predicate = spec.toPredicate(root, criteriaQuery, criteriaBuilder);
+//            }
+//        });
+//        return list.stream()
+//                .map(user -> modelMapper.map(user, UserSearchDTO.class))
+//                .collect(Collectors.toList());
+//    }
+
+
+    public List<ResourceTemplateDTO> check(String search, String tableName) {
+        SpecificationsBuilder builder = new SpecificationsBuilder(resourceFilterUtil);
+
+        Specification<ResourceTemplate> spec = builder.buildSpecification(search, tableName);
+        List<ResourceTemplate> list = templateRepository.findAll(spec);
+        return list.stream()
+                .map(template -> modelMapper.map(template, ResourceTemplateDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * Method filters {@link ResourceRecord} by search criteria.
@@ -44,7 +82,7 @@ public class SearchServiceImpl implements SearchService {
      * @author Halyna Yatseniuk
      */
     public List<ResourceRecordDTO> filterByCriteria(List<SearchCriteria> criteriaList, String tableName) {
-        List<ResourceRecord> resourceRecordList = jooqSearch.searchResourceTemplate(
+        List<ResourceRecord> resourceRecordList = dynamicSearchRepository.searchResourceTemplate(
                 convertCriteriaToCondition(criteriaList), tableName);
         return resourceRecordList.stream()
                 .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class))

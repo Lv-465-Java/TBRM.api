@@ -22,7 +22,8 @@ public enum FieldConstants {
     STRING("String"),
 
     QUOTE_AND_COMMA("',"),
-    QUOTE("'");
+    QUOTE("'"),
+    PERCENTAGE("%");
 
     private String value;
 
