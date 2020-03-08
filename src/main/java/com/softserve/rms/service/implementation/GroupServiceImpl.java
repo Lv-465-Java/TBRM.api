@@ -165,7 +165,7 @@ public class GroupServiceImpl  implements GroupService {
     }
 
     @Override
-    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id) {
+    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize) {
         return permissionManagerService.findPrincipalWithAccess(id, Group.class);
     }
 

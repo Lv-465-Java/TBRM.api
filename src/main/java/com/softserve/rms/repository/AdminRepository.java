@@ -2,6 +2,8 @@ package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +22,6 @@ public interface AdminRepository extends JpaRepository<User, Long> {
     @Query("update User u set u.role = 5, u.enabled = false where u.id = ?1")
     void deleteRoleById(Long id);
 
-    List<User> getAllByEnabled(boolean enabled);
+    Page<User> getAllByEnabled(boolean enabled, Pageable pageable);
 
 }

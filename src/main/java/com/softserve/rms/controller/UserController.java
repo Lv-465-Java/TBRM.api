@@ -16,6 +16,7 @@ import com.softserve.rms.service.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -145,8 +147,9 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/user")
-    public ResponseEntity<List<PermissionUserDto>> getUsers(){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers());
+    public ResponseEntity<Page<PermissionUserDto>> getUsers(@RequestParam Optional<Integer> page,
+                                                            @RequestParam Optional<Integer> pageSize){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**

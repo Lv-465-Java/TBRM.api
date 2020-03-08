@@ -26,6 +26,9 @@ import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -260,11 +263,10 @@ public class UserServiceImpl implements UserService {
      * @author Marian Dutchyn
      */
     @Override
-    public List<PermissionUserDto> getUsers() {
-        List<User> users = adminRepository.getAllByEnabled(true);
-        return users.stream()
-                .map(user -> modelMapper.map(user, PermissionUserDto.class))
-                .collect(Collectors.toList());
+    public Page<PermissionUserDto> getUsers(Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Page<User> users = adminRepository.getAllByEnabled(true, pageable);
+        return users.map(user -> modelMapper.map(user, PermissionUserDto.class));
     }
 
     /**
@@ -280,5 +282,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userPasswordPhoneDto.getPassword()));
         user.setPhone(userPasswordPhoneDto.getPhone());
         userRepository.save(user);
+    }
+
+    private int validatePage(Integer page) {
+        return page <= 0 ? 0 : page - 1;
     }
 }

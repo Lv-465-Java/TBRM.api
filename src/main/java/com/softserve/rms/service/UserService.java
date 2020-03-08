@@ -8,6 +8,7 @@ import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -102,7 +103,7 @@ public interface UserService {
 
     UserDtoRole getUserRole(Principal principal);
 
-    List<PermissionUserDto> getUsers();
+    Page<PermissionUserDto> getUsers(Integer page, Integer pageSize);
 
 
 }
