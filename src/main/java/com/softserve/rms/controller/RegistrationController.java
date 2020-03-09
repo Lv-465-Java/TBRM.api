@@ -1,7 +1,7 @@
 package com.softserve.rms.controller;
 
 
-import com.softserve.rms.Validator.Trimmer;
+import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.entities.User;

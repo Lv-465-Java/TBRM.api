@@ -21,6 +21,10 @@ import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
@@ -168,7 +172,7 @@ public class GroupServiceImpl  implements GroupService {
     }
 
     @Override
-    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize) {
+    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id) {
         return permissionManagerService.findPrincipalWithAccess(id, Group.class);
     }
 

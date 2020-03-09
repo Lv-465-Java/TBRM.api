@@ -1,6 +1,6 @@
 package com.softserve.rms.dto.user;
 
-import com.softserve.rms.Validator.EmailExist;
+import com.softserve.rms.validator.EmailExist;
 import com.softserve.rms.constants.ValidationErrorConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;

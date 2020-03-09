@@ -1,6 +1,6 @@
 package com.softserve.rms.dto.user;
 
-import com.softserve.rms.Validator.PhoneExist;
+import com.softserve.rms.validator.PhoneExist;
 import com.softserve.rms.constants.ValidationErrorConstants;
 import com.softserve.rms.constants.ValidationPattern;
 import lombok.AllArgsConstructor;

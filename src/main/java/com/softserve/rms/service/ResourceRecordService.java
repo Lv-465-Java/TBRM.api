@@ -6,6 +6,7 @@ import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -79,4 +80,33 @@ public interface ResourceRecordService {
      * @author Andrii Bren
      */
     void delete(String tableName, Long id);
+
+    /**
+     * Method that allow you to save photo
+     *
+     * @param files for saving
+     * @param tableName {@link ResourceTemplate} tableName
+     * @param id {@link ResourceRecord} id
+     * @author Mariia Shchur
+     */
+    void changePhoto(MultipartFile files, String tableName, Long id);
+
+    /**
+     * Method that allow you to delete specific photo
+     *
+     * @param tableName {@link ResourceTemplate} tableName
+     * @param id {@link ResourceRecord} id
+     * @param photo {@link ResourceRecord} id
+     * @author Mariia Shchur
+     */
+    void deletePhoto(String tableName, Long id,String photo);
+
+    /**
+     * Method that allow you to delete all {@link ResourceRecord}'s photos
+     *
+     * @param tableName {@link ResourceTemplate} tableName
+     * @param id {@link ResourceRecord} id
+     * @author Mariia Shchur
+     */
+    void deleteAllPhotos(String tableName, Long id);
 }

@@ -80,7 +80,7 @@ public class GroupController {
     public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable Long id,
                 @RequestParam Optional<Integer> page,@RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(groupService.findPrincipalWithAccessToGroup(id, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+                .body(groupService.findPrincipalWithAccessToGroup(id));
     }
 
     @ApiResponses(value = {

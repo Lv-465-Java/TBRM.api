@@ -1,8 +1,9 @@
 package com.softserve.rms.controller;
 
 
-import com.softserve.rms.Validator.Trimmer;
+import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.user.EmailEditDto;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +53,18 @@ public class UserController {
     }
 
     /**
+     * Method that return user's data.
+     *
+     * @return {@link UserDto}.
+     * @author Mariia Shchur
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getProfileData(
+            @ApiIgnore @AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(principal.getUsername()));
+    }
+
+    /**
      * Update {@link User}.
      *
      * @return {@link ResponseEntity}.
@@ -67,6 +81,40 @@ public class UserController {
                                      @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
 
         userService.update(trimmer.trimEditData(userEditDto), principal.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for updating profile picture.
+     *
+     * @param file to save.
+     * @return url of the updated file.
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @PutMapping("/profile/updatePhoto")
+    public ResponseEntity changePhoto(@RequestPart(value = "file") MultipartFile file,
+                                             @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
+       userService.changePhoto(file,principal.getUsername());
+        return  ResponseEntity.status(HttpStatus.OK).build();
+    }
+    /**
+     * Method for deleting profile picture
+     *
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/profile/deletePhoto")
+    public ResponseEntity deletePhoto(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
+        userService.deletePhoto(principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -88,6 +136,8 @@ public class UserController {
         userService.editPassword(passwordEditDto, principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+
 
     /**
      * Update user's email.
@@ -121,10 +171,10 @@ public class UserController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @DeleteMapping("{id}/delete")
-    public ResponseEntity deleteAccount(@PathVariable long id){
-        userService.deleteAccount(id);
-        //TODO redirect to main page
+    @DeleteMapping("/delete")
+    public ResponseEntity deleteAccount(@ApiIgnore
+                                            @AuthenticationPrincipal UserPrincipal principal){
+        userService.deleteAccount(principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

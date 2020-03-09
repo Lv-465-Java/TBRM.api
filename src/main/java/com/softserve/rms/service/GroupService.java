@@ -28,7 +28,7 @@ public interface GroupService {
 
     void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal);
 
-    List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize);
+    List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id);
 
     GroupDto update(String name, GroupSaveDto groupSaveDto);
 

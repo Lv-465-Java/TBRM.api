@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -140,4 +141,69 @@ public class ResourceRecordController {
         resourceRecordService.delete(tableName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    /**
+     * Method for saving multiple photos
+     *
+     * @param files     to save.
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @PutMapping("/{id}/updatePhoto")
+    public ResponseEntity changePhoto(@RequestPart List<MultipartFile> files,
+                                      @PathVariable String tableName,
+                                      @PathVariable Long id) {
+        files.stream().forEach(photo -> resourceRecordService.changePhoto(photo, tableName, id));
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for deleting all {@link ResourceRecord} photos
+     *
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/{id}/deletePhoto")
+    public ResponseEntity deleteAllPhoto(@PathVariable String tableName, @PathVariable Long id) {
+        resourceRecordService.deleteAllPhotos(tableName, id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for deleting specific photo of {@link ResourceRecord}
+     *
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @param photo      particular photo
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/{id}/{photo}")
+    public ResponseEntity deletePhoto(@PathVariable String tableName, @PathVariable Long id, @PathVariable String photo) {
+        resourceRecordService.deletePhoto(tableName, id, photo);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }
