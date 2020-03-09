@@ -7,6 +7,7 @@ public enum FieldConstants {
     DESCRIPTION("description"),
     RESOURCE_TEMPLATE_ID("resource_template_id"),
     USER_ID("user_id"),
+    PHOTOS_NAMES("photos_names"),
 
     PRIMARY_KEY("_PK"),
     FOREIGN_KEY("_FK"),

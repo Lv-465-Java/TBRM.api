@@ -29,7 +29,7 @@ public class AdminServiceTest {
     AdminServiceImpl service;
     Role role =new Role(1L,"admin");
     User user = new User(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role ,"image","google","1234", null,null, Collections.emptyList());
-    UserDto userDto = new UserDto(1L, "name", "lastname", "email@gmail.com", "phone", "password", false,role );
+    UserDto userDto = new UserDto(1L, "image","name", "lastname", "email@gmail.com", "phone", "password", false,role );
 
     @Test
     public void testFindAllMethodIsCall() {

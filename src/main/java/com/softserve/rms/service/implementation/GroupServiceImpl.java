@@ -21,6 +21,10 @@ import com.softserve.rms.service.PermissionManagerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @PreAuthorize("hasRole('MANAGER')")
@@ -53,10 +60,11 @@ public class GroupServiceImpl  implements GroupService {
     }
 
     @Override
-    public List<GroupDto> getAll() {
-        return groupRepository.findAll().stream()
-                .map(group -> modelMapper.map(group, GroupDto.class))
-                .collect(Collectors.toList());
+    public Page<GroupDto> getAll(Integer page, Integer pageSize) {
+        int pageNumber = page <= 0 ? 0 : page - 1;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id");
+        return groupRepository.findAll(pageable)
+                .map((group) -> modelMapper.map(group, GroupDto.class));
     }
 
     @Override
@@ -72,7 +80,7 @@ public class GroupServiceImpl  implements GroupService {
             throw new RuntimeException(ErrorMessage.CANNOT_ADD_EMPTY_NAME.getMessage());
         }
         verifyIfGroupNameIsUnique(groupSaveDto.getName());
-        Group newGroup = groupRepository.saveAndFlush(modelMapper.map(groupSaveDto, Group.class));
+        Group newGroup = groupRepository.save(modelMapper.map(groupSaveDto, Group.class));
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         String mail = principal.getName();
         User user = userRepository.findUserByEmail(mail).orElseThrow(

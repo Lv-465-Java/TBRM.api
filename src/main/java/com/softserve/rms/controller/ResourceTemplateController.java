@@ -85,6 +85,17 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     /**
      * {@inheritDoc}
      *
+     * @author Andrii Bren
+     */
+    @Override
+    public ResponseEntity<ResourceTemplateDTO> findTemplateByTableName(@PathVariable String tableName) {
+        LOG.info("Getting Template by table name");
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findByTableNameDTO(tableName));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @author Halyna Yatseniuk
      */
     @Override
