@@ -48,7 +48,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findAllByUserId(Long id);
 
     /**
@@ -59,7 +59,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(String name, String description);
 
     /**
@@ -89,7 +89,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasPermission(#tableName, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByTableName(String tableName);
 
     /**
@@ -107,6 +107,4 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
 
     @PreAuthorize("hasRole('MANAGER')")
     List<ResourceTemplate> findAllByIsPublishedIsTrue();
-
-
 }

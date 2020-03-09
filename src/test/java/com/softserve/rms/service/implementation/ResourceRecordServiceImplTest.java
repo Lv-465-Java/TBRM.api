@@ -20,6 +20,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.*;
 
@@ -76,15 +77,16 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void getListOfResourceDTOsSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        when(resourceRecordRepository.findAll(anyString())).thenReturn(resourceRecords);
-        assertEquals(resourceRecordDTOS, resourceRecordService.findAll(anyString()));
+        when(resourceRecordRepository.findAll(anyString(), anyInt(), anyInt())).thenReturn(new PageImpl<>(resourceRecords));
+        assertEquals(resourceRecordDTOS, resourceRecordService.findAll("name", 1, 1).getContent());
     }
 
     @Test
     public void getEmptyListOfResourceDTOs() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        when(resourceRecordRepository.findAll(anyString(), anyInt(), anyInt())).thenReturn(new PageImpl<>(Collections.emptyList()));
         List<ResourceRecordDTO> expected = Collections.emptyList();
-        assertEquals(expected, resourceRecordService.findAll(anyString()));
+        assertEquals(expected, resourceRecordService.findAll(anyString(), anyInt(), anyInt()).getContent());
     }
 
     @Test

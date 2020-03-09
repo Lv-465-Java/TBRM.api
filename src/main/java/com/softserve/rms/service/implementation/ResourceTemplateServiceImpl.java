@@ -483,8 +483,4 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
                             + formatter.errorMessageFormatter(list));
         }
     }
-//
-//    private Page<ResourceTemplateDTO> buildPage(List<ResourceTemplate> allFiltered, Integer page, Integer pageSize) {
-//
-//    }
 }

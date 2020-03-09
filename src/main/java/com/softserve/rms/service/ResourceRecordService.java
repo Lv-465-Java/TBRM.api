@@ -56,7 +56,7 @@ public interface ResourceRecordService {
      * @throws NotFoundException if the resource with provided id or name is not found
      * @author Andrii Bren
      */
-    List<ResourceRecordDTO> findAll(String tableName);
+    Page<ResourceRecordDTO> findAll(String tableName, Integer page, Integer pageSize);
 
     /**
      * Method updates dynamic {@link ResourceRecordDTO} in a table specified

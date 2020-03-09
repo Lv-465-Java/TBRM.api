@@ -35,6 +35,9 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
+
 @PreAuthorize("hasRole('MANAGER')")
 @Service
 public class GroupServiceImpl  implements GroupService {
@@ -58,14 +61,14 @@ public class GroupServiceImpl  implements GroupService {
 
     @Override
     public Page<GroupDto> getAll(Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of(validatePage(page), pageSize, Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize), Sort.Direction.DESC, "id");
         return groupRepository.findAll(pageable)
                 .map(group -> modelMapper.map(group, GroupDto.class));
     }
 
     @Override
     public Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
         Page<User> users = groupRepository.findAllMembers(groupId, pageable);
         return users.map(user -> modelMapper.map(user, MemberDto.class));
     }
@@ -209,9 +212,5 @@ public class GroupServiceImpl  implements GroupService {
         if (mask == null || mask != BasePermission.WRITE.getMask()) {
             throw new PermissionException(ErrorMessage.GROUP_ACCESS.getMessage());
         }
-    }
-
-    private int validatePage(Integer page) {
-        return page <= 0 ? 0 : page - 1;
     }
 }

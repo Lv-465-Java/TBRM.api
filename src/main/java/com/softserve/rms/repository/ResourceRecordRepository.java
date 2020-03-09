@@ -3,9 +3,11 @@ package com.softserve.rms.repository;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -39,7 +41,7 @@ public interface ResourceRecordRepository {
      * @return list of dynamic {@link ResourceRecord}
      * @author Andrii Bren
      */
-    List<ResourceRecord> findAll(String tableName);
+    Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize);
 
     /**
      * Method finds dynamic {@link Optional< ResourceRecord >} by id.

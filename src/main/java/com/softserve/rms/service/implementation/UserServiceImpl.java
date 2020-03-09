@@ -48,6 +48,8 @@ import java.util.UUID;
 
 import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTION;
 import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 
 @Service
@@ -264,7 +266,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Page<PermissionUserDto> getUsers(Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
         Page<User> users = adminRepository.getAllByEnabled(true, pageable);
         return users.map(user -> modelMapper.map(user, PermissionUserDto.class));
     }
@@ -282,9 +284,5 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userPasswordPhoneDto.getPassword()));
         user.setPhone(userPasswordPhoneDto.getPhone());
         userRepository.save(user);
-    }
-
-    private int validatePage(Integer page) {
-        return page <= 0 ? 0 : page - 1;
     }
 }

@@ -20,7 +20,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 /**
  * Implementation of {@link ResourceRecordService}
@@ -70,7 +74,6 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public ResourceRecordDTO findByIdDTO(String tableName, Long id) throws NotFoundException {
-
         return modelMapper.map(findById(tableName, id), ResourceRecordDTO.class);
     }
 
@@ -92,12 +95,12 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceRecordDTO> findAll(String tableName) throws NotFoundException {
+    public Page<ResourceRecordDTO> findAll(String tableName, Integer page, Integer pageSize) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
-        List<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName);
-        return resourceRecords.stream()
-                .map(resource -> modelMapper.map(resource, ResourceRecordDTO.class))
-                .collect(Collectors.toList());
+        Integer validPage = validatePage(page);
+        Integer validPageSize = validatePageSize(pageSize);
+        return resourceRecordRepository.findAll(tableName, validPage, validPageSize)
+                .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class));
     }
 
 
@@ -141,9 +144,4 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
                     ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage() + tableName);
         }
     }
-
-    private int validatePage(Integer page) {
-        return page <= 0 ? 0 : page - 1;
-    }
-
 }

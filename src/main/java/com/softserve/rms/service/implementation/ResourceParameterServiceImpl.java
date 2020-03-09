@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
@@ -314,7 +316,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      */
     @Override
     public Page<ResourceParameterDTO> findAllByTemplateId(Long id, Integer page, Integer pageSize) throws NotFoundException {
-        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
         Page<ResourceParameter> parameterList = resourceParameterRepository
                 .findAllByResourceTemplateId(
                         resourceTemplateService.findEntityById(id).getId(), pageable);
@@ -386,9 +388,5 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             throw new NotUniqueNameException(ErrorMessage.RESOURCE_PARAMETER_COLUMN_NAME_IS_NOT_UNIQUE.getMessage());
         }
         return generatedColumnName;
-    }
-
-    private int validatePage(Integer page) {
-        return page <= 0 ? 0 : page - 1;
     }
 }

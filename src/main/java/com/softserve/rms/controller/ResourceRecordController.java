@@ -72,8 +72,11 @@ public class ResourceRecordController {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping
-    public ResponseEntity<List<ResourceRecordDTO>> findAll(@PathVariable String tableName) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceRecordService.findAll(tableName));
+    public ResponseEntity<Page<ResourceRecordDTO>> findAll(@PathVariable String tableName,
+                                                           @RequestParam Optional<Integer> page,
+                                                           @RequestParam Optional<Integer> pageSize) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceRecordService.findAll(tableName, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
