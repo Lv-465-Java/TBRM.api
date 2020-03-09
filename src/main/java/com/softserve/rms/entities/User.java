@@ -5,7 +5,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,16 +26,15 @@ public class User {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column( nullable = false, length = 50)
+    @Column(length = 50)
     private String lastName;
 
     @Column(nullable = false,unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 50)
     private String phone;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)

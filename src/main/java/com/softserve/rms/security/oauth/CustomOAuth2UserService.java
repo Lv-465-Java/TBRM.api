@@ -40,9 +40,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomOAuth2UserService.class);
     private UserRepository userRepository;
 
-    @Value("${fullRegistrationRedirectUri}")
-    private String fullRegistrationRedirectUri;
-
     public Boolean isNewUser=false;
 
     /**
