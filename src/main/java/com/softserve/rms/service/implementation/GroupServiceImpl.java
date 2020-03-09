@@ -60,7 +60,7 @@ public class GroupServiceImpl  implements GroupService {
     public Page<GroupDto> getAll(Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(validatePage(page), pageSize, Sort.Direction.DESC, "id");
         return groupRepository.findAll(pageable)
-                .map((group) -> modelMapper.map(group, GroupDto.class));
+                .map(group -> modelMapper.map(group, GroupDto.class));
     }
 
     @Override

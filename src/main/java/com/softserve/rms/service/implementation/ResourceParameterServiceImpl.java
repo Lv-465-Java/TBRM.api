@@ -23,9 +23,11 @@ import com.softserve.rms.util.RangeIntegerPatternGenerator;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -308,15 +310,15 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * {@inheritDoc}
      *
      * @author Andrii Bren
+     * @return
      */
     @Override
-    public List<ResourceParameterDTO> findAllByTemplateId(Long id) throws NotFoundException {
-        List<ResourceParameter> parameterList = resourceParameterRepository
+    public Page<ResourceParameterDTO> findAllByTemplateId(Long id, Integer page, Integer pageSize) throws NotFoundException {
+        Pageable pageable = PageRequest.of(validatePage(page), pageSize);
+        Page<ResourceParameter> parameterList = resourceParameterRepository
                 .findAllByResourceTemplateId(
-                        resourceTemplateService.findEntityById(id).getId());
-        return modelMapper.map(parameterList,
-                new TypeToken<List<ResourceParameterDTO>>() {
-                }.getType());
+                        resourceTemplateService.findEntityById(id).getId(), pageable);
+        return parameterList.map(param -> modelMapper.map(param, ResourceParameterDTO.class));
     }
 
     /**
@@ -384,5 +386,9 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
             throw new NotUniqueNameException(ErrorMessage.RESOURCE_PARAMETER_COLUMN_NAME_IS_NOT_UNIQUE.getMessage());
         }
         return generatedColumnName;
+    }
+
+    private int validatePage(Integer page) {
+        return page <= 0 ? 0 : page - 1;
     }
 }

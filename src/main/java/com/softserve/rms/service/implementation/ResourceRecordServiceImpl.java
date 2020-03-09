@@ -14,6 +14,9 @@ import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -97,6 +100,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
                 .collect(Collectors.toList());
     }
 
+
     /**
      * {@inheritDoc}
      *
@@ -137,4 +141,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
                     ErrorMessage.RESOURCE_TEMPLATE_IS_NOT_PUBLISHED.getMessage() + tableName);
         }
     }
+
+    private int validatePage(Integer page) {
+        return page <= 0 ? 0 : page - 1;
+    }
+
 }

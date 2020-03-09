@@ -5,6 +5,7 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotFoundException;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 

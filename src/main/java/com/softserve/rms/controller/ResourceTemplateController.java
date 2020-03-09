@@ -12,6 +12,7 @@ import com.softserve.rms.service.ResourceTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequestMapping("/resource-template")
 @RestController
@@ -192,9 +194,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Andrii Bren
      */
     @Override
-    public ResponseEntity<List<ResourceParameterDTO>> findParametersByTemplateId(Long templateId) {
+    public ResponseEntity<Page<ResourceParameterDTO>> findParametersByTemplateId(Long templateId, Optional<Integer> page,
+                                                                                 Optional<Integer> pageSize) {
         LOG.info("Getting Resource Parameter by Template ID: " + templateId);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceParameterService.findAllByTemplateId(templateId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**

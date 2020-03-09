@@ -28,6 +28,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -75,6 +78,8 @@ public class ResourceParameterServiceImplTest {
     private List<ResourceParameter> parameters = Arrays.asList(
             new ResourceParameter(1L, "firstParameter", "first_parameter", ParameterType.POINT_INT, null, resourceTemplate, null),
             new ResourceParameter(2L, "secondParameter", "second_parameter", ParameterType.POINT_INT, null, resourceTemplate, null));
+    private Page<ResourceParameter> parameterPage = new PageImpl<>(parameters);
+    private Page<ResourceParameterDTO> resourceParameterDTOPage = new PageImpl<>(parameterDTOS);
 
     @Before
     public void initializeMock() {
@@ -85,8 +90,8 @@ public class ResourceParameterServiceImplTest {
     @Test
     public void getResourceParametersByTemplateId() {
         when(resourceTemplateService.findEntityById(anyLong())).thenReturn(resourceTemplate);
-        when(resourceParameterRepository.findAllByResourceTemplateId(anyLong())).thenReturn(parameters);
-        assertEquals(parameterDTOS, resourceParameterService.findAllByTemplateId(anyLong()));
+        when(resourceParameterRepository.findAllByResourceTemplateId(anyLong(), any(Pageable.class))).thenReturn(parameterPage);
+        assertEquals(resourceParameterDTOPage, resourceParameterService.findAllByTemplateId(1L, 1, 1));
     }
 
     @Test
