@@ -7,12 +7,17 @@ public enum FieldConstants {
     DESCRIPTION("description"),
     RESOURCE_TEMPLATE_ID("resource_template_id"),
     USER_ID("user_id"),
+    PHOTOS_NAMES("photos_names"),
 
     PRIMARY_KEY("_PK"),
     FOREIGN_KEY("_FK"),
     FROM("_from"),
     TO("_to"),
     REFERENCE("_ref"),
+    REFERENCE_NAME("_ref_name"),
+    COORDINATE("_coordinate"),
+    LATITUDE("lat"),
+    LONGITUDE("lng"),
     RESOURCE_TEMPLATES_TABLE("resource_templates"),
     RESOURCE_RELATION_TABLE("resource_relations"),
 
@@ -24,6 +29,7 @@ public enum FieldConstants {
     QUOTE_AND_COMMA("',"),
     QUOTE("'"),
     PERCENTAGE("%");
+
 
     private String value;
 

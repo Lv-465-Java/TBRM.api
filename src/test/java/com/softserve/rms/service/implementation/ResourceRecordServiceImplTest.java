@@ -20,11 +20,15 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
@@ -41,11 +45,20 @@ public class ResourceRecordServiceImplTest {
     private ResourceTemplateService resourceTemplateService;
 
     @Mock
+    private FileStorageServiceImpl fileStorageService;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
     private UserService userService;
 
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null,"imageUrl","google","2344555", Collections.emptyList(), null, Collections.emptyList());
 
-    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, null, Collections.emptyList(), Collections.emptyList());
+    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, user, Collections.emptyList(), Collections.emptyList());
     private HashMap<String, Object> firstDynamicParameters = new HashMap<String, Object>() {{
         put("first_parameter", 111);
         put("second_parameter", 999);
@@ -54,28 +67,29 @@ public class ResourceRecordServiceImplTest {
         put("first_parameter", 111111);
         put("second_parameter", 987123);
     }};
-    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", user, firstDynamicParameters);
-    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user, firstDynamicParameters);
-    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), firstDynamicParameters);
+    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", user,"imageUrl", firstDynamicParameters);
+    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user,null, firstDynamicParameters);
+    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), "imageUrl",firstDynamicParameters);
 
-    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description", user.getId(), firstDynamicParameters);
-    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), secondDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description",  firstDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
-            new ResourceRecord(1L, "TestName1", "Some description", user, firstDynamicParameters),
-            new ResourceRecord(2L, "TestName2", "Some description2",user, secondDynamicParameters));
+            new ResourceRecord(1L, "TestName1", "Some description", user,"imageUrl", firstDynamicParameters),
+            new ResourceRecord(2L, "TestName2", "Some description2",user, "imageUrl",secondDynamicParameters));
     private List<ResourceRecordDTO> resourceRecordDTOS = Arrays.asList(
-            new ResourceRecordDTO(1L, "TestName1", "Some description",  user.getId(), firstDynamicParameters),
-            new ResourceRecordDTO(2L, "TestName2", "Some description2", user.getId(), secondDynamicParameters));
+            new ResourceRecordDTO(1L, "TestName1", "Some description",  user.getId(), "imageUrl",firstDynamicParameters),
+            new ResourceRecordDTO(2L, "TestName2", "Some description2", user.getId(), "imageUrl",secondDynamicParameters));
 
     @Before
     public void initializeMock() {
         resourceRecordService = PowerMockito.spy(new ResourceRecordServiceImpl(resourceRecordRepository,
-                resourceTemplateService, userService));
+                resourceTemplateService, userService,fileStorageService,null));
     }
 
     @Test
     public void getListOfResourceDTOsSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        PowerMockito.doReturn("imageUrl").when(resourceRecordService, "generateUrlForPhoto", Mockito.anyString());
         when(resourceRecordRepository.findAll(anyString())).thenReturn(resourceRecords);
         assertEquals(resourceRecordDTOS, resourceRecordService.findAll(anyString()));
     }
@@ -101,8 +115,9 @@ public class ResourceRecordServiceImplTest {
     }
 
     @Test
-    public void getResourceRecordByIdDTOSuccess() {
+    public void getResourceRecordByIdDTOSuccess() throws Exception {
         doReturn(resourceRecord).when(resourceRecordService).findById(anyString(), anyLong());
+        PowerMockito.doReturn("imageUrl").when(resourceRecordService, "generateUrlForPhoto", Mockito.anyString());
         assertEquals(resourceRecordDTO, resourceRecordService.findByIdDTO(resourceTemplate.getTableName(), resourceRecord.getId()));
     }
 
@@ -116,7 +131,9 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void deleteSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        resourceRecordService.delete(resourceTemplate.getTableName(), resourceRecord.getId());
+        PowerMockito.doNothing().when(resourceRecordService, "deletePhotosFromS3", Mockito.anyString());
+        when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
+        resourceRecordService.delete(resourceTemplate.getTableName() ,resourceRecord.getId());
         verify(resourceRecordRepository, times(1)).delete(resourceTemplate.getTableName(), resourceRecord.getId());
     }
 
@@ -136,8 +153,12 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void saveResource() throws Exception {
+        String email = "mail";
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        when(userService.getById(anyLong())).thenReturn(user);
+        when(userService.getUserByEmail(anyString())).thenReturn(user);
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
+        doReturn(email).when(authentication).getName();
         resourceRecordService.save(resourceTemplate.getTableName(), resourceRecordSaveDTO);
         verify(resourceRecordRepository, times(1)).save(resourceTemplate.getTableName(), secondResourceRecord);
     }

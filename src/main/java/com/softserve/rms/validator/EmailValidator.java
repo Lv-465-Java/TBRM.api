@@ -1,7 +1,6 @@
-package com.softserve.rms.Validator;
+package com.softserve.rms.validator;
 
 import com.softserve.rms.repository.UserRepository;
-import com.softserve.rms.service.implementation.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -43,8 +43,19 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      */
     boolean existsUserByPhone(String phone);
 
-    @Override
-    void deleteById(Long id);
+    /**
+     * Method that delete user by email
+     *
+     * @param email
+     * @author Mariia Shchur
+     */
+    void deleteByEmail(String email);
 
+    /**
+     * Method that find user by entered reset token
+     *
+     * @param resetToken
+     * @author Mariia Shchur
+     */
     Optional<User> findUserByResetToken(String resetToken);
 }

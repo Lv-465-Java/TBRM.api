@@ -5,6 +5,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Audited
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"}, callSuper = false)
+@EqualsAndHashCode(exclude = {"resourceTemplates", "groups"})
 @ToString(exclude = {"resourceTemplates", "groups"})
 public class User {
 
@@ -23,13 +24,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "first_name",nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column(nullable = false, length = 50)
+    @Column( nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false,unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, unique = true, length = 50)

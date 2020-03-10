@@ -17,15 +17,8 @@ public interface FileStorageService {
     /**
      * Method for deleting a file.
      *
-     * @param recourseId for deleting.
+     * @param fileName for deleting.
      */
-    void deleteFile( Long recourseId);
+    void deleteFile(String fileName);
 
-    /**
-     * Method for updating a file.
-     *
-     * @param multipartFile for updating.
-     * @return url of the deleted file.
-     */
-    String updateFile(MultipartFile multipartFile, Long recourseId);
 }

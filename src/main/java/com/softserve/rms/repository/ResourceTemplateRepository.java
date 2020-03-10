@@ -91,7 +91,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('REGISTER') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByTableName(String tableName);
 
     /**
@@ -107,7 +107,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     @PreAuthorize("hasRole('MANAGER')")
     ResourceTemplate saveAndFlush(ResourceTemplate resourceTemplate);
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('REGISTER') or hasRole('MANAGER')")
     List<ResourceTemplate> findAllByIsPublishedIsTrue();
 
 
