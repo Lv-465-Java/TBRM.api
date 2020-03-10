@@ -15,9 +15,11 @@ import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,8 +63,8 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
-        User user = userService.getById(resourceDTO.getUserId());
-        resourceRecord.setUser(user);
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        resourceRecord.setUser(userService.getUserByEmail(principal.getName()));
         resourceRecord.setPhotosNames(null);
         resourceRecord.setParameters(resourceDTO.getParameters());
         resourceRecordRepository.save(tableName, resourceRecord);

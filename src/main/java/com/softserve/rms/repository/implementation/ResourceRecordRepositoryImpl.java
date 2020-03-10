@@ -3,6 +3,7 @@ package com.softserve.rms.repository.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ResourceRecord;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
@@ -74,8 +75,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            query.addValue(field(entry.getKey()), entry.getValue());
+            if (entry.getValue() != null) {
+                query.addValue(field(entry.getKey()), entry.getValue());
+            }
         }
+
         query.addConditions(field(FieldConstants.ID.getValue()).eq(id));
         query.execute();
     }
@@ -116,12 +120,9 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
-        int deleted = dslContext.delete(table(tableName))
+        dslContext.delete(table(tableName))
                 .where(field(FieldConstants.ID.getValue()).eq(id))
                 .execute();
-        if (deleted == 0) {
-            throw new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage() + id);
-        }
     }
 
     /**
@@ -169,7 +170,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
-            parameters.put(record.field(i).getName(), record.getValue(i));
+            if (record.field(i).getName().endsWith("_coordinate")) {
+                parameters.put("coordinates", getAllCoordinates((String) record.getValue(i)));
+            } else {
+                parameters.put(record.field(i).getName(), record.getValue(i));
+            }
         }
         parameters.remove(FieldConstants.ID.getValue());
         parameters.remove(FieldConstants.NAME.getValue());
@@ -178,5 +183,26 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.PHOTOS_NAMES.getValue());
 
         return parameters;
+    }
+
+    private List<String> getLatitudeAndLongitude(String name) {
+        return Arrays.asList(name.split(","));
+    }
+
+    private List<String> getCoordinate(String name) {
+        return Arrays.asList(name.split(";"));
+    }
+
+    private List<Map<String, Double>> getAllCoordinates(String coordinateRecord) {
+        List<Map<String, Double>> coordinates = new ArrayList<>();
+        getCoordinate(coordinateRecord).forEach(element -> {
+            Map<String, Double> coordinate = new LinkedHashMap<>();
+            coordinate.put(FieldConstants.LATITUDE.getValue(),
+                    Double.parseDouble(getLatitudeAndLongitude(element).get(0)));
+            coordinate.put(FieldConstants.LONGITUDE.getValue(),
+                    Double.parseDouble(getLatitudeAndLongitude(element).get(1)));
+            coordinates.add(coordinate);
+        });
+        return coordinates;
     }
 }
