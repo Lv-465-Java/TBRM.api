@@ -68,7 +68,8 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping
-    ResponseEntity<List<ResourceTemplateDTO>> findAllTemplates();
+    ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplates(@RequestParam Optional<Integer> page,
+                                                               @RequestParam Optional<Integer> pageSize);
 
     /**
      * The controller which finds all published {@link ResourceTemplateDTO}.
@@ -82,7 +83,8 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/published")
-    ResponseEntity<List<ResourceTemplateDTO>> findAllPublishedTemplates();
+    ResponseEntity<Page<ResourceTemplateDTO>> findAllPublishedTemplates(@RequestParam Optional<Integer> page,
+                                                                        @RequestParam Optional<Integer> pageSize);
 
     /**
      * The controller which finds {@link ResourceTemplateDTO} by table name.
@@ -113,7 +115,9 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/user/{userId}")
-    ResponseEntity<List<ResourceTemplateDTO>> findAllTemplatesByUserId(@PathVariable Long userId);
+    ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplatesByUserId(@PathVariable Long userId,
+                                                                       @RequestParam Optional<Integer> page,
+                                                                       @RequestParam Optional<Integer> pageSize);
 
     /**
      * The controller which updates a {@link ResourceTemplateDTO} by provided id.
@@ -161,7 +165,9 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/search")
-    ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord);
+    ResponseEntity<Page<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord,
+                                                                                @RequestParam Optional<Integer> page,
+                                                                                @RequestParam Optional<Integer> pageSize);
 
     /**
      * The controller which publishes {@link ResourceTemplateDTO} by id.
@@ -186,7 +192,9 @@ public interface ResourceTemplateControllerApi {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/permission/{id}")
-    ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id);
+    ResponseEntity<Page<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable String id,
+                                                                    @RequestParam Optional<Integer> page,
+                                                                    @RequestParam Optional<Integer> pageSize);
 
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),

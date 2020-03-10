@@ -68,9 +68,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResponseEntity<List<ResourceTemplateDTO>> findAllTemplates() {
+    public ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplates(Optional<Integer> page,
+                                                                      Optional<Integer> pageSize) {
         LOG.info("Getting all Resource Templates");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll());
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -79,9 +80,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Andrii Bren
      */
     @Override
-    public ResponseEntity<List<ResourceTemplateDTO>> findAllPublishedTemplates() {
+    public ResponseEntity<Page<ResourceTemplateDTO>> findAllPublishedTemplates(Optional<Integer> page,
+                                                                               Optional<Integer> pageSize) {
         LOG.info("Getting all published Resource Templates");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findAllPublishedTemplates());
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findAllPublishedTemplates(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -90,7 +92,7 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Andrii Bren
      */
     @Override
-    public ResponseEntity<ResourceTemplateDTO> findTemplateByTableName(@PathVariable String tableName) {
+    public ResponseEntity<ResourceTemplateDTO> findTemplateByTableName(String tableName) {
         LOG.info("Getting Template by table name");
         return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findByTableNameDTO(tableName));
     }
@@ -101,9 +103,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResponseEntity<List<ResourceTemplateDTO>> findAllTemplatesByUserId(Long userId) {
+    public ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplatesByUserId(Long userId,Optional<Integer> page,
+                                                                              Optional<Integer> pageSize) {
         LOG.info("Getting all Resource Templates by user ID: " + userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -135,10 +138,11 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResponseEntity<List<ResourceTemplateDTO>> searchTemplateByNameOrDescription(String searchedWord) {
+    public ResponseEntity<Page<ResourceTemplateDTO>> searchTemplateByNameOrDescription(String searchedWord, Optional<Integer> page,
+                                                                                       Optional<Integer> pageSize) {
         LOG.info("Search a Resource Template by name or description contains: " + searchedWord);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
+                .body(resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -154,9 +158,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     }
 
     @Override
-    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(String id) {
+    public ResponseEntity<Page<PrincipalPermissionDto>> getUsersWithAccess(String id, Optional<Integer> page,
+                                                                           Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id)));
+                .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id), page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     @Override

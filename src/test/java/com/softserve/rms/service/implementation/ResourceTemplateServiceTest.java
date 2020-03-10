@@ -111,21 +111,21 @@ public class ResourceTemplateServiceTest {
     public void testFindAll() {
         when(resourceTemplateRepository.findAll()).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll());
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll(anyInt(), anyInt()).getContent());
     }
 
     @Test
     public void testFindAllPublished() {
         when(resourceTemplateRepository.findAllByIsPublishedIsTrue()).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates());
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates(anyInt(), anyInt()).getContent());
     }
 
     @Test
     public void testFindAllByUserId() {
         when(resourceTemplateRepository.findAllByUserId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong()));
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong(), anyInt(), anyInt()).getContent());
     }
 
     @Test(expected = ResourceTemplateCanNotBeModified.class)
@@ -218,7 +218,7 @@ public class ResourceTemplateServiceTest {
                 (anyString(), anyString())).thenReturn(resourceTemplates);
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
         String searchedWord = "name";
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord, 1, 1).getContent());
     }
 
     @Test
