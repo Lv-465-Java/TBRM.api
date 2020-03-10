@@ -1,8 +1,9 @@
-package com.softserve.rms.util;
+package com.softserve.rms.search;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.constants.ValidationPattern;
+import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.exceptions.BadRequestException;
 import com.softserve.rms.exceptions.InvalidParametersException;
@@ -33,6 +34,7 @@ public class ResourceFilterUtil {
         map.put(FieldConstants.LONG.getValue(), Long::valueOf);
         map.put(FieldConstants.INTEGER.getValue(), Integer::valueOf);
         map.put(FieldConstants.DOUBLE.getValue(), Double::valueOf);
+        map.put("Boolean", Boolean::valueOf);
         map.put(FieldConstants.STRING.getValue(), s -> s);
     }
 
@@ -53,36 +55,47 @@ public class ResourceFilterUtil {
         for (String newString : newStrings) {
             Matcher matcher = pattern.matcher(newString);
             if (matcher.matches()) {
-                SearchCriteria searchCriteria = checkColumnParameterType(tableName,
-                        matcher.group(1), matcher.group(2), matcher.group(3));
-                searchStringList.add(searchCriteria);
+//                SearchCriteria searchCriteria = checkColumnParameterType(tableName,
+//                        matcher.group(1), matcher.group(2), matcher.group(3));
+                searchStringList.add(checking(tableName,
+                        matcher.group(1), matcher.group(2), matcher.group(3)));
             } else {
                 throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
             }
         }
         return searchStringList;
     }
-//  public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
-//        List<String> searchStringList = splitSearchCriteriaByQuoteAndComma(search);
-//        List<SearchCriteria> criteria = new ArrayList<>();
-//
-//        for (String string : searchStringList) {
-//            int searchCriteriaLength = string.length();
-//            Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
-//            Matcher matcher = pattern.matcher(string);
-//            if (matcher.find()) {
-//                int matcherLength = matcher.group(1).length() + matcher.group(2).length() + matcher.group(3).length();
-//                if (searchCriteriaLength == matcherLength) {
-//                    SearchCriteria searchCriteria = checkColumnParameterType(tableName,
-//                            matcher.group(1), matcher.group(2), matcher.group(3));
-//                    criteria.add(searchCriteria);
-//                } else {
-//                    throw new BadRequestException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
-//                }
-//            }
-//        }
-//        return criteria;
-//    }
+
+    public SearchCriteria checking(String tableName, String... matcherGroup) {
+        if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
+            SearchCriteria criteria = properCheck(tableName,
+                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
+            return criteria;
+        } else {
+            return checkColumnParameterType(tableName,
+                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
+        }
+    }
+
+    public SearchCriteria properCheck(String tableName, String... matcherGroup) {
+        SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
+        ResourceTemplate resourceTemplate = new ResourceTemplate();
+
+        java.lang.reflect.Field[] fields = resourceTemplate.getClass().getDeclaredFields();
+
+        for (java.lang.reflect.Field field : fields) {
+            if (field.getName().equals(matcherGroup[0])) {
+                String columnType = field.getType().getSimpleName();
+                Function<String, ?> parser = map.get(columnType);
+                try {
+                    searchCriteria.setValue(parser.apply(matcherGroup[2]));
+                } catch (NumberFormatException e) {
+                    throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
+                }
+            }
+        }
+        return searchCriteria;
+    }
 
     /**
      * Method splits string with search criteria by point.

@@ -5,7 +5,6 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity(name = "resource_templates")
 @Data
 @NoArgsConstructor
@@ -24,6 +23,7 @@ public class ResourceTemplate {
 
     private String description;
 
+    @Column(name = "is_Published")
     private Boolean isPublished;
 
     @ManyToOne

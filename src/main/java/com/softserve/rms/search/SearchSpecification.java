@@ -1,11 +1,10 @@
-package com.softserve.rms.util;
+package com.softserve.rms.search;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.constants.SearchOperation;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.SearchCriteria;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidParametersException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,15 +16,28 @@ import javax.persistence.criteria.Root;
 
 
 public class SearchSpecification implements Specification<ResourceTemplate> {
-
     private SearchCriteria criteria;
 
+    /**
+     * Constructor with parameters
+     *
+     * @author Halyna Yatseniuk
+     */
     @Autowired
     public SearchSpecification(SearchCriteria criteria) {
-        super();
         this.criteria = criteria;
     }
 
+    /**
+     * Method builds a WHERE clause for a query of the {@link ResourceTemplate} entity in form of a {@link Predicate}
+     * for the given {@link Root} and {@link CriteriaQuery}.
+     *
+     * @param root    must not be {@literal null}.
+     * @param query   must not be {@literal null}.
+     * @param builder must not be {@literal null}.
+     * @return a {@link Predicate}, may be {@literal null}.
+     * @author Halyna Yatseniuk
+     */
     @Override
     public Predicate toPredicate(Root<ResourceTemplate> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         switch (criteria.getOperation()) {
@@ -47,31 +59,4 @@ public class SearchSpecification implements Specification<ResourceTemplate> {
                 throw new InvalidParametersException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
         }
     }
-
-    @Override
-    public String toString() {
-        return "SearchSpecification{" +
-                "criteria=" + criteria +
-                '}';
-    }
 }
-
-
-
-//    public static Specification<Employee> getEmployeesByNameSpec(String name) {
-//        return (root, query, criteriaBuilder) -> {
-//            return criteriaBuilder.equal(root.get(Employee_.name), name);
-//        };
-//    }
-
-//    public Specification<T> createSpecification(SearchCriteria searchCriteria) {
-//
-//        return (root, query, criteriaBuilder) ->
-//                criteriaBuilder.equal(root.get(criteria.getKey()), criteria.getValue()
-//    }
-
-//    public List<Specification<T>> createSpecification(List<SearchCriteria> searchCriteria) {
-//
-//        return (root, query, criteriaBuilder) ->
-//                criteriaBuilder.equal(root.get(criteria.getKey()), criteria.getValue()
-//    }
