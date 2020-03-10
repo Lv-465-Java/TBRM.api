@@ -87,30 +87,6 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      *
      * @author Andrii Bren
      */
-//    @Transactional(readOnly = true)
-//    @Override
-//    public List<ResourceRecord> findAll(String tableName) {
-//        List<Record> records = dslContext.select().from(table(tableName))
-//                .innerJoin(table("room")).onKey().fetch();
-//        return convertRecordsToResourceList(records);
-//    }
-
-//    @Transactional(readOnly = true)
-//    @Override
-//    public List<ResourceRecord> findAll(String tableName) {
-//        List<Record> records = dslContext.select().from(table(tableName)
-//                .innerJoin(table("room")).on(table(tableName).field("room_location_ref")
-//                        .eq(table("room").field("id")))).fetch();
-////                        .eq(table("room").field(FieldConstants.ID.getValue())))).fetch();
-//        return convertRecordsToResourceList(records);
-//    }
-
-//    private String getRelatedTableName(String tableName) {
-//        Table<?> table = dslContext.meta().getTables(tableName).get(0);
-//        for (ForeignKey<?, ?> fk : table.getReferences()) {
-//            fk.getTable().getName();
-//        }
-//    }
     @Transactional(readOnly = true)
     @Override
     public List<ResourceRecord> findAll(String tableName) {
@@ -142,27 +118,9 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
-        if (checkIfResourceHasDependency(tableName)) {
-            throw new NotDeletedException(ErrorMessage.RESOURCE_CAN_NOT_BE_DELETED_BY_ID.getMessage() + id);
-        }
         dslContext.delete(table(tableName))
                 .where(field(FieldConstants.ID.getValue()).eq(id))
                 .execute();
-    }
-
-    /**
-     * Method checks if the Resource Record has reference to given Resource Record.
-     *
-     * @param tableName {@link ResourceTemplate} table name
-     * @author Andrii Bren
-     */
-    private Boolean checkIfResourceHasDependency(String tableName) {
-        Table<?> foundTable = dslContext.meta().getTables(tableName).get(0);
-        long referencesAmount = dslContext
-                .meta().getTables().stream()
-                .map(table -> table.getReferencesTo((foundTable)))
-                .filter(size -> !(size.isEmpty())).count();
-        return !(referencesAmount == 0);
     }
 
     /**
@@ -211,11 +169,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         for (int i = 0; i < record.size(); i++) {
             if (record.field(i).getName().endsWith("_coordinate")) {
                 parameters.put("coordinates", getAllCoordinates((String) record.getValue(i)));
-            }
-//            else if (record.field(i).getName().endsWith("_ref")) {
-////                parameters.put()
-//            }
-            else {
+            } else {
                 parameters.put(record.field(i).getName(), record.getValue(i));
             }
         }
