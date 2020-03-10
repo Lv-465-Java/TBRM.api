@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/resource-template/resource/{tableName}")
@@ -71,8 +73,11 @@ public class ResourceRecordController {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping
-    public ResponseEntity<List<ResourceRecordDTO>> findAll(@PathVariable String tableName) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceRecordService.findAll(tableName));
+    public ResponseEntity<Page<ResourceRecordDTO>> findAll(@PathVariable String tableName,
+                                                           @RequestParam Optional<Integer> page,
+                                                           @RequestParam Optional<Integer> pageSize) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceRecordService.findAll(tableName, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**

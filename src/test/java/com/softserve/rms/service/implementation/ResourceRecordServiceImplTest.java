@@ -23,6 +23,7 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.*;
 
@@ -89,16 +90,17 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void getListOfResourceDTOsSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        when(resourceRecordRepository.findAll(anyString(), anyInt(), anyInt())).thenReturn(new PageImpl<>(resourceRecords));
         PowerMockito.doReturn("imageUrl").when(resourceRecordService, "generateUrlForPhoto", Mockito.anyString());
-        when(resourceRecordRepository.findAll(anyString())).thenReturn(resourceRecords);
-        assertEquals(resourceRecordDTOS, resourceRecordService.findAll(anyString()));
+        assertEquals(resourceRecordDTOS, resourceRecordService.findAll("name", 1, 1).getContent());
     }
 
     @Test
     public void getEmptyListOfResourceDTOs() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        when(resourceRecordRepository.findAll(anyString(), anyInt(), anyInt())).thenReturn(new PageImpl<>(Collections.emptyList()));
         List<ResourceRecordDTO> expected = Collections.emptyList();
-        assertEquals(expected, resourceRecordService.findAll(anyString()));
+        assertEquals(expected, resourceRecordService.findAll(anyString(), anyInt(), anyInt()).getContent());
     }
 
     @Test

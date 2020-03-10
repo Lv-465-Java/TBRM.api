@@ -19,6 +19,7 @@ import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Formatter;
+import com.softserve.rms.util.PaginationUtil;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
@@ -26,13 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -118,11 +122,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAll() {
+    public Page<ResourceTemplateDTO> getAll(Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAll();
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -131,11 +134,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceTemplateDTO> findAllPublishedTemplates() {
+    public Page<ResourceTemplateDTO> findAllPublishedTemplates(Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -144,11 +146,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAllByUserId(Long id) {
+    public Page<ResourceTemplateDTO> getAllByUserId(Long id, Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByUserId(id);
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -227,12 +228,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord) {
+    public Page<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord, Integer page,
+                                                                         Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.
                 findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -344,8 +345,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Marian Dutchyn
      */
     @Override
-    public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
-        return permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+    public Page<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id, Integer page, Integer pageSize) {
+        List<PrincipalPermissionDto> principals = permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+        return PaginationUtil.buildPage(principals, page, pageSize);
     }
 
     /**

@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +38,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 @PreAuthorize("hasRole('MANAGER')")
 @Service
@@ -61,10 +65,16 @@ public class GroupServiceImpl  implements GroupService {
 
     @Override
     public Page<GroupDto> getAll(Integer page, Integer pageSize) {
-        int pageNumber = page <= 0 ? 0 : page - 1;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize), Sort.Direction.DESC, "id");
         return groupRepository.findAll(pageable)
-                .map((group) -> modelMapper.map(group, GroupDto.class));
+                .map(group -> modelMapper.map(group, GroupDto.class));
+    }
+
+    @Override
+    public Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User> users = groupRepository.findAllMembers(groupId, pageable);
+        return users.map(user -> modelMapper.map(user, MemberDto.class));
     }
 
     @Override

@@ -15,14 +15,21 @@ import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 /**
  * Implementation of {@link ResourceRecordService}
@@ -102,17 +109,18 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceRecordDTO> findAll(String tableName) throws NotFoundException {
+    public Page<ResourceRecordDTO> findAll(String tableName, Integer page, Integer pageSize) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
-        List<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName);
+        Integer validPage = validatePage(page);
+        Integer validPageSize = validatePageSize(pageSize);
+        Page<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName, validPage, validPageSize);
         resourceRecords.forEach(resource -> {
             if (resource.getPhotosNames() != null) {
                 resource.setPhotosNames(generateUrlForPhoto(resource.getPhotosNames()));
             }
         });
-        return resourceRecords.stream()
-                .map(resource -> modelMapper.map(resource, ResourceRecordDTO.class))
-                .collect(Collectors.toList());
+        return resourceRecords
+                .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class));
     }
 
     /**

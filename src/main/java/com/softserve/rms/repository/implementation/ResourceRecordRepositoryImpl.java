@@ -11,6 +11,9 @@ import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,9 +94,15 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      */
     @Transactional(readOnly = true)
     @Override
-    public List<ResourceRecord> findAll(String tableName) {
-        List<Record> records = dslContext.selectFrom(tableName).fetch();
-        return convertRecordsToResourceList(records);
+    public Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize) {
+        Long totalItems = Long.valueOf(dslContext.selectCount()
+                        .from(tableName)
+                        .fetchOne(0, int.class));
+        List<Record> records = dslContext
+                .selectFrom(tableName)
+                .fetch();
+        List<ResourceRecord> resourceRecords = convertRecordsToResourceList(records);
+        return new PageImpl<>(resourceRecords, PageRequest.of(page, pageSize), totalItems);
     }
 
     /**
