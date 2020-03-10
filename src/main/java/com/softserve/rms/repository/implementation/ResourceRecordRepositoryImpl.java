@@ -53,6 +53,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.USER_ID.getValue()), resourceRecord.getUser().getId());
+        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -71,6 +72,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         UpdateQuery<Record> query = dslContext.updateQuery(table(tableName));
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
+        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             if (entry.getValue() != null) {
@@ -153,6 +155,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
                 .name((String) record.getValue(field(FieldConstants.NAME.getValue()).getName()))
                 .description((String) record.getValue(field(FieldConstants.DESCRIPTION.getValue()).getName()))
                 .user(userService.getById(userId))
+                .photosNames((String) record.getValue(field(FieldConstants.PHOTOS_NAMES.getValue()).getName()))
                 .parameters(getParameters(record))
                 .build();
     }
@@ -177,6 +180,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.NAME.getValue());
         parameters.remove(FieldConstants.DESCRIPTION.getValue());
         parameters.remove(FieldConstants.USER_ID.getValue());
+        parameters.remove(FieldConstants.PHOTOS_NAMES.getValue());
+
         return parameters;
     }
 

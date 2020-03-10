@@ -30,6 +30,7 @@ public class JooqDDL {
                 .column(FieldConstants.NAME.getValue(), SQLDataType.VARCHAR(255).nullable(false))
                 .column(FieldConstants.DESCRIPTION.getValue(), SQLDataType.VARCHAR(255))
                 .column(FieldConstants.USER_ID.getValue(), SQLDataType.BIGINT.nullable(false))
+                .column(FieldConstants.PHOTOS_NAMES.getValue(), SQLDataType.VARCHAR)
                 .constraints(
                         constraint(resourceTemplate.getTableName()
                                 .concat(FieldConstants.PRIMARY_KEY.getValue()))
