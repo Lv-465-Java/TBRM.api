@@ -14,8 +14,13 @@ public enum FieldConstants {
     FROM("_from"),
     TO("_to"),
     REFERENCE("_ref"),
+    REFERENCE_NAME("_ref_name"),
+    COORDINATE("_coordinate"),
+    LATITUDE("lat"),
+    LONGITUDE("lng"),
     RESOURCE_TEMPLATES_TABLE("resource_templates"),
     RESOURCE_RELATION_TABLE("resource_relations");
+
 
     private String value;
 

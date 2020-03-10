@@ -20,12 +20,16 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.PageImpl;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
@@ -45,11 +49,17 @@ public class ResourceRecordServiceImplTest {
     private FileStorageServiceImpl fileStorageService;
 
     @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
     private UserService userService;
 
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any", "any", false, null,"imageUrl","google","2344555", Collections.emptyList(), null, Collections.emptyList());
 
-    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, null, Collections.emptyList(), Collections.emptyList());
+    private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testName", "test_name", null, true, user, Collections.emptyList(), Collections.emptyList());
     private HashMap<String, Object> firstDynamicParameters = new HashMap<String, Object>() {{
         put("first_parameter", 111);
         put("second_parameter", 999);
@@ -62,8 +72,8 @@ public class ResourceRecordServiceImplTest {
     private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user,null, firstDynamicParameters);
     private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), "imageUrl",firstDynamicParameters);
 
-    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description", user.getId(), firstDynamicParameters);
-    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", user.getId(), secondDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description",  firstDynamicParameters);
+    private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
             new ResourceRecord(1L, "TestName1", "Some description", user,"imageUrl", firstDynamicParameters),
             new ResourceRecord(2L, "TestName2", "Some description2",user, "imageUrl",secondDynamicParameters));
@@ -145,8 +155,12 @@ public class ResourceRecordServiceImplTest {
 
     @Test
     public void saveResource() throws Exception {
+        String email = "mail";
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        when(userService.getById(anyLong())).thenReturn(user);
+        when(userService.getUserByEmail(anyString())).thenReturn(user);
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication()).thenReturn(authentication);
+        doReturn(email).when(authentication).getName();
         resourceRecordService.save(resourceTemplate.getTableName(), resourceRecordSaveDTO);
         verify(resourceRecordRepository, times(1)).save(resourceTemplate.getTableName(), secondResourceRecord);
     }

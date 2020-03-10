@@ -18,9 +18,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,8 +70,8 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         ResourceRecord resourceRecord = new ResourceRecord();
         resourceRecord.setName(resourceDTO.getName());
         resourceRecord.setDescription(resourceDTO.getDescription());
-        User user = userService.getById(resourceDTO.getUserId());
-        resourceRecord.setUser(user);
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        resourceRecord.setUser(userService.getUserByEmail(principal.getName()));
         resourceRecord.setPhotosNames(null);
         resourceRecord.setParameters(resourceDTO.getParameters());
         resourceRecordRepository.save(tableName, resourceRecord);
@@ -83,7 +85,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     @Override
     public ResourceRecordDTO findByIdDTO(String tableName, Long id) throws NotFoundException {
         ResourceRecord resourceRecord = findById(tableName, id);
-        resourceRecord.setPhotosNames(generateUrlForPhoto(resourceRecord.getPhotosNames()));
+        if (resourceRecord.getPhotosNames() != null) {
+            resourceRecord.setPhotosNames(generateUrlForPhoto(resourceRecord.getPhotosNames()));
+        }
         return modelMapper.map(resourceRecord, ResourceRecordDTO.class);
     }
 
@@ -109,7 +113,13 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         checkIfResourceTemplateIsPublished(tableName);
         Integer validPage = validatePage(page);
         Integer validPageSize = validatePageSize(pageSize);
-        return resourceRecordRepository.findAll(tableName, validPage, validPageSize)
+        Page<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName, validPage, validPageSize);
+        resourceRecords.forEach(resource -> {
+            if (resource.getPhotosNames() != null) {
+                resource.setPhotosNames(generateUrlForPhoto(resource.getPhotosNames()));
+            }
+        });
+        return resourceRecords
                 .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class));
     }
 
@@ -195,12 +205,12 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Mariia Shchur
      */
     @Override
-    public void deletePhoto(String tableName, Long id,String photo) {
+    public void deletePhoto(String tableName, Long id, String photo) {
         ResourceRecord resourceRecord = findById(tableName, id);
         Stream.of(resourceRecord.getPhotosNames().split(",")).
-                filter(p->p.equals(photo)).
-                forEach(q->fileStorageService.deleteFile(q));
-        resourceRecord.setPhotosNames(resourceRecord.getPhotosNames().replace((photo+','),""));
+                filter(p -> p.equals(photo)).
+                forEach(q -> fileStorageService.deleteFile(q));
+        resourceRecord.setPhotosNames(resourceRecord.getPhotosNames().replace((photo + ','), ""));
         resourceRecordRepository.update(tableName, id, resourceRecord);
     }
 
@@ -210,9 +220,9 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @param allPhotos
      * @author Mariia Shchur
      */
-    private void deletePhotosFromS3(String allPhotos){
+    private void deletePhotosFromS3(String allPhotos) {
         Stream.of(allPhotos.split(",")).
-                forEach(photo-> fileStorageService.deleteFile(photo));
+                forEach(photo -> fileStorageService.deleteFile(photo));
     }
 
     /**
@@ -224,7 +234,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     private String generateUrlForPhoto(String allPhotos) {
         StringBuilder result = new StringBuilder();
         Stream.of(allPhotos.split(",")).
-                forEach(photo->result.append(endpointUrl+photo+','));
+                forEach(photo -> result.append(endpointUrl + photo + ','));
         return (result.toString());
     }
 

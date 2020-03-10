@@ -439,7 +439,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testVerificationOfResourceTemplateHavingParameters() throws Exception {
         resourceTemplate.setResourceParameters(Collections.singletonList(new ResourceParameter(null, "name",
-                "name", ParameterType.COORDINATES, null, resourceTemplate, null)));
+                "name", ParameterType.COORDINATES_STRING, null, resourceTemplate, null)));
         Boolean result = Whitebox.invokeMethod(resourceTemplateService, "verifyIfResourceTemplateHasParameters",
                 resourceTemplate);
         assertTrue(result);
