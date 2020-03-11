@@ -14,6 +14,8 @@ import java.util.OptionalInt;
 public interface GroupService {
     Page<GroupDto> getAll(Integer page, Integer pageSize);
 
+    Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize);
+
     GroupDto getByName(String name);
 
     GroupDto createGroup(GroupSaveDto groupSaveDto);
@@ -26,7 +28,7 @@ public interface GroupService {
 
     void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal);
 
-    List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id);
+    Page<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize);
 
     GroupDto update(String name, GroupSaveDto groupSaveDto);
 

@@ -75,10 +75,10 @@ public class GroupServiceImplTest {
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
             "password", true, role,"imageUrl","google","3145262", Collections.emptyList(), "resetToken", Collections.emptyList());
-    private Group group = new Group(1L, "group", "description", Collections.emptyList());
+    private Group group = new Group(1L, "group", "description");
     private GroupsMember groupsMember = new GroupsMember(1L, user, group);
     private List<Group> groups = Collections.singletonList(group);
-    private GroupDto groupDto = new GroupDto(1L, group.getName(), group.getDescription(), Collections.emptyList());
+    private GroupDto groupDto = new GroupDto(1L, group.getName(), group.getDescription());
     private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
     private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
     private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
@@ -95,7 +95,6 @@ public class GroupServiceImplTest {
     @Test
     public void getAllOk() {
         Page<GroupDto> expected = new PageImpl<>(Collections.singletonList(groupDto));
-        Page<Group> expectedPage = new PageImpl<>(Collections.singletonList(group));
         doReturn(page).when(groupRepository).findAll(any(Pageable.class));
         doReturn(expected).when(page).map(any());
         Page<GroupDto> actual = groupService.getAll(1, 5);
@@ -331,14 +330,14 @@ public class GroupServiceImplTest {
     public void findPrincipalWithAccessToGroupOk() {
         doReturn(Collections.emptyList()).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
         List<PrincipalPermissionDto> expected = Collections.emptyList();
-        List<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong());
-        assertEquals(actual, expected);
+        Page<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong(), anyInt(), anyInt());
+        assertEquals(actual.getContent(), expected);
     }
 
     @Test(expected = PermissionException.class)
     public void findPrincipalWithAccessToGroupPrincipalNotFound() {
         doThrow(new PermissionException("")).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
-        groupService.findPrincipalWithAccessToGroup(1L);
+        groupService.findPrincipalWithAccessToGroup(1L, 1, 1);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.softserve.rms.service.implementation;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -53,7 +54,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     @PostConstruct
     private void initializeAmazon() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretAccessKey);
-        s3client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+        s3client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.EU_CENTRAL_1).build();
     }
 
     /**
@@ -88,7 +91,7 @@ public class FileStorageServiceImpl implements FileStorageService {
      * @return String
      * @author Mariia Shchur
      */
-    private String generateFileName(){
+    private String generateFileName() {
         return UUID.randomUUID().toString();
     }
 
@@ -120,6 +123,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     @Transactional
     public void deleteFile(String fileName) {
-        s3client.deleteObject(bucketName,fileName);
+        s3client.deleteObject(bucketName, fileName);
     }
 }

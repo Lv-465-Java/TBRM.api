@@ -3,6 +3,8 @@ package com.softserve.rms.repository;
 import com.softserve.rms.entities.ResourceParameter;
 import com.softserve.rms.entities.ResourceRelation;
 import com.softserve.rms.entities.ResourceTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +21,7 @@ public interface ResourceParameterRepository extends JpaRepository<ResourceParam
      * @return list of  {@link ResourceParameter}
      * @author Andrii Bren
      */
-    List<ResourceParameter> findAllByResourceTemplateId(Long id);
+    Page<ResourceParameter> findAllByResourceTemplateId(Long id, Pageable pageable);
 
     /**
      * Method finds {@link Optional <ResourceParameter>} by name.

@@ -2,10 +2,13 @@ package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -15,8 +18,8 @@ public interface ResourceRecordRepository {
      * Method saves dynamic {@link ResourceRecord} in a table specified
      * by the reсorder.
      *
-     * @param tableName {@link ResourceTemplate} tableName
-     * @param resourceRecord  instance of {@link ResourceRecord}
+     * @param tableName      {@link ResourceTemplate} tableName
+     * @param resourceRecord instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
     void save(String tableName, ResourceRecord resourceRecord);
@@ -25,9 +28,9 @@ public interface ResourceRecordRepository {
      * Method updates dynamic {@link ResourceRecord} in a table specified
      * by the reсorder.
      *
-     * @param tableName {@link ResourceTemplate} tableName
-     * @param id        {@link ResourceRecord} id
-     * @param resourceRecord  instance of {@link ResourceRecord}
+     * @param tableName      {@link ResourceTemplate} tableName
+     * @param id             {@link ResourceRecord} id
+     * @param resourceRecord instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
     void update(String tableName, Long id, ResourceRecord resourceRecord);
@@ -39,13 +42,13 @@ public interface ResourceRecordRepository {
      * @return list of dynamic {@link ResourceRecord}
      * @author Andrii Bren
      */
-    List<ResourceRecord> findAll(String tableName);
+    Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize);
 
     /**
-     * Method finds dynamic {@link Optional< ResourceRecord >} by id.
+     * Method finds dynamic {@link Optional<ResourceRecord>} by id.
      *
      * @param tableName {@link ResourceTemplate} tableName
-     * @return {@link Optional< ResourceRecord >}
+     * @return {@link Optional<ResourceRecord>}
      * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */
@@ -56,6 +59,7 @@ public interface ResourceRecordRepository {
      *
      * @param tableName {@link ResourceTemplate} tableName
      * @param id        {@link ResourceRecord} id
+     * @throws NotDeletedException if the resource with provided id is not deleted
      * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */

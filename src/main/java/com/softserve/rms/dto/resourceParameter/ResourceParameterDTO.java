@@ -14,5 +14,6 @@ public class ResourceParameterDTO {
     private String pattern;
     private Long resourceTemplateId;
     private String relatedResourceTemplateName;
+    private String relatedResourceTemplateTableName;
     private Long relatedResourceTemplateId;
 }

@@ -20,6 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.mockito.Mockito;
@@ -215,9 +218,9 @@ public class UserServiceImplTest {
 
     @Test
     public void getUsersTestSuccess() {
-        Mockito.when(adminRepository.getAllByEnabled(true)).thenReturn(Collections.singletonList(thirdUser));
+        Page<User> userPage = new PageImpl<>(Collections.singletonList(thirdUser));
+        Mockito.when(adminRepository.getAllByEnabled(anyBoolean(), any(Pageable.class))).thenReturn(userPage);
         List<PermissionUserDto> resourceTemplateDTOs = Collections.singletonList(permissionUserDto);
-        Assert.assertEquals(resourceTemplateDTOs, userService.getUsers());
+        Assert.assertEquals(resourceTemplateDTOs, userService.getUsers(1, 1).getContent());
     }
-
 }
