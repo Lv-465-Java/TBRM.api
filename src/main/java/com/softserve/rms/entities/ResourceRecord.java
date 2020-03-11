@@ -30,6 +30,8 @@ public class ResourceRecord {
 
     private String photosNames;
 
+    private String documentNames;
+
     private Map<String, Object> parameters;
 
 
