@@ -77,10 +77,10 @@ public class GroupController {
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @GetMapping("permission/{id}")
-    public ResponseEntity<List<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable Long id,
+    public ResponseEntity<Page<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable Long id,
                 @RequestParam Optional<Integer> page,@RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(groupService.findPrincipalWithAccessToGroup(id));
+                .body(groupService.findPrincipalWithAccessToGroup(id, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     @ApiResponses(value = {

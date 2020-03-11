@@ -18,6 +18,7 @@ import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.GroupService;
 import com.softserve.rms.service.PermissionManagerService;
+import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -172,8 +173,9 @@ public class GroupServiceImpl  implements GroupService {
     }
 
     @Override
-    public List<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id) {
-        return permissionManagerService.findPrincipalWithAccess(id, Group.class);
+    public Page<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize) {
+        List<PrincipalPermissionDto> usersWithPermission = permissionManagerService.findPrincipalWithAccess(id, Group.class);
+        return PaginationUtil.buildPage(usersWithPermission, page, pageSize);
     }
 
     @Override
