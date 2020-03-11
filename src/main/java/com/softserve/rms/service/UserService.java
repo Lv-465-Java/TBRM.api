@@ -66,15 +66,6 @@ public interface UserService {
     void editEmail(EmailEditDto emailEditDto, String currentUserEmail);
 
     /**
-     * Method for set password and phone of user
-     *
-     * @param email {@link String}
-     * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
-     * @author Kravets Maryana
-     */
-    void setPasswordAndPhone(String email, UserPasswordPhoneDto userPasswordPhoneDto);
-
-    /**
      * Method that allow you to change profile picture
      *
      * @param multipartFile photo for saving.
