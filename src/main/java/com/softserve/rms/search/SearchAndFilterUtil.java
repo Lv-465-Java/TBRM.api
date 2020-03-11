@@ -170,8 +170,8 @@ public class SearchAndFilterUtil {
 
         for (java.lang.reflect.Field field : fields) {
             if (field.getName().equals(matcherGroup[0])) {
-                String columnType = field.getType().getSimpleName();
-                Function<String, ?> parser = map.get(columnType);
+                String fieldType = field.getType().getSimpleName();
+                Function<String, ?> parser = map.get(fieldType);
                 try {
                     searchCriteria.setValue(parser.apply(matcherGroup[2]));
                 } catch (NumberFormatException e) {
