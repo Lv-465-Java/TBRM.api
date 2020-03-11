@@ -23,14 +23,18 @@ import com.softserve.rms.util.RangeIntegerPatternGenerator;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 
@@ -98,7 +102,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
                 verifyIfParameterColumnNameIsUniquePerResourceTemplate(parameterDTO.getName(), id));
         resourceParameter.setParameterType(parameterDTO.getParameterType());
         if (parameterDTO.getPattern() != null ||
-                parameterDTO.getParameterType() == ParameterType.COORDINATES) {
+                parameterDTO.getParameterType() == ParameterType.COORDINATES_STRING) {
             resourceParameter.setPattern(getMatchedPatternToParameterType(
                     parameterDTO.getParameterType(), parameterDTO.getPattern()));
         }
@@ -124,7 +128,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     private String getMatchedPatternToParameterType(ParameterType type, String pattern) {
         if (type == ParameterType.POINT_INT || type == ParameterType.RANGE_INT) {
             return patternGenerator.generateRangeIntegerRegex(pattern);
-        } else if (type == ParameterType.COORDINATES) {
+        } else if (type == ParameterType.COORDINATES_STRING) {
             return Validator.COORDINATES_PATTERN;
         }
         return null;
@@ -226,7 +230,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * Method updates {@link ResourceRelation}.
      *
-     * @param parameterId {@link ResourceParameter} id
+     * @param parameterId                {@link ResourceParameter} id
      * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
@@ -246,7 +250,7 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
     /**
      * Method saves {@link ResourceRelation}.
      *
-     * @param parameterId {@link ResourceParameter} id
+     * @param parameterId                {@link ResourceParameter} id
      * @param relatedResourceParameterId {@link ResourceRelation} relatedTemplate id
      * @return instance of {@link ResourceRelation}
      * @throws NotFoundException                       if the resource template or parameter is not found
@@ -308,15 +312,15 @@ public class ResourceParameterServiceImpl implements ResourceParameterService {
      * {@inheritDoc}
      *
      * @author Andrii Bren
+     * @return
      */
     @Override
-    public List<ResourceParameterDTO> findAllByTemplateId(Long id) throws NotFoundException {
-        List<ResourceParameter> parameterList = resourceParameterRepository
+    public Page<ResourceParameterDTO> findAllByTemplateId(Long id, Integer page, Integer pageSize) throws NotFoundException {
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<ResourceParameter> parameterList = resourceParameterRepository
                 .findAllByResourceTemplateId(
-                        resourceTemplateService.findEntityById(id).getId());
-        return modelMapper.map(parameterList,
-                new TypeToken<List<ResourceParameterDTO>>() {
-                }.getType());
+                        resourceTemplateService.findEntityById(id).getId(), pageable);
+        return parameterList.map(param -> modelMapper.map(param, ResourceParameterDTO.class));
     }
 
     /**

@@ -10,7 +10,7 @@ public enum ParameterType {
     POINT_REFERENCE("Point", "Integer", SQLDataType.INTEGER),
     RANGE_DOUBLE("Range", "Double", SQLDataType.DOUBLE),
     RANGE_INT("Range", "Integer", SQLDataType.INTEGER),
-    COORDINATES("Coordinates", "String", SQLDataType.VARCHAR);
+    COORDINATES_STRING("Coordinates", "String", SQLDataType.VARCHAR);
 
     private String name;
     private String type;

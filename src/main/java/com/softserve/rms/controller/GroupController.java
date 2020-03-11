@@ -47,6 +47,19 @@ public class GroupController {
 
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
+    })
+    @GetMapping("/member")
+    public ResponseEntity<Page<MemberDto>> getAllMembers(@RequestParam Long groupId,
+            @RequestParam Optional<Integer> page,@RequestParam Optional<Integer> pageSize) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(groupService.getAllMembers(groupId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
@@ -64,9 +77,10 @@ public class GroupController {
             @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @GetMapping("permission/{id}")
-    public ResponseEntity<List<PrincipalPermissionDto>> getByName(@PathVariable Long id) {
+    public ResponseEntity<Page<PrincipalPermissionDto>> getUsersWithAccess(@PathVariable Long id,
+                @RequestParam Optional<Integer> page,@RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(groupService.findPrincipalWithAccessToGroup(id));
+                .body(groupService.findPrincipalWithAccessToGroup(id, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     @ApiResponses(value = {
