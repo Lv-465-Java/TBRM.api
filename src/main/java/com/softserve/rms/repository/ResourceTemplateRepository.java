@@ -48,7 +48,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findAllByUserId(Long id);
 
     /**
@@ -59,7 +59,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return list of {@link ResourceTemplate}
      * @author Halyna Yatseniuk
      */
-    @PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(String name, String description);
 
     /**
@@ -69,7 +69,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#name, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER')")
     Optional<ResourceTemplate> findByName(String name);
 
     /**
@@ -89,7 +89,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasRole('REGISTER') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('USER') or hasRole('REGISTER') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByTableName(String tableName);
 
     /**
@@ -105,8 +105,6 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
     @PreAuthorize("hasRole('MANAGER')")
     ResourceTemplate saveAndFlush(ResourceTemplate resourceTemplate);
 
-    @PreAuthorize("hasRole('REGISTER') or hasRole('MANAGER')")
+    @PostFilter("hasPermission(filterObject, 'read') or hasRole('MANAGER')")
     List<ResourceTemplate> findAllByIsPublishedIsTrue();
-
-
 }

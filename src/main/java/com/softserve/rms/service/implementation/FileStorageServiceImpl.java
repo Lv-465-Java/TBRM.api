@@ -54,8 +54,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     @PostConstruct
     private void initializeAmazon() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretAccessKey);
-        s3client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.DEFAULT_REGION).build();
+        s3client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.EU_CENTRAL_1).build();
     }
 
     /**
@@ -90,7 +91,7 @@ public class FileStorageServiceImpl implements FileStorageService {
      * @return String
      * @author Mariia Shchur
      */
-    private String generateFileName(){
+    private String generateFileName() {
         return UUID.randomUUID().toString();
     }
 
@@ -122,6 +123,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     @Transactional
     public void deleteFile(String fileName) {
-        s3client.deleteObject(bucketName,fileName);
+        s3client.deleteObject(bucketName, fileName);
     }
 }

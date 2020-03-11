@@ -5,17 +5,20 @@ import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.constants.Message;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.group.GroupDto;
 import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.ParameterType;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
+import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
 import com.softserve.rms.service.GroupService;
@@ -23,6 +26,7 @@ import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.EmailSender;
 import com.softserve.rms.util.Formatter;
+import com.softserve.rms.util.PaginationUtil;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
@@ -30,13 +34,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +64,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private Formatter formatter;
     private EmailSender emailSender;
     private GroupService groupService;
+    private GroupRepository groupRepository;
 
     private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
@@ -68,7 +77,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserServiceImpl userService, PermissionManagerService permissionManagerService,
                                        DSLContext dslContext, JooqDDL jooqDDL, Formatter formatter,
-                                       EmailSender emailSender, GroupService groupService) {
+                                       EmailSender emailSender, GroupService groupService,
+                                       GroupRepository groupRepository) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userService = userService;
         this.permissionManagerService = permissionManagerService;
@@ -77,6 +87,7 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         this.formatter = formatter;
         this.emailSender = emailSender;
         this.groupService = groupService;
+        this.groupRepository = groupRepository;
     }
 
     /**
@@ -127,11 +138,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAll() {
+    public Page<ResourceTemplateDTO> getAll(Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAll();
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -140,11 +150,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceTemplateDTO> findAllPublishedTemplates() {
+    public Page<ResourceTemplateDTO> findAllPublishedTemplates(Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByIsPublishedIsTrue();
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -153,11 +162,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> getAllByUserId(Long id) {
+    public Page<ResourceTemplateDTO> getAllByUserId(Long id, Integer page, Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.findAllByUserId(id);
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -236,12 +244,12 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord) {
+    public Page<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord, Integer page,
+                                                                         Integer pageSize) {
         List<ResourceTemplate> resourceTemplates = resourceTemplateRepository.
                 findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(searchedWord, searchedWord);
-        return resourceTemplates.stream()
-                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class))
-                .collect(Collectors.toList());
+        return PaginationUtil.buildPage(resourceTemplates, page, pageSize)
+                .map(resourceTemplate -> modelMapper.map(resourceTemplate, ResourceTemplateDTO.class));
     }
 
     /**
@@ -353,8 +361,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      * @author Marian Dutchyn
      */
     @Override
-    public List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id) {
-        return permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+    public Page<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id, Integer page, Integer pageSize) {
+        List<PrincipalPermissionDto> principals = permissionManagerService.findPrincipalWithAccess(id, ResourceTemplate.class);
+        return PaginationUtil.buildPage(principals, page, pageSize);
     }
 
     /**
@@ -514,8 +523,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
         if (principal) {
             emailSender.sendEmail(Message.RESOURCE_PERMISSION_SUBJECT.toString(), message, recipient);
         } else {
-            List<MemberDto> groupUsers = groupService.getByName(recipient).getUsers();
-            String[] emails = groupUsers.stream().map(MemberDto::getEmail).toArray(String[]::new);
+            List<User> groupMembers = new ArrayList<>();
+            groupMembers.addAll(groupRepository.findAllMembers(recipient));
+            String[] emails = groupMembers.stream().map(User::getEmail).toArray(String[]::new);
             emailSender.sendEmail(Message.RESOURCE_PERMISSION_SUBJECT.toString(), message, emails);
         }
     }

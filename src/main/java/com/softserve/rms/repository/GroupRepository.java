@@ -1,6 +1,7 @@
 package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.Group;
+import com.softserve.rms.entities.User;
 import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,12 @@ import java.util.Optional;
 public interface GroupRepository extends PagingAndSortingRepository<Group, Long> {
 
     Page<Group> findAll(Pageable pageable);
+
+    @Query("select g.user from GroupsMember g where g.group.id = ?1")
+    Page<User> findAllMembers(Long groupId, Pageable pageable);
+
+    @Query("select g.user from GroupsMember g where g.group.name = ?1")
+    List<User> findAllMembers(String name);
 
     Optional<Group> findByName(String name);
 

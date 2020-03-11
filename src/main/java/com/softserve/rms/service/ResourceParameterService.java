@@ -11,6 +11,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.resourceParameter.ResourceParameterCanNotBeModified;
+import org.springframework.data.domain.Page;
 
 public interface ResourceParameterService {
 
@@ -54,7 +55,7 @@ public interface ResourceParameterService {
      * @return list of {@link ResourceParameterDTO}
      * @author Andrii Bren
      */
-    List<ResourceParameterDTO> findAllByTemplateId(Long templateId);
+    Page<ResourceParameterDTO> findAllByTemplateId(Long templateId, Integer page, Integer pageSize);
 
     /**
      * Method verifies if {@link ResourceParameter} could be deleted.

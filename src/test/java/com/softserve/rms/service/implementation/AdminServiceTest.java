@@ -15,6 +15,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,16 +37,16 @@ public class AdminServiceTest {
 
     @Test
     public void testFindAllMethodIsCall() {
-        when(adminRepository.findAll()).thenReturn(ImmutableList.of());
-        List<UserDto> users = service.findAll();
-        verify(adminRepository).findAll();
+        when(adminRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(ImmutableList.of()));
+        Page<UserDto> users = service.findAll(1, 1);
+        verify(adminRepository).findAll(PageRequest.of(0,1));
     }
 
     @Test
     public void testFindUsersByStatusIsCall() {
-        when(adminRepository.getAllByEnabled(anyBoolean())).thenReturn(ImmutableList.of());
-        List<UserDto> users = service.findUsersByStatus(anyBoolean());
-        verify(adminRepository).getAllByEnabled(anyBoolean());
+        when(adminRepository.getAllByEnabled(anyBoolean(), any(Pageable.class))).thenReturn(new PageImpl<User>(Collections.emptyList()));
+        Page<UserDto> users = service.findUsersByStatus(true, 1, 1);
+        verify(adminRepository).getAllByEnabled(anyBoolean(), any(Pageable.class));
     }
 
     @Test
@@ -72,8 +76,10 @@ public class AdminServiceTest {
         List<User> users = new ArrayList<>();
         users.add(user);
         userDtos.add(userDto);
-        when(adminRepository.findAll()).thenReturn(users);
-        assertEquals(userDtos,service.findAll());
+        Page<User> actual = new PageImpl<>(users);
+        Page<UserDto> expected = new PageImpl<>(userDtos);
+        when(adminRepository.findAll(any(Pageable.class))).thenReturn(actual);
+        assertEquals(expected,service.findAll(1, 1));
     }
 
     @Test
@@ -88,7 +94,9 @@ public class AdminServiceTest {
         List<User> users = new ArrayList<>();
         users.add(user);
         userDtos.add(userDto);
-        when(adminRepository.getAllByEnabled(false)).thenReturn(users);
-        assertEquals(userDtos,service.findUsersByStatus(false));
+        Page<User> actual = new PageImpl<>(users);
+        Page<UserDto> expected = new PageImpl<>(userDtos);
+        when(adminRepository.getAllByEnabled(anyBoolean(), any(Pageable.class))).thenReturn(actual);
+        assertEquals(userDtos,service.findUsersByStatus(false, 1,1).getContent());
     }
 }
