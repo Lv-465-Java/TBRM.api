@@ -1,8 +1,10 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.exceptions.InvalidParametersException;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.search.SearchAndFilterUtil;
 import com.softserve.rms.search.SpecificationsBuilder;
@@ -60,9 +62,14 @@ public class SearchServiceImpl implements SearchService {
      */
     private List<ResourceTemplateDTO> searchBySpecification(String search, String tableName) {
         SpecificationsBuilder builder = new SpecificationsBuilder(searchAndFilterUtil);
-
         Specification<ResourceTemplate> specification = builder.buildSpecification(search, tableName);
-        List<ResourceTemplate> list = templateRepository.findAll(specification);
+
+        List<ResourceTemplate> list;
+        try {
+            list = templateRepository.findAll(specification);
+        } catch (IllegalArgumentException ex) {
+            throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
+        }
         return list.stream()
                 .map(template -> modelMapper.map(template, ResourceTemplateDTO.class))
                 .collect(Collectors.toList());

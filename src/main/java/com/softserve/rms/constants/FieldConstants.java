@@ -32,7 +32,6 @@ public enum FieldConstants {
     QUOTE("'"),
     PERCENTAGE("%");
 
-
     private String value;
 
     FieldConstants(String value) {

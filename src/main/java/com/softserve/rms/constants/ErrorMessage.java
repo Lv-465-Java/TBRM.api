@@ -54,6 +54,7 @@ public enum ErrorMessage {
     TOKEN_EXPIRED("Token is already expired"),
 
     WRONG_SEARCH_CRITERIA("Search criteria are not valid"),
+    INVALID_COLUMN_CRITERIA("Invalid search query"),
     INVALID_SEARCH_CRITERIA("Your search criteria are not valid"),
     INVALID_TABLE_CRITERIA("Table you are searching in doesn't exist");
 

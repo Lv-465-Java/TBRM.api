@@ -1,6 +1,5 @@
 package com.softserve.rms.search;
 
-import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;

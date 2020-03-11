@@ -107,6 +107,7 @@ public class FilterServiceImpl implements FilterService {
                     throw new InvalidParametersException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
             }
         }
+        System.out.println(conditionList);
         return conditionList;
     }
 }

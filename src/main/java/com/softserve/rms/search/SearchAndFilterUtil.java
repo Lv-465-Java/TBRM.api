@@ -38,7 +38,6 @@ public class SearchAndFilterUtil {
         map.put(FieldConstants.BOOLEAN.getValue(), Boolean::valueOf);
         map.put(FieldConstants.STRING.getValue(), s -> s);
         map.put(FieldConstants.USER_CLASS.getValue(), Long::valueOf);
-
     }
 
     /**
@@ -166,9 +165,8 @@ public class SearchAndFilterUtil {
      */
     public SearchCriteria checkColumnParameterTypeForTemplate(String tableName, String... matcherGroup) {
         SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
-        ResourceTemplate resourceTemplate = new ResourceTemplate();
 
-        java.lang.reflect.Field[] fields = resourceTemplate.getClass().getDeclaredFields();
+        java.lang.reflect.Field[] fields = ResourceTemplate.class.getDeclaredFields();
 
         for (java.lang.reflect.Field field : fields) {
             if (field.getName().equals(matcherGroup[0])) {
