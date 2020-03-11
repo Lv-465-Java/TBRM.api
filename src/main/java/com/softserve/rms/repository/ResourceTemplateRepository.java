@@ -89,7 +89,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(hasRole('MANAGER'))")
+    @PreAuthorize("hasRole('MANAGER')")
     Optional<ResourceTemplate> findByTableName(String tableName);
 
     /**

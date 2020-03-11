@@ -330,14 +330,14 @@ public class GroupServiceImplTest {
     public void findPrincipalWithAccessToGroupOk() {
         doReturn(Collections.emptyList()).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
         List<PrincipalPermissionDto> expected = Collections.emptyList();
-        List<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong());
-        assertEquals(actual, expected);
+        Page<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong(), anyInt(), anyInt());
+        assertEquals(actual.getContent(), expected);
     }
 
     @Test(expected = PermissionException.class)
     public void findPrincipalWithAccessToGroupPrincipalNotFound() {
         doThrow(new PermissionException("")).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
-        groupService.findPrincipalWithAccessToGroup(1L);
+        groupService.findPrincipalWithAccessToGroup(1L, 1, 1);
     }
 
     @Test
