@@ -37,13 +37,11 @@ public class SpecificationsBuilder {
         List<SearchSpecification> specificationList = convertSearchCriteriaToSpecificationList(
                 searchAndFilterUtil.matchSearchCriteriaToPattern(search, tableName));
         if (!specificationList.isEmpty()) {
-            if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
-                Specification<ResourceTemplate> result = specificationList.get(0);
-                for (int i = 1; i < specificationList.size(); i++) {
-                    result = Specification.where(result).and(specificationList.get(i));
-                }
-                return result;
+            Specification<ResourceTemplate> result = specificationList.get(0);
+            for (int i = 1; i < specificationList.size(); i++) {
+                result = Specification.where(result).and(specificationList.get(i));
             }
+            return result;
         }
         return null;
     }

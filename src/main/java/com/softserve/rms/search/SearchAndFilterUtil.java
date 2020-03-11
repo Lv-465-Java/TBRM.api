@@ -37,6 +37,8 @@ public class SearchAndFilterUtil {
         map.put(FieldConstants.DOUBLE.getValue(), Double::valueOf);
         map.put(FieldConstants.BOOLEAN.getValue(), Boolean::valueOf);
         map.put(FieldConstants.STRING.getValue(), s -> s);
+        map.put(FieldConstants.USER_CLASS.getValue(), Long::valueOf);
+
     }
 
     /**

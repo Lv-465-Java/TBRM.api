@@ -27,7 +27,6 @@ public class ResourceTemplate {
     private Boolean isPublished;
 
     @ManyToOne
-//    @JoinColumn(name = "creator_id")
     @ToString.Exclude
     private User user;
 

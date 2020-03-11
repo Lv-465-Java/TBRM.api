@@ -26,6 +26,7 @@ public enum FieldConstants {
     LONG("Long"),
     STRING("String"),
     BOOLEAN("Boolean"),
+    USER_CLASS("User"),
 
     QUOTE_AND_COMMA("',"),
     QUOTE("'"),
