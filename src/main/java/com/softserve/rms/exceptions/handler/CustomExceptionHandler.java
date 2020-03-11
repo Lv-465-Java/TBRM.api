@@ -6,6 +6,7 @@ import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -68,7 +69,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDeniedAccessException (PermissionException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
     }
-
 
     /**
      * Method which handles {@link NotFoundException} exception.

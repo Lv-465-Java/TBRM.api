@@ -1,13 +1,13 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.constants.Message;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueMemberException;
@@ -18,9 +18,9 @@ import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.GroupService;
 import com.softserve.rms.service.PermissionManagerService;
+import com.softserve.rms.util.EmailSender;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,11 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 @PreAuthorize("hasRole('MANAGER')")
 @Service
@@ -47,16 +44,18 @@ public class GroupServiceImpl  implements GroupService {
     private PermissionManagerService permissionManagerService;
     private ModelMapper modelMapper;
     private final String writePermission = "write";
+    private final EmailSender emailSender;
 
     @Autowired
     public GroupServiceImpl(UserRepository userRepository, GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
-                            PermissionManagerService permissionManagerService, ModelMapper modelMapper) {
+                            PermissionManagerService permissionManagerService, ModelMapper modelMapper, EmailSender emailSender) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.permissionManagerService = permissionManagerService;
         this.modelMapper = modelMapper;
+        this.emailSender = emailSender;
     }
 
     @Override
@@ -65,6 +64,12 @@ public class GroupServiceImpl  implements GroupService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id");
         return groupRepository.findAll(pageable)
                 .map((group) -> modelMapper.map(group, GroupDto.class));
+    }
+
+    @Override
+    public GroupDto getById(Long id) {
+        return modelMapper.map(groupRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())), GroupDto.class);
     }
 
     @Override
@@ -111,11 +116,17 @@ public class GroupServiceImpl  implements GroupService {
         verifyGroupPermission(groupPermissionDto.getId().toString());
         PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
         permissionManagerService.addPermission(permissionDto, principal, Group.class);
+        String message = String.format(Message.ACCESS.toString(), principal.getName(), writePermission,
+             "group " + getById(groupPermissionDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
+        emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, groupPermissionDto.getRecipient());
     }
 
     @Override
     public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
+        String message = String.format(Message.OWNER.toString(), principal.getName(), writePermission,
+               "group " +  getById(changeOwnerDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
+        emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, changeOwnerDto.getRecipient());
     }
 
     @Transactional
@@ -170,6 +181,9 @@ public class GroupServiceImpl  implements GroupService {
     public void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal) {
         PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal, Group.class);
+        String message = String.format(Message.DENIED.toString(), principal.getName(), writePermission,
+                "group " + getById(groupPermissionDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
+        emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, groupPermissionDto.getRecipient());
     }
 
     /**

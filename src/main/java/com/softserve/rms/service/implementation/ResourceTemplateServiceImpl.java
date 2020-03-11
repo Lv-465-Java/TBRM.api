@@ -2,8 +2,10 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
+import com.softserve.rms.constants.Message;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
+import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
@@ -16,8 +18,10 @@ import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
+import com.softserve.rms.service.GroupService;
 import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
+import com.softserve.rms.util.EmailSender;
 import com.softserve.rms.util.Formatter;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
@@ -50,6 +54,8 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private DSLContext dslContext;
     private JooqDDL jooqDDL;
     private Formatter formatter;
+    private EmailSender emailSender;
+    private GroupService groupService;
 
     private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
@@ -61,13 +67,16 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Autowired
     public ResourceTemplateServiceImpl(ResourceTemplateRepository resourceTemplateRepository,
                                        UserServiceImpl userService, PermissionManagerService permissionManagerService,
-                                       DSLContext dslContext, JooqDDL jooqDDL, Formatter formatter) {
+                                       DSLContext dslContext, JooqDDL jooqDDL, Formatter formatter,
+                                       EmailSender emailSender, GroupService groupService) {
         this.resourceTemplateRepository = resourceTemplateRepository;
         this.userService = userService;
         this.permissionManagerService = permissionManagerService;
         this.dslContext = dslContext;
         this.jooqDDL = jooqDDL;
         this.formatter = formatter;
+        this.emailSender = emailSender;
+        this.groupService = groupService;
     }
 
     /**
@@ -358,6 +367,9 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal) {
         permissionManagerService.addPermission(permissionDto, principal, ResourceTemplate.class);
+        String message = String.format(Message.ACCESS.toString(), principal.getName(), permissionDto.getPermission(),
+                findEntityById(permissionDto.getId()).getName(), String.format(Message.LINK.toString(), "resources"));
+        sendNotification(permissionDto.isPrincipal(), permissionDto.getRecipient(), message);
     }
 
     /**
@@ -371,11 +383,17 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     @Override
     public void changeOwnerForResourceTemplate(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, ResourceTemplate.class);
+        String message = String.format(Message.OWNER.toString(), principal.getName(),
+                findEntityById(changeOwnerDto.getId()).getName(), String.format(Message.LINK.toString(), "resources"));
+        sendNotification(true, changeOwnerDto.getRecipient(), message);
     }
 
     @Override
     public void closePermissionForCertainUser(PermissionDto permissionDto, Principal principal) {
         permissionManagerService.closePermissionForCertainUser(permissionDto, principal, ResourceTemplate.class);
+        String message = String.format(Message.DENIED.toString(), principal.getName(), permissionDto.getPermission(),
+                findEntityById(permissionDto.getId()).getName(), String.format(Message.LINK.toString(), "resources"));
+        sendNotification(permissionDto.isPrincipal(), permissionDto.getRecipient(), message);
     }
 
     /**
@@ -480,6 +498,25 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
             throw new ResourceTemplateIsNotPublishedException(
                     ErrorMessage.RESOURCE_TEMPLATE_CAN_NOT_BE_PUBLISHED.getMessage()
                             + formatter.errorMessageFormatter(list));
+        }
+
+    }
+
+    /**
+     * Sends notification to users on changing permission to resource
+     *
+     * @param principal one user or group
+     * @param recipient user or group
+     * @param message notification
+     * @author Marian Dutchyn
+     */
+    private void sendNotification(boolean principal, String recipient, String message){
+        if (principal) {
+            emailSender.sendEmail(Message.RESOURCE_PERMISSION_SUBJECT.toString(), message, recipient);
+        } else {
+            List<MemberDto> groupUsers = groupService.getByName(recipient).getUsers();
+            String[] emails = groupUsers.stream().map(MemberDto::getEmail).toArray(String[]::new);
+            emailSender.sendEmail(Message.RESOURCE_PERMISSION_SUBJECT.toString(), message, emails);
         }
     }
 }

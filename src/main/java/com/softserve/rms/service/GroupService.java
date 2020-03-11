@@ -14,6 +14,8 @@ import java.util.OptionalInt;
 public interface GroupService {
     Page<GroupDto> getAll(Integer page, Integer pageSize);
 
+    GroupDto getById(Long id);
+
     GroupDto getByName(String name);
 
     GroupDto createGroup(GroupSaveDto groupSaveDto);
