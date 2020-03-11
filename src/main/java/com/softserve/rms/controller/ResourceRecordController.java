@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -198,6 +199,64 @@ public class ResourceRecordController {
     @DeleteMapping("/{id}/{photo}")
     public ResponseEntity deletePhoto(@PathVariable String tableName, @PathVariable Long id, @PathVariable String photo) {
         resourceRecordService.deletePhoto(tableName, id, photo);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for deleting specific document of {@link ResourceRecord}
+     *
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @param document
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @DeleteMapping("/{id}/{document}")
+    public ResponseEntity deleteDocument(@PathVariable String tableName, @PathVariable Long id, @PathVariable String document) {
+        resourceRecordService.deleteDocument(tableName, id, document);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for deleting all {@link ResourceRecord} documents
+     *
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @DeleteMapping("/{id}/deleteDocument")
+    public ResponseEntity deleteAllDocuments(@PathVariable String tableName, @PathVariable Long id) {
+        resourceRecordService.deleteAllDocuments(tableName, id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Method for saving multiple documents
+     *
+     * @param files     to save.
+     * @param tableName {@link ResourceTemplate} table name
+     * @param id        {@link ResourceRecordDTO} id
+     * @return {@link ResponseEntity}.
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @PutMapping("/{id}/document")
+    public ResponseEntity uploadDocuments(@RequestPart List<MultipartFile> files,
+                                      @PathVariable String tableName,
+                                      @PathVariable Long id) {
+        files.stream().forEach(doc -> resourceRecordService.uploadDocument(doc, tableName, id));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -53,6 +53,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.USER_ID.getValue()), resourceRecord.getUser().getId());
         query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -72,6 +73,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants. DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -155,6 +157,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
                 .description((String) record.getValue(field(FieldConstants.DESCRIPTION.getValue()).getName()))
                 .user(userService.getById(userId))
                 .photosNames((String) record.getValue(field(FieldConstants.PHOTOS_NAMES.getValue()).getName()))
+                .documentNames(((String) record.getValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()).getName())))
                 .parameters(getParameters(record))
                 .build();
     }
@@ -176,6 +179,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.DESCRIPTION.getValue());
         parameters.remove(FieldConstants.USER_ID.getValue());
         parameters.remove(FieldConstants.PHOTOS_NAMES.getValue());
+        parameters.remove(FieldConstants.DOCUMENTS_NAMES.getValue());
 
         return parameters;
     }

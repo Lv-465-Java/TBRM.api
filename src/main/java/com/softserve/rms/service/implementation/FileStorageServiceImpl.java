@@ -56,7 +56,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretAccessKey);
         s3client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.DEFAULT_REGION).build();
+                .withRegion(Regions.EU_CENTRAL_1).build();
     }
 
     /**
