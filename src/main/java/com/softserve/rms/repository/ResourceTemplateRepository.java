@@ -69,7 +69,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasPermission(#name, 'com.softserve.rms.entities.ResourceTemplate', 'read') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER')")
     Optional<ResourceTemplate> findByName(String name);
 
     /**
@@ -89,7 +89,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
      * @return {@link Optional<ResourceTemplate>}
      * @author Halyna Yatseniuk
      */
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('USER') or hasRole('REGISTER') or hasRole('MANAGER')")
     Optional<ResourceTemplate> findByTableName(String tableName);
 
     /**

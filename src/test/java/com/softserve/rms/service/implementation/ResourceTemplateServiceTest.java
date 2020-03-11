@@ -10,8 +10,11 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
+import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
+import com.softserve.rms.service.GroupService;
+import com.softserve.rms.util.EmailSender;
 import com.softserve.rms.util.Formatter;
 import org.jooq.DSLContext;
 import org.junit.Before;
@@ -48,6 +51,8 @@ public class ResourceTemplateServiceTest {
     @InjectMocks
     private ResourceTemplateServiceImpl resourceTemplateService;
     @Mock
+    private ResourceTemplateServiceImpl resourceTemplateService1;
+    @Mock
     private ResourceTemplateRepository resourceTemplateRepository;
     @Mock
     private UserServiceImpl userService;
@@ -63,6 +68,12 @@ public class ResourceTemplateServiceTest {
     private SecurityContext securityContext;
     @Mock
     private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
+    @Mock
+    private EmailSender emailSender;
+    @Mock
+    private GroupService groupService;
+    @Mock
+    private GroupRepository groupRepository;
     @Mock
     private Formatter formatter;
 
@@ -81,7 +92,7 @@ public class ResourceTemplateServiceTest {
     @Before
     public void initializeMock() {
         resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext, jooqDDL, formatter));
+                permissionManagerService, dslContext, jooqDDL, formatter, emailSender, groupService, groupRepository));
         JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
@@ -458,10 +469,12 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
-    public void addPermissionToResourceTemplateSuccess() {
+    public void addPermissionToResourceTemplateSuccess() throws Exception {
         doNothing().when(permissionManagerService)
                 .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+        doReturn(resourceTemplate).when(resourceTemplateService1).findEntityById(anyLong());
+        PowerMockito.doNothing().when(resourceTemplateService1, "sendNotification", anyBoolean(), anyString(), anyString());
+        resourceTemplateService1.addPermissionToResourceTemplate(new PermissionDto(), principal);
     }
 
     @Test(expected = PermissionException.class)
@@ -486,10 +499,12 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
-    public void closePermissionForCertainUserOk() {
+    public void closePermissionForCertainUserOk() throws Exception {
         doNothing().when(permissionManagerService)
                 .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
+        doReturn(resourceTemplate).when(resourceTemplateService1).findEntityById(anyLong());
+        PowerMockito.doNothing().when(resourceTemplateService1, "sendNotification", anyBoolean(), anyString(), anyString());
+        resourceTemplateService1.closePermissionForCertainUser(new PermissionDto(), principal);
     }
 
     @Test(expected = PermissionException.class)
