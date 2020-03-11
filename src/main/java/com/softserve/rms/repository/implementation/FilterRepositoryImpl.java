@@ -2,8 +2,8 @@ package com.softserve.rms.repository.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.entities.ResourceRecord;
-import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.exceptions.SqlGrammarException;
+import com.softserve.rms.repository.FilterRepository;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class DynamicSearchRepository {
+public class FilterRepositoryImpl implements FilterRepository {
     private DSLContext dslContext;
     private ResourceRecordRepositoryImpl resourceRepository;
 
@@ -22,17 +22,14 @@ public class DynamicSearchRepository {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public DynamicSearchRepository(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
+    public FilterRepositoryImpl(DSLContext dslContext, ResourceRecordRepositoryImpl resourceRepository) {
         this.dslContext = dslContext;
         this.resourceRepository = resourceRepository;
     }
 
     /**
-     * Method converts {@link SearchCriteria} to {@link Condition} due to search criteria operation type.
+     * {@inheritDoc}
      *
-     * @param conditionList list of {@link Condition}
-     * @param tableName     name of a table where entities are searched
-     * @return list of filtered {@link ResourceRecord}
      * @author Halyna Yatseniuk
      */
     public List<ResourceRecord> searchResourceTemplate(List<Condition> conditionList, String tableName) {

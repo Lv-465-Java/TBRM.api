@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class SpecificationsBuilder {
-    private ResourceFilterUtil resourceFilterUtil;
+    private SearchAndFilterUtil searchAndFilterUtil;
 
     /**
      * Constructor with parameters
@@ -20,8 +20,8 @@ public class SpecificationsBuilder {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public SpecificationsBuilder(ResourceFilterUtil resourceFilterUtil) {
-        this.resourceFilterUtil = resourceFilterUtil;
+    public SpecificationsBuilder(SearchAndFilterUtil searchAndFilterUtil) {
+        this.searchAndFilterUtil = searchAndFilterUtil;
     }
 
     /**
@@ -35,7 +35,7 @@ public class SpecificationsBuilder {
      */
     public Specification<ResourceTemplate> buildSpecification(String search, String tableName) {
         List<SearchSpecification> specificationList = convertSearchCriteriaToSpecificationList(
-                resourceFilterUtil.matchSearchCriteriaToPattern(search, tableName));
+                searchAndFilterUtil.matchSearchCriteriaToPattern(search, tableName));
         if (!specificationList.isEmpty()) {
             if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
                 Specification<ResourceTemplate> result = specificationList.get(0);

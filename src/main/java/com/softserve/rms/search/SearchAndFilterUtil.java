@@ -4,6 +4,7 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.constants.ValidationPattern;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.exceptions.BadRequestException;
 import com.softserve.rms.exceptions.InvalidParametersException;
@@ -19,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class ResourceFilterUtil {
+public class SearchAndFilterUtil {
     private DSLContext dslContext;
     private Map<String, Function<String, ?>> map = new HashMap<>();
 
@@ -29,12 +30,12 @@ public class ResourceFilterUtil {
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public ResourceFilterUtil(DSLContext dslContext) {
+    public SearchAndFilterUtil(DSLContext dslContext) {
         this.dslContext = dslContext;
         map.put(FieldConstants.LONG.getValue(), Long::valueOf);
         map.put(FieldConstants.INTEGER.getValue(), Integer::valueOf);
         map.put(FieldConstants.DOUBLE.getValue(), Double::valueOf);
-        map.put("Boolean", Boolean::valueOf);
+        map.put(FieldConstants.BOOLEAN.getValue(), Boolean::valueOf);
         map.put(FieldConstants.STRING.getValue(), s -> s);
     }
 
@@ -55,46 +56,13 @@ public class ResourceFilterUtil {
         for (String newString : newStrings) {
             Matcher matcher = pattern.matcher(newString);
             if (matcher.matches()) {
-//                SearchCriteria searchCriteria = checkColumnParameterType(tableName,
-//                        matcher.group(1), matcher.group(2), matcher.group(3));
-                searchStringList.add(checking(tableName,
+                searchStringList.add(checkTableName(tableName,
                         matcher.group(1), matcher.group(2), matcher.group(3)));
             } else {
                 throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
             }
         }
         return searchStringList;
-    }
-
-    public SearchCriteria checking(String tableName, String... matcherGroup) {
-        if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
-            SearchCriteria criteria = properCheck(tableName,
-                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
-            return criteria;
-        } else {
-            return checkColumnParameterType(tableName,
-                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
-        }
-    }
-
-    public SearchCriteria properCheck(String tableName, String... matcherGroup) {
-        SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
-        ResourceTemplate resourceTemplate = new ResourceTemplate();
-
-        java.lang.reflect.Field[] fields = resourceTemplate.getClass().getDeclaredFields();
-
-        for (java.lang.reflect.Field field : fields) {
-            if (field.getName().equals(matcherGroup[0])) {
-                String columnType = field.getType().getSimpleName();
-                Function<String, ?> parser = map.get(columnType);
-                try {
-                    searchCriteria.setValue(parser.apply(matcherGroup[2]));
-                } catch (NumberFormatException e) {
-                    throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
-                }
-            }
-        }
-        return searchCriteria;
     }
 
     /**
@@ -141,22 +109,68 @@ public class ResourceFilterUtil {
     }
 
     /**
-     * Method applies {@link SearchCriteria} value type due to table column type.
+     * Method checks table name and calls appropriate parameter verification method.
      *
      * @param tableName    name of a table where entities are searched
      * @param matcherGroup array with search criteria divided by groups
      * @return {@link SearchCriteria}
      * @author Halyna Yatseniuk
      */
-    public SearchCriteria checkColumnParameterType(String tableName, String... matcherGroup) {
+    public SearchCriteria checkTableName(String tableName, String... matcherGroup) {
+        if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
+            return checkColumnParameterTypeForTemplate(tableName,
+                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
+        } else {
+            return checkColumnParameterTypeForResource(tableName,
+                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
+        }
+    }
+
+    /**
+     * Method applies {@link SearchCriteria} value type due to {@link ResourceRecord} table column type.
+     *
+     * @param tableName    name of a table where entities are searched
+     * @param matcherGroup array with search criteria divided by groups
+     * @return {@link SearchCriteria}
+     * @author Halyna Yatseniuk
+     */
+    public SearchCriteria checkColumnParameterTypeForResource(String tableName, String... matcherGroup) {
         SearchCriteria searchCriteria = SearchCriteria.builder()
                 .key(matcherGroup[0])
                 .operation(matcherGroup[1]).build();
 
-        List<Field<?>> fields = getColumns(tableName);
-        for (Field<?> field : fields) {
+        List<Field<?>> columns = getColumns(tableName);
+        for (Field<?> column : columns) {
+            if (column.getName().equals(matcherGroup[0])) {
+                String columnType = column.getDataType().getSQLDataType().getType().getSimpleName();
+                Function<String, ?> parser = map.get(columnType);
+                try {
+                    searchCriteria.setValue(parser.apply(matcherGroup[2]));
+                } catch (NumberFormatException e) {
+                    throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
+                }
+            }
+        }
+        return searchCriteria;
+    }
+
+    /**
+     * Method applies {@link SearchCriteria} value type due to {@link ResourceTemplate} table column type.
+     *
+     * @param tableName    name of a table where entities are searched
+     * @param matcherGroup array with search criteria divided by groups
+     * @return {@link SearchCriteria}
+     * @author Halyna Yatseniuk
+     */
+    public SearchCriteria checkColumnParameterTypeForTemplate(String tableName, String... matcherGroup) {
+        SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
+        ResourceTemplate resourceTemplate = new ResourceTemplate();
+
+        java.lang.reflect.Field[] fields = resourceTemplate.getClass().getDeclaredFields();
+
+        for (java.lang.reflect.Field field : fields) {
             if (field.getName().equals(matcherGroup[0])) {
-                String columnType = field.getDataType().getSQLDataType().getType().getSimpleName();
+                String columnType = field.getType().getSimpleName();
                 Function<String, ?> parser = map.get(columnType);
                 try {
                     searchCriteria.setValue(parser.apply(matcherGroup[2]));

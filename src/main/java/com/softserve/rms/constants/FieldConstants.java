@@ -25,6 +25,7 @@ public enum FieldConstants {
     INTEGER("Integer"),
     LONG("Long"),
     STRING("String"),
+    BOOLEAN("Boolean"),
 
     QUOTE_AND_COMMA("',"),
     QUOTE("'"),

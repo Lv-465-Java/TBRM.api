@@ -109,6 +109,4 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
 
     @PreAuthorize("hasRole('REGISTER') or hasRole('MANAGER')")
     List<ResourceTemplate> findAllByIsPublishedIsTrue();
-
-
 }
