@@ -5,7 +5,6 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceRecordRepository;
@@ -16,16 +15,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.softserve.rms.util.PaginationUtil.validatePage;
@@ -205,7 +199,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      */
     @Override
     public void uploadDocument(MultipartFile files,
-                            String tableName, Long id) {
+                               String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
         String documentName = fileStorageService.uploadFile(files);
         if (resourceRecord.getDocumentNames() != null) {

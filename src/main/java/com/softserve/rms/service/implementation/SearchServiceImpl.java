@@ -12,12 +12,14 @@ import com.softserve.rms.service.SearchService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.softserve.rms.util.PaginationUtil.buildPage;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -46,11 +48,13 @@ public class SearchServiceImpl implements SearchService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceTemplateDTO> verifyIfSearchIsEmpty(String search) {
+    public Page<ResourceTemplateDTO> verifyIfSearchIsEmpty(String search, Integer page, Integer pageSize) {
         if (search.isEmpty()) {
-            return templateService.getAll();
+            return templateService.getAll(page, pageSize);
         } else {
-            return searchBySpecification(search, FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue());
+            List<ResourceTemplateDTO> list =
+                    searchBySpecification(search, FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue());
+            return buildPage(list, page, pageSize);
         }
     }
 

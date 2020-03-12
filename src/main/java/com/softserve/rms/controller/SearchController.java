@@ -8,11 +8,12 @@ import com.softserve.rms.service.SearchService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
@@ -44,8 +45,11 @@ public class SearchController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/search")
-    public ResponseEntity<List<ResourceTemplateDTO>> searchEntity(@RequestParam(value = "search") String search) {
-        return ResponseEntity.status(HttpStatus.OK).body(searchService.verifyIfSearchIsEmpty(search));
+    public ResponseEntity<Page<ResourceTemplateDTO>> searchEntity(@RequestParam Optional<Integer> page,
+                                                                  @RequestParam Optional<Integer> pageSize,
+                                                                  @RequestParam(value = "search") String search) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(searchService.verifyIfSearchIsEmpty(search, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -62,8 +66,11 @@ public class SearchController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/{tableName}/filter")
-    public ResponseEntity<List<ResourceRecordDTO>> filterResourceByParameters(@RequestParam(value = "filter") String filter,
+    public ResponseEntity<Page<ResourceRecordDTO>> filterResourceByParameters(@RequestParam Optional<Integer> page,
+                                                                              @RequestParam Optional<Integer> pageSize,
+                                                                              @RequestParam(value = "filter") String filter,
                                                                               @PathVariable String tableName) {
-        return ResponseEntity.status(HttpStatus.OK).body(filterService.verifyIfFilterIsEmpty(filter, tableName));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(filterService.verifyIfFilterIsEmpty(filter, tableName, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 }

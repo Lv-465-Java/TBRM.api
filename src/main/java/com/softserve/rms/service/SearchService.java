@@ -1,6 +1,7 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface SearchService {
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> verifyIfSearchIsEmpty(String search);
+    Page<ResourceTemplateDTO> verifyIfSearchIsEmpty(String search, Integer page, Integer pageSize);
 }

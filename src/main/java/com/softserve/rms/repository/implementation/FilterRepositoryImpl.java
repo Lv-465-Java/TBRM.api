@@ -33,7 +33,7 @@ public class FilterRepositoryImpl implements FilterRepository {
      * @author Halyna Yatseniuk
      */
     public List<ResourceRecord> searchResourceTemplate(List<Condition> conditionList, String tableName) {
-        Result<Record> searchResult;
+        List<Record> searchResult;
         try {
             searchResult = dslContext.selectFrom(tableName)
                     .where(conditionList).fetch();

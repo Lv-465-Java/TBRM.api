@@ -11,6 +11,7 @@ import com.softserve.rms.search.SearchAndFilterUtil;
 import org.jooq.Condition;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.softserve.rms.constants.SearchOperation.*;
+import static com.softserve.rms.util.PaginationUtil.buildPage;
 import static org.jooq.impl.DSL.field;
 
 @Service
@@ -47,12 +49,13 @@ public class FilterServiceImpl implements FilterService {
      * @author Halyna Yatseniuk
      */
     @Override
-    public List<ResourceRecordDTO> verifyIfFilterIsEmpty(String filter, String tableName) {
+    public Page<ResourceRecordDTO> verifyIfFilterIsEmpty(String filter, String tableName, Integer page, Integer pageSize) {
         if (filter.isEmpty()) {
-            return resourceService.findAll(tableName);
+            return resourceService.findAll(tableName, page, pageSize);
         } else {
             List<SearchCriteria> filterCriteriaList = searchAndFilterUtil.matchSearchCriteriaToPattern(filter, tableName);
-            return filterByCriteria(filterCriteriaList, tableName);
+            List<ResourceRecordDTO> list = filterByCriteria(filterCriteriaList, tableName);
+            return buildPage(list, page, pageSize);
         }
     }
 
@@ -107,7 +110,6 @@ public class FilterServiceImpl implements FilterService {
                     throw new InvalidParametersException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
             }
         }
-        System.out.println(conditionList);
         return conditionList;
     }
 }

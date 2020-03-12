@@ -1,8 +1,7 @@
 package com.softserve.rms.service;
 
 import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface FilterService {
 
@@ -14,5 +13,5 @@ public interface FilterService {
      * @return list of {@link ResourceRecordDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceRecordDTO> verifyIfFilterIsEmpty(String filter, String tableName);
+    Page<ResourceRecordDTO> verifyIfFilterIsEmpty(String filter, String tableName, Integer page, Integer pageSize);
 }
