@@ -11,9 +11,11 @@ import com.softserve.rms.search.SpecificationsBuilder;
 import com.softserve.rms.service.SearchService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
         List<ResourceTemplate> list;
         try {
             list = templateRepository.findAll(specification);
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException ex) {
             throw new InvalidParametersException(ErrorMessage.INVALID_SEARCH_CRITERIA.getMessage());
         }
         return list.stream()
