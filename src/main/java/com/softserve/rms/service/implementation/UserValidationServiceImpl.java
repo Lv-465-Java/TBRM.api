@@ -44,7 +44,7 @@ public class UserValidationServiceImpl implements UserValidationService {
         map.putAll(basicDataValidation(user.getFirstName(),
                 user.getLastName(),user.getEmail(),user.getPhone()));
         if (!map.isEmpty()) {
-           throw new InvalidUserDataException(map);
+
         }
         return user;
     }

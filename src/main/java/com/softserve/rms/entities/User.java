@@ -6,7 +6,6 @@ import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -17,8 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"resourceTemplates"})
 @ToString(exclude = {"resourceTemplates"})
-@FilterDef(name = "tenantFilter", parameters = {@ParamDef(name = "tenantId", type = "string")})
-@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class User {
 
     @Id
@@ -32,7 +29,7 @@ public class User {
     private String firstName;
 
 
-    @Column( nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
 
     @Column(nullable = false,unique = true, length = 50)

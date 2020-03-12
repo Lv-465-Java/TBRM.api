@@ -1,14 +1,13 @@
 package com.softserve.rms.security.config;
 
 import com.softserve.rms.constants.AclQueries;
-import com.softserve.rms.multitenancy.TenantDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.acls.AclPermissionEvaluator;
@@ -30,14 +29,14 @@ import javax.sql.DataSource;
 @EnableAutoConfiguration
 public class AclConfig {
 
-    private final DataSource dataSource;
+    private final DataSource datasource;
 
     /**
      * Constructor
      */
     @Autowired
-    public AclConfig(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public AclConfig(DataSource datasource) {
+        this.datasource = datasource;
     }
 
     /**
@@ -46,7 +45,7 @@ public class AclConfig {
     @Bean
     public MutableAclService aclService() {
         JdbcMutableAclService jdbcMutableAclService =
-                new JdbcMutableAclService(dataSource, lookupStrategy(), aclCache());
+                new JdbcMutableAclService(datasource, lookupStrategy(), aclCache());
 
         jdbcMutableAclService.setClassIdentityQuery(AclQueries.CLASS_IDENTITY_QUERY);
         jdbcMutableAclService.setSidIdentityQuery(AclQueries.SID_IDENTITY_QUERY);
@@ -115,7 +114,7 @@ public class AclConfig {
      */
     @Bean
     public LookupStrategy lookupStrategy() {
-        return new BasicLookupStrategy(dataSource,
+        return new BasicLookupStrategy(datasource,
                 aclCache(),
                 aclAuthorizationStrategy(),
                 new ConsoleAuditLogger());

@@ -1,7 +1,7 @@
 package com.softserve.rms.multitenancy;
 
 
-import com.softserve.rms.constants.DataBases;
+import com.softserve.rms.constants.DataBaseProperty;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +13,10 @@ public class TenantIdResolver implements CurrentTenantIdentifierResolver {
     public String resolveCurrentTenantIdentifier() {
         String tenant =  TenantContext.getCurrentTenant();
         if(tenant!=null){
+            TenantContext.clear();
             return tenant;
         } else {
-            return DataBases.DEFAULT_DATABASE;
+            return DataBaseProperty.DEFAULT_DATABASE;
         }
     }
 

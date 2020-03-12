@@ -4,6 +4,7 @@ package com.softserve.rms.controller;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.multitenancy.DataSourceRouter;
 import com.softserve.rms.multitenancy.TenantContext;
 import com.softserve.rms.service.UserService;
 import com.softserve.rms.service.implementation.UserValidationServiceImpl;
@@ -17,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 public class RegistrationController {
     private UserService userService;
     private UserValidationServiceImpl validateService;
+    private DataSourceRouter dataSourceRouter;
 
 
     /**
@@ -30,11 +33,13 @@ public class RegistrationController {
      */
     @Autowired
     public RegistrationController(UserService userService,
-                                  UserValidationServiceImpl validateService) {
+                                  UserValidationServiceImpl validateService,
+                                  DataSourceRouter dataSourceRouter){
         this.userService = userService;
         this.validateService = validateService;
-
+        this.dataSourceRouter = dataSourceRouter;
     }
+
 
     /**
      * Method which save {@link User}.
@@ -50,6 +55,7 @@ public class RegistrationController {
     @PostMapping("/registration")
     public ResponseEntity createUser( @RequestBody RegistrationDto registrationDto,@RequestParam String tenantName) {
         TenantContext.setCurrentTenant(tenantName);
+        dataSourceRouter.determineTargetDataSource();
         userService.save(validateService.validate(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

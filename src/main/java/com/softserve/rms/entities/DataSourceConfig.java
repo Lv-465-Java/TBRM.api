@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class DataSourceConfig  {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private String url;
@@ -23,6 +23,14 @@ public class DataSourceConfig  {
 
     private String driverclassname;
     private boolean initialize;
+
+    public DataSourceConfig(String name,String url,String username,String password,String driverclassname){
+       this.name = name;
+       this.url = url;
+       this.username = username;
+       this.password = password;
+       this.driverclassname = driverclassname;
+    }
 
 
 }

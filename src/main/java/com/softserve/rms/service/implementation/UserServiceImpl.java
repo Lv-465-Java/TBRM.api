@@ -10,7 +10,6 @@ import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
-import com.softserve.rms.multitenancy.TenantIdResolver;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -19,12 +18,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 public class UserServiceImpl implements UserService, Message {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper = new ModelMapper();
-    private TenantIdResolver tenantIdResolver;
+
 
     /**
      * Constructor with parameters
@@ -33,11 +33,10 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder,
-                           TenantIdResolver tenantIdResolver) {
+                           PasswordEncoder passwordEncoder
+                          ) {
         this.userRepository = userRepository;
         this.passwordEncoder=passwordEncoder;
-        this.tenantIdResolver = tenantIdResolver;
     }
 
 
@@ -48,7 +47,6 @@ public class UserServiceImpl implements UserService, Message {
      */
     @Override
     public void save(RegistrationDto registrationDto) {
-        tenantIdResolver.resolveCurrentTenantIdentifier();
         Role role = new Role(5L,"ROLE_GUEST");
         User user = modelMapper.map(registrationDto, User.class);
         user.setRole(role);

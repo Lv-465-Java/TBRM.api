@@ -3,6 +3,7 @@ package com.softserve.rms.controller;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
+import com.softserve.rms.multitenancy.DataSourceRouter;
 import com.softserve.rms.multitenancy.TenantContext;
 import com.softserve.rms.security.AuthenticationService;
 import com.softserve.rms.security.TokenManagementService;
@@ -30,6 +31,7 @@ public class LoginController {
     private String AUTHORIZATION_HEADER="Authorization";
     private String REFRESH_HEADER="RefreshToken";
     private String AUTH_HEADER_PREFIX="Bearer ";
+    private DataSourceRouter dataSourceRouter;
 
     /**
      * Constructor.
@@ -41,11 +43,13 @@ public class LoginController {
     @Autowired
     public LoginController(UserService userService,
                            AuthenticationService authenticationService,
-                           TokenManagementService tokenManagementService
+                           TokenManagementService tokenManagementService,
+                           DataSourceRouter dataSourceRouter
                            ){
         this.userService = userService;
         this.authenticationService=authenticationService;
         this.tokenManagementService=tokenManagementService;
+        this.dataSourceRouter = dataSourceRouter;
     }
 
     /**
@@ -61,6 +65,7 @@ public class LoginController {
     @PostMapping("/authentication")
     public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response, @RequestParam String tenantName){
         TenantContext.setCurrentTenant(tenantName);
+        dataSourceRouter.determineTargetDataSource();
         JwtDto jwtDto=authenticationService.loginUser(loginUser);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX+ jwtDto.getAccessToken());
         response.setHeader(REFRESH_HEADER, jwtDto.getRefreshToken());

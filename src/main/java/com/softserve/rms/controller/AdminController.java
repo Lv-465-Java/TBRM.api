@@ -17,7 +17,6 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @RestController
 public class AdminController {
-
     private final AdminService adminService;
 
     @Autowired
