@@ -28,6 +28,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -44,6 +47,8 @@ import java.util.UUID;
 
 import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTION;
 import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 
 @Service
@@ -323,11 +328,10 @@ public class UserServiceImpl implements UserService {
      * @author Marian Dutchyn
      */
     @Override
-    public List<PermissionUserDto> getUsers() {
-        List<User> users = adminRepository.getAllByEnabled(true);
-        return users.stream()
-                .map(user -> modelMapper.map(user, PermissionUserDto.class))
-                .collect(Collectors.toList());
+    public Page<PermissionUserDto> getUsers(Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User> users = adminRepository.getAllByEnabled(true, pageable);
+        return users.map(user -> modelMapper.map(user, PermissionUserDto.class));
     }
 
     /**

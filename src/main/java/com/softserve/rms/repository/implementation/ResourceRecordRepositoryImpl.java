@@ -7,9 +7,13 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
+import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,7 @@ import static org.jooq.impl.DSL.*;
 @Repository
 public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private DSLContext dslContext;
+    private ResourceTemplateService resourceTemplateService;
     private UserService userService;
 
     /**
@@ -33,8 +38,9 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordRepositoryImpl(DSLContext dslContext, UserService userService) {
+    public ResourceRecordRepositoryImpl(DSLContext dslContext, ResourceTemplateService resourceTemplateService, UserService userService) {
         this.dslContext = dslContext;
+        this.resourceTemplateService = resourceTemplateService;
         this.userService = userService;
     }
 
@@ -51,6 +57,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.USER_ID.getValue()), resourceRecord.getUser().getId());
         query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -70,6 +77,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants. DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             if (entry.getValue() != null) {
@@ -88,9 +96,15 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      */
     @Transactional(readOnly = true)
     @Override
-    public List<ResourceRecord> findAll(String tableName) {
-        Result<Record> records = dslContext.selectFrom(tableName).fetch();
-        return convertRecordsToResourceList(records);
+    public Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize) {
+        Long totalItems = Long.valueOf(dslContext.selectCount()
+                        .from(tableName)
+                        .fetchOne(0, int.class));
+        List<Record> records = dslContext
+                .selectFrom(tableName)
+                .fetch();
+        List<ResourceRecord> resourceRecords = convertRecordsToResourceList(records);
+        return new PageImpl<>(resourceRecords, PageRequest.of(page, pageSize), totalItems);
     }
 
     /**
@@ -129,7 +143,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return list of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    public List<ResourceRecord> convertRecordsToResourceList(Result<Record> records) {
+    private List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
         List<ResourceRecord> resourceRecords = new ArrayList<>();
         for (Record record : records) {
             ResourceRecord resourceRecord = convertRecordToResource(record);
@@ -145,7 +159,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    public ResourceRecord convertRecordToResource(Record record) {
+    private ResourceRecord convertRecordToResource(Record record) {
         Long userId = (Long) record.getValue(field(FieldConstants.USER_ID.getValue()).getName());
         return ResourceRecord.builder()
                 .id((Long) record.getValue(field(FieldConstants.ID.getValue()).getName()))
@@ -153,6 +167,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
                 .description((String) record.getValue(field(FieldConstants.DESCRIPTION.getValue()).getName()))
                 .user(userService.getById(userId))
                 .photosNames((String) record.getValue(field(FieldConstants.PHOTOS_NAMES.getValue()).getName()))
+                .documentNames(((String) record.getValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()).getName())))
                 .parameters(getParameters(record))
                 .build();
     }
@@ -164,7 +179,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return map of dynamic resource parameters
      * @author Andrii Bren
      */
-    public Map<String, Object> getParameters(Record record) {
+    private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
             if (record.field(i).getName().endsWith("_coordinate")) {
@@ -178,6 +193,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         parameters.remove(FieldConstants.DESCRIPTION.getValue());
         parameters.remove(FieldConstants.USER_ID.getValue());
         parameters.remove(FieldConstants.PHOTOS_NAMES.getValue());
+        parameters.remove(FieldConstants.DOCUMENTS_NAMES.getValue());
 
         return parameters;
     }

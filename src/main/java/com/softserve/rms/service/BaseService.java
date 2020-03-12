@@ -1,11 +1,13 @@
 package com.softserve.rms.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 public interface BaseService<T, D> {
 
-    List<D> findAll() ;
+    Page<D> findAll(Integer page, Integer pageSize);
 
     Optional<T> findById(Long id);
 

@@ -17,6 +17,7 @@ import com.softserve.rms.repository.GroupMemberRepository;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.PermissionManagerService;
+import com.softserve.rms.util.EmailSender;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,6 @@ import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -68,6 +68,8 @@ public class GroupServiceImplTest {
     private Principal principal;
     @Mock
     private Page<Group> page;
+    @Mock
+    private EmailSender emailSender;
 
     @InjectMocks
     private GroupServiceImpl groupService;
@@ -75,10 +77,10 @@ public class GroupServiceImplTest {
     private Role role = new Role(2L, "ROLE_MANAGER");
     private User user = new User(1L, "first", "last", "mail", "08000000000",
             "password", true, role,"imageUrl","google","3145262", Collections.emptyList(), "resetToken", Collections.emptyList());
-    private Group group = new Group(1L, "group", "description", Collections.emptyList());
+    private Group group = new Group(1L, "group", "description");
     private GroupsMember groupsMember = new GroupsMember(1L, user, group);
     private List<Group> groups = Collections.singletonList(group);
-    private GroupDto groupDto = new GroupDto(1L, group.getName(), group.getDescription(), Collections.emptyList());
+    private GroupDto groupDto = new GroupDto(1L, group.getName(), group.getDescription());
     private GroupSaveDto groupSaveDto = new GroupSaveDto("group", "");
     private PermissionDto permissionDto = new PermissionDto(1L, "mail", "write", true);
     private MemberOperationDto memberOperationDto = new MemberOperationDto("mail", "group");
@@ -88,14 +90,13 @@ public class GroupServiceImplTest {
     @Before
     public void init() {
         groupService = PowerMockito.spy(new GroupServiceImpl(userRepository, groupRepository,
-                groupMemberRepository, permissionManagerService, modelMapper));
+                groupMemberRepository, permissionManagerService, modelMapper, emailSender));
         page = PowerMockito.mock(Page.class);
     }
 
     @Test
     public void getAllOk() {
         Page<GroupDto> expected = new PageImpl<>(Collections.singletonList(groupDto));
-        Page<Group> expectedPage = new PageImpl<>(Collections.singletonList(group));
         doReturn(page).when(groupRepository).findAll(any(Pageable.class));
         doReturn(expected).when(page).map(any());
         Page<GroupDto> actual = groupService.getAll(1, 5);
@@ -203,6 +204,8 @@ public class GroupServiceImplTest {
     public void addWritePermission() throws Exception {
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doNothing().when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.addWritePermission(groupPermissionDto, principal);
     }
 
@@ -223,6 +226,8 @@ public class GroupServiceImplTest {
     @Test
     public void changeGroupOwnerOk() {
         doNothing().when(permissionManagerService).changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.changeGroupOwner(changeOwnerDto, principal);
     }
 
@@ -331,19 +336,21 @@ public class GroupServiceImplTest {
     public void findPrincipalWithAccessToGroupOk() {
         doReturn(Collections.emptyList()).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
         List<PrincipalPermissionDto> expected = Collections.emptyList();
-        List<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong());
-        assertEquals(actual, expected);
+        Page<PrincipalPermissionDto> actual = groupService.findPrincipalWithAccessToGroup(anyLong(), anyInt(), anyInt());
+        assertEquals(actual.getContent(), expected);
     }
 
     @Test(expected = PermissionException.class)
     public void findPrincipalWithAccessToGroupPrincipalNotFound() {
         doThrow(new PermissionException("")).when(permissionManagerService).findPrincipalWithAccess(anyLong(), any(Class.class));
-        groupService.findPrincipalWithAccessToGroup(1L);
+        groupService.findPrincipalWithAccessToGroup(1L, 1, 1);
     }
 
     @Test
     public void closePermissionForCertainUserOk() {
         doNothing().when(permissionManagerService).closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.closePermissionForCertainUser(groupPermissionDto, principal);
     }
 

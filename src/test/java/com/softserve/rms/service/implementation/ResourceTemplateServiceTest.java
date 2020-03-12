@@ -10,8 +10,11 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.*;
+import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.repository.implementation.JooqDDL;
+import com.softserve.rms.service.GroupService;
+import com.softserve.rms.util.EmailSender;
 import com.softserve.rms.util.Formatter;
 import org.jooq.DSLContext;
 import org.junit.Before;
@@ -48,6 +51,8 @@ public class ResourceTemplateServiceTest {
     @InjectMocks
     private ResourceTemplateServiceImpl resourceTemplateService;
     @Mock
+    private ResourceTemplateServiceImpl resourceTemplateService1;
+    @Mock
     private ResourceTemplateRepository resourceTemplateRepository;
     @Mock
     private UserServiceImpl userService;
@@ -63,6 +68,12 @@ public class ResourceTemplateServiceTest {
     private SecurityContext securityContext;
     @Mock
     private JooqDDL jooqDDL = PowerMockito.mock(JooqDDL.class);
+    @Mock
+    private EmailSender emailSender;
+    @Mock
+    private GroupService groupService;
+    @Mock
+    private GroupRepository groupRepository;
     @Mock
     private Formatter formatter;
 
@@ -81,7 +92,7 @@ public class ResourceTemplateServiceTest {
     @Before
     public void initializeMock() {
         resourceTemplateService = PowerMockito.spy(new ResourceTemplateServiceImpl(resourceTemplateRepository, userService,
-                permissionManagerService, dslContext, jooqDDL, formatter));
+                permissionManagerService, dslContext, jooqDDL, formatter, emailSender, groupService, groupRepository));
         JooqDDL jooqDDL = mock(JooqDDL.class);
     }
 
@@ -111,21 +122,21 @@ public class ResourceTemplateServiceTest {
     public void testFindAll() {
         when(resourceTemplateRepository.findAll()).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll());
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAll(anyInt(), anyInt()).getContent());
     }
 
     @Test
     public void testFindAllPublished() {
         when(resourceTemplateRepository.findAllByIsPublishedIsTrue()).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates());
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.findAllPublishedTemplates(anyInt(), anyInt()).getContent());
     }
 
     @Test
     public void testFindAllByUserId() {
         when(resourceTemplateRepository.findAllByUserId(anyLong())).thenReturn(Collections.singletonList(resourceTemplate));
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong()));
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.getAllByUserId(anyLong(), anyInt(), anyInt()).getContent());
     }
 
     @Test(expected = ResourceTemplateCanNotBeModified.class)
@@ -218,7 +229,7 @@ public class ResourceTemplateServiceTest {
                 (anyString(), anyString())).thenReturn(resourceTemplates);
         List<ResourceTemplateDTO> resourceTemplateDTOs = Collections.singletonList(resourceTempDTO);
         String searchedWord = "name";
-        assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord));
+        assertEquals(resourceTemplateDTOs, resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord, 1, 1).getContent());
     }
 
     @Test
@@ -458,10 +469,12 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
-    public void addPermissionToResourceTemplateSuccess() {
+    public void addPermissionToResourceTemplateSuccess() throws Exception {
         doNothing().when(permissionManagerService)
                 .addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        resourceTemplateService.addPermissionToResourceTemplate(new PermissionDto(), principal);
+        doReturn(resourceTemplate).when(resourceTemplateService1).findEntityById(anyLong());
+        PowerMockito.doNothing().when(resourceTemplateService1, "sendNotification", anyBoolean(), anyString(), anyString());
+        resourceTemplateService1.addPermissionToResourceTemplate(new PermissionDto(), principal);
     }
 
     @Test(expected = PermissionException.class)
@@ -486,10 +499,12 @@ public class ResourceTemplateServiceTest {
     }
 
     @Test
-    public void closePermissionForCertainUserOk() {
+    public void closePermissionForCertainUserOk() throws Exception {
         doNothing().when(permissionManagerService)
                 .closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
-        resourceTemplateService.closePermissionForCertainUser(new PermissionDto(), principal);
+        doReturn(resourceTemplate).when(resourceTemplateService1).findEntityById(anyLong());
+        PowerMockito.doNothing().when(resourceTemplateService1, "sendNotification", anyBoolean(), anyString(), anyString());
+        resourceTemplateService1.closePermissionForCertainUser(new PermissionDto(), principal);
     }
 
     @Test(expected = PermissionException.class)

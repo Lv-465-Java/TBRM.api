@@ -11,6 +11,7 @@ import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
+import org.springframework.data.domain.Page;
 
 import java.security.Principal;
 import java.util.List;
@@ -43,7 +44,7 @@ public interface ResourceTemplateService {
      * @return list of all {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> getAll();
+    Page<ResourceTemplateDTO> getAll(Integer page, Integer pageSize);
 
     /**
      * Method finds all {@link ResourceTemplate} by user id.
@@ -52,7 +53,7 @@ public interface ResourceTemplateService {
      * @return list of all {@link ResourceTemplateDTO} for a user
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> getAllByUserId(Long id);
+    Page<ResourceTemplateDTO> getAllByUserId(Long id, Integer page, Integer pageSize);
 
     /**
      * Method verifies if provided by id {@link ResourceTemplate} could be updated.
@@ -84,7 +85,7 @@ public interface ResourceTemplateService {
      * @return list of {@link ResourceTemplateDTO}
      * @author Halyna Yatseniuk
      */
-    List<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord);
+    Page<ResourceTemplateDTO> searchByNameOrDescriptionContaining(String searchedWord, Integer page ,Integer pageSize);
 
     /**
      * Method finds  {@link ResourceTemplate} by provided id.
@@ -102,7 +103,7 @@ public interface ResourceTemplateService {
      * @return list of published {@link ResourceTemplate}
      * @author Andrii Bren
      */
-    List<ResourceTemplateDTO> findAllPublishedTemplates();
+    Page<ResourceTemplateDTO> findAllPublishedTemplates(Integer page, Integer pageSize);
 
     ResourceTemplate findByTableName(String name);
 
@@ -119,7 +120,7 @@ public interface ResourceTemplateService {
      */
     void selectPublishOrCancelPublishAction(Long id, Map<String, Object> body);
 
-    List<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id);
+    Page<PrincipalPermissionDto> findPrincipalWithAccessToResourceTemplate(Long id, Integer page ,Integer pageSize);
 
     void addPermissionToResourceTemplate(PermissionDto permissionDto, Principal principal);
 

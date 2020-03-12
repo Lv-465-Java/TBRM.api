@@ -15,14 +15,21 @@ import com.softserve.rms.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 /**
  * Implementation of {@link ResourceRecordService}
@@ -66,6 +73,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         resourceRecord.setUser(userService.getUserByEmail(principal.getName()));
         resourceRecord.setPhotosNames(null);
+        resourceRecord.setDocumentNames(null);
         resourceRecord.setParameters(resourceDTO.getParameters());
         resourceRecordRepository.save(tableName, resourceRecord);
     }
@@ -79,7 +87,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     public ResourceRecordDTO findByIdDTO(String tableName, Long id) throws NotFoundException {
         ResourceRecord resourceRecord = findById(tableName, id);
         if (resourceRecord.getPhotosNames() != null) {
-            resourceRecord.setPhotosNames(generateUrlForPhoto(resourceRecord.getPhotosNames()));
+            resourceRecord.setPhotosNames(generateUrlForFiles(resourceRecord.getPhotosNames()));
+        }
+        if (resourceRecord.getDocumentNames() != null) {
+            resourceRecord.setDocumentNames((generateUrlForFiles(resourceRecord.getDocumentNames())));
         }
         return modelMapper.map(resourceRecord, ResourceRecordDTO.class);
     }
@@ -102,17 +113,23 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Andrii Bren
      */
     @Override
-    public List<ResourceRecordDTO> findAll(String tableName) throws NotFoundException {
+    public Page<ResourceRecordDTO> findAll(String tableName, Integer page, Integer pageSize) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
-        List<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName);
+        Integer validPage = validatePage(page);
+        Integer validPageSize = validatePageSize(pageSize);
+        Page<ResourceRecord> resourceRecords = resourceRecordRepository.findAll(tableName, validPage, validPageSize);
         resourceRecords.forEach(resource -> {
             if (resource.getPhotosNames() != null) {
-                resource.setPhotosNames(generateUrlForPhoto(resource.getPhotosNames()));
+                resource.setPhotosNames(generateUrlForFiles(resource.getPhotosNames()));
             }
         });
-        return resourceRecords.stream()
-                .map(resource -> modelMapper.map(resource, ResourceRecordDTO.class))
-                .collect(Collectors.toList());
+        resourceRecords.forEach(resource -> {
+            if (resource.getDocumentNames() != null) {
+                resource.setDocumentNames((generateUrlForFiles(resource.getDocumentNames())));
+            }
+        });
+        return resourceRecords
+                .map(resourceRecord -> modelMapper.map(resourceRecord, ResourceRecordDTO.class));
     }
 
     /**
@@ -147,7 +164,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = findById(tableName, id);
         if (resourceRecord.getPhotosNames() != null) {
-            deletePhotosFromS3(resourceRecord.getPhotosNames());
+            deleteFileFromS3(resourceRecord.getPhotosNames());
+        }
+        if (resourceRecord.getDocumentNames() != null) {
+            deleteFileFromS3(resourceRecord.getDocumentNames());
         }
         resourceRecordRepository.delete(tableName, id);
     }
@@ -184,9 +204,27 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
      * @author Mariia Shchur
      */
     @Override
+    public void uploadDocument(MultipartFile files,
+                            String tableName, Long id) {
+        ResourceRecord resourceRecord = findById(tableName, id);
+        String documentName = fileStorageService.uploadFile(files);
+        if (resourceRecord.getDocumentNames() != null) {
+            resourceRecord.setDocumentNames((resourceRecord.getDocumentNames() + documentName + ','));
+        } else {
+            resourceRecord.setDocumentNames(documentName + ',');
+        }
+        resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
     public void deleteAllPhotos(String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
-        deletePhotosFromS3(resourceRecord.getPhotosNames());
+        deleteFileFromS3(resourceRecord.getPhotosNames());
         resourceRecord.setPhotosNames(null);
         resourceRecordRepository.update(tableName, id, resourceRecord);
     }
@@ -207,26 +245,55 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     }
 
     /**
-     * Method that delete photos from S3 bucket
+     * {@inheritDoc }
      *
-     * @param allPhotos
      * @author Mariia Shchur
      */
-    private void deletePhotosFromS3(String allPhotos) {
-        Stream.of(allPhotos.split(",")).
-                forEach(photo -> fileStorageService.deleteFile(photo));
+    @Override
+    public void deleteAllDocuments(String tableName, Long id) {
+        ResourceRecord resourceRecord = findById(tableName, id);
+        deleteFileFromS3(resourceRecord.getDocumentNames());
+        resourceRecord.setDocumentNames(null);
+        resourceRecordRepository.update(tableName, id, resourceRecord);
     }
+
+    /**
+     * {@inheritDoc }
+     *
+     * @author Mariia Shchur
+     */
+    @Override
+    public void deleteDocument(String tableName, Long id, String document) {
+        ResourceRecord resourceRecord = findById(tableName, id);
+        Stream.of(resourceRecord.getDocumentNames().split(",")).
+                filter(p -> p.equals(document)).
+                forEach(q -> fileStorageService.deleteFile(q));
+        resourceRecord.setDocumentNames(resourceRecord.getDocumentNames().replace((document + ','), ""));
+        resourceRecordRepository.update(tableName, id, resourceRecord);
+    }
+
+    /**
+     * Method that delete files from S3 bucket
+     *
+     * @param allFiles
+     * @author Mariia Shchur
+     */
+    private void deleteFileFromS3(String allFiles) {
+        Stream.of(allFiles.split(",")).
+                forEach(file -> fileStorageService.deleteFile(file));
+    }
+
 
     /**
      * Method that generate full url for all photos
      *
-     * @param allPhotos
+     * @param allFiles
      * @author Mariia Shchur
      */
-    private String generateUrlForPhoto(String allPhotos) {
+    private String generateUrlForFiles(String allFiles) {
         StringBuilder result = new StringBuilder();
-        Stream.of(allPhotos.split(",")).
-                forEach(photo -> result.append(endpointUrl + photo + ','));
+        Stream.of(allFiles.split(",")).
+                forEach(file -> result.append(endpointUrl + file + ','));
         return (result.toString());
     }
 

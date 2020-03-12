@@ -5,7 +5,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,12 +67,12 @@ public class User {
     )
     private List<Group> groups = new ArrayList<>();
 
-    public User(String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
-        this.firstName = firstName;
-        this.email = email;
-        this.role = role;
-        this.imageUrl = imageUrl;
-        this.provider = provider;
-        this.providerId = providerId;
+    public User( String firstName, String email, Role role, String imageUrl, String provider, String providerId) {
+        this.firstName=firstName;
+        this.email=email;
+        this.role=role;
+        this.imageUrl=imageUrl;
+        this.provider=provider;
+        this.providerId=providerId;
     }
 }
