@@ -23,10 +23,10 @@ public class ResourceTemplate {
 
     private String description;
 
+    @Column(name = "is_Published")
     private Boolean isPublished;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id")
     @ToString.Exclude
     private User user;
 
