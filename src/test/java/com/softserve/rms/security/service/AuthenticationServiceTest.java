@@ -4,6 +4,7 @@ import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.exceptions.BadCredentialException;
 import com.softserve.rms.security.AuthenticationService;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.config.WebSecurityConfig;
@@ -14,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -41,13 +41,13 @@ public class AuthenticationServiceTest {
     @InjectMocks
     AuthenticationService authenticationService;//= PowerMockito.spy(new AuthenticationService(tokenManagementService,userService,webSecurityConfig));
 
-    User testUser = new User(1L, "first1", "last1", "email1","phone1","password1",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
+    User testUser = new User(1L, "first1", "last1", "email1","phone1","$2a$10$AZ.bCtbIMyESrOd/08jZjeC0ffwrm2ThW6BGfs8hZY43d8xn6yz2m",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
     User testUser2 = new User(2L, "first1", "last1", "email1","phone1","password1",false, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
-    LoginUser loginUser = new LoginUser("email1","password1");
+    LoginUser loginUser = new LoginUser("email1","aaa");
 
     @Test
     public void loadUserTest(){
-        when(userService.getUserByEmail(anyString())).thenReturn(testUser);
+        when(userService.getUserByEmail("email1")).thenReturn(testUser);
         when(webSecurityConfig.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(Boolean.TRUE);
         JwtDto jwtDto=authenticationService.loginUser(loginUser);
@@ -56,5 +56,13 @@ public class AuthenticationServiceTest {
 
         verify(userService, times(1)).getUserByEmail("email1");
 
+    }
+
+    @Test(expected = BadCredentialException.class)
+    public void loadUserFailedTest(){
+        when(userService.getUserByEmail("email1")).thenReturn(testUser);
+        when(webSecurityConfig.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
+        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(Boolean.FALSE);
+        authenticationService.loginUser(loginUser);
     }
 }
