@@ -26,8 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,12 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 import static com.softserve.rms.util.PaginationUtil.validatePage;
 import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
-@PreAuthorize("hasRole('MANAGER')")
 @Service
 public class GroupServiceImpl  implements GroupService {
     private UserRepository userRepository;
@@ -128,7 +124,7 @@ public class GroupServiceImpl  implements GroupService {
         PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
         permissionManagerService.addPermission(permissionDto, principal, Group.class);
         String message = String.format(Message.ACCESS.toString(), principal.getName(), writePermission,
-             "group " + getById(groupPermissionDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
+                "group " + getById(groupPermissionDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
         emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, groupPermissionDto.getRecipient());
     }
 
@@ -136,7 +132,7 @@ public class GroupServiceImpl  implements GroupService {
     public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
         String message = String.format(Message.OWNER.toString(), principal.getName(), writePermission,
-               "group " +  getById(changeOwnerDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
+                "group " + getById(changeOwnerDto.getId()).getName(), String.format(Message.LINK.toString(), "groups"));
         emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, changeOwnerDto.getRecipient());
     }
 

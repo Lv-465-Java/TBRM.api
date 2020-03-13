@@ -60,6 +60,7 @@ dependencies {
     compile 'javax.validation:validation-api:2.0.1.Final'
     compile 'org.hibernate:hibernate-envers:5.4.11.Final'
     compile 'org.springframework.boot:spring-boot-starter-mail:2.2.4.RELEASE'
+
     compile 'javax.mail:mail:1.5.0-b01'
 	compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.10'
     compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
@@ -68,6 +69,8 @@ dependencies {
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
+    compile 'org.springframework.boot:spring-boot-starter-aop:2.2.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-aop:2.2.4.RELEASE'
 }
 
 test {

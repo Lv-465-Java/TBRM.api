@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
 public class SpringAsyncConfig implements AsyncConfigurer {
 
     @Override
-    public Executor getAsyncExecutor(){
+    public Executor getAsyncExecutor() {
         return new SimpleAsyncTaskExecutor();
     }
 

@@ -135,6 +135,7 @@ public class ResourceRecordServiceImplTest {
     public void deleteSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
         PowerMockito.doNothing().when(resourceRecordService, "deleteFileFromS3", Mockito.anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkPermissionOnResource", Mockito.any(ResourceRecord.class));
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         resourceRecordService.delete(resourceTemplate.getTableName() ,resourceRecord.getId());
         verify(resourceRecordRepository, times(1)).delete(resourceTemplate.getTableName(), resourceRecord.getId());
@@ -169,6 +170,7 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void updateResourceRecordSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkPermissionOnResource", Mockito.any(ResourceRecord.class));
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         resourceRecordService.update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecordUpdateDTO);
         verify(resourceRecordRepository, times(1)).update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecord);

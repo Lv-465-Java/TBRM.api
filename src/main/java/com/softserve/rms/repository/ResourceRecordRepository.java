@@ -5,6 +5,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public interface ResourceRecordRepository {
      * @param resourceRecord instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
+    @PreAuthorize("hasRole('REGISTER')")
     void save(String tableName, ResourceRecord resourceRecord);
 
     /**
@@ -33,6 +35,7 @@ public interface ResourceRecordRepository {
      * @param resourceRecord instance of {@link ResourceRecord}
      * @author Andrii Bren
      */
+    @PreAuthorize("hasRole('REGISTER')")
     void update(String tableName, Long id, ResourceRecord resourceRecord);
 
     /**
@@ -42,6 +45,7 @@ public interface ResourceRecordRepository {
      * @return list of dynamic {@link ResourceRecord}
      * @author Andrii Bren
      */
+    @PreAuthorize("hasAnyRole({'USER', 'REGISTER', 'MANAGER'})")
     Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize);
 
     /**
@@ -52,6 +56,7 @@ public interface ResourceRecordRepository {
      * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */
+    @PreAuthorize("hasAnyRole({'USER', 'REGISTER', 'MANAGER'})")
     Optional<ResourceRecord> findById(String tableName, Long id);
 
     /**
@@ -63,5 +68,6 @@ public interface ResourceRecordRepository {
      * @throws NotFoundException if the resource with provided id is not found
      * @author Andrii Bren
      */
+    @PreAuthorize("hasRole('REGISTER')")
     void delete(String tableName, Long id);
 }
