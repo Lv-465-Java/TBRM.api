@@ -7,7 +7,6 @@ import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.GroupsMember;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueMemberException;
@@ -21,29 +20,21 @@ import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import static com.softserve.rms.util.PaginationUtil.validatePage;
 import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
-@PreAuthorize("hasRole('MANAGER')")
 @Service
 public class GroupServiceImpl  implements GroupService {
     private UserRepository userRepository;

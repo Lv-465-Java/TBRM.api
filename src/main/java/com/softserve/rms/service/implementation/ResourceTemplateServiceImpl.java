@@ -20,6 +20,7 @@ import com.softserve.rms.service.PermissionManagerService;
 import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.util.Formatter;
 import com.softserve.rms.util.PaginationUtil;
+import com.softserve.rms.util.PermissionChecker;
 import com.softserve.rms.util.Validator;
 import org.jooq.DSLContext;
 import org.modelmapper.ModelMapper;
@@ -31,12 +32,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +53,6 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
     private DSLContext dslContext;
     private JooqDDL jooqDDL;
     private Formatter formatter;
-
     private Logger Log = LoggerFactory.getLogger(ResourceTemplateServiceImpl.class);
 
     /**

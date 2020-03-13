@@ -3,6 +3,7 @@ package com.softserve.rms.entities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"resourceTemplate"})
 public class ResourceParameter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

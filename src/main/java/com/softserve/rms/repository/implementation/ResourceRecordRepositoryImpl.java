@@ -100,6 +100,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
                         .fetchOne(0, int.class));
         List<Record> records = dslContext
                 .selectFrom(tableName)
+                .limit(inline(pageSize))
+                .offset(inline(page * pageSize))
                 .fetch();
         List<ResourceRecord> resourceRecords = convertRecordsToResourceList(records);
         return new PageImpl<>(resourceRecords, PageRequest.of(page, pageSize), totalItems);
