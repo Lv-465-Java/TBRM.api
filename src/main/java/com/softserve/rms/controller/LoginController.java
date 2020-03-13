@@ -65,7 +65,6 @@ public class LoginController {
     @PostMapping("/authentication")
     public ResponseEntity<?> login(@RequestBody @Valid LoginUser loginUser, HttpServletResponse response, @RequestParam String tenantName){
         TenantContext.setCurrentTenant(tenantName);
-        dataSourceRouter.determineTargetDataSource();
         JwtDto jwtDto=authenticationService.loginUser(loginUser);
         response.setHeader(AUTHORIZATION_HEADER, AUTH_HEADER_PREFIX+ jwtDto.getAccessToken());
         response.setHeader(REFRESH_HEADER, jwtDto.getRefreshToken());

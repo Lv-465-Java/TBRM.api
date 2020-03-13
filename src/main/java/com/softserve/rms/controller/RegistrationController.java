@@ -55,7 +55,6 @@ public class RegistrationController {
     @PostMapping("/registration")
     public ResponseEntity createUser( @RequestBody RegistrationDto registrationDto,@RequestParam String tenantName) {
         TenantContext.setCurrentTenant(tenantName);
-        dataSourceRouter.determineTargetDataSource();
         userService.save(validateService.validate(registrationDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -13,7 +13,6 @@ public class TenantIdResolver implements CurrentTenantIdentifierResolver {
     public String resolveCurrentTenantIdentifier() {
         String tenant =  TenantContext.getCurrentTenant();
         if(tenant!=null){
-            TenantContext.clear();
             return tenant;
         } else {
             return DataBaseProperty.DEFAULT_DATABASE;

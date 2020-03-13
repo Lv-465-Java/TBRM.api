@@ -3,8 +3,10 @@ package com.softserve.rms.multitenancy;
 import com.softserve.rms.constants.DataBaseProperty;
 import com.softserve.rms.entities.DataSourceConfig;
 import com.softserve.rms.repository.ConfigDao;
+import org.hibernate.annotations.Proxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -80,7 +82,7 @@ public abstract class AbstractDataSourceRouter extends AbstractDataSource {
     protected abstract String determineCurrentLookupKey();
 
     @Override
-    public Connection getConnection(String username, String password) {
-        return null;
+    public Connection getConnection(String username, String password) throws SQLException {
+        return determineTargetDataSource().getConnection(username,password);
     }
 }
