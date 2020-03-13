@@ -60,7 +60,6 @@ dependencies {
     compile 'javax.validation:validation-api:2.0.1.Final'
     compile 'org.hibernate:hibernate-envers:5.4.11.Final'
     compile 'org.springframework.boot:spring-boot-starter-mail:2.2.4.RELEASE'
-    compile group: 'org.springframework', name: 'spring-aop', version: '4.3.18.RELEASE'
 
     compile 'javax.mail:mail:1.5.0-b01'
 	compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.9.10'

@@ -17,6 +17,7 @@ import com.softserve.rms.repository.GroupMemberRepository;
 import com.softserve.rms.repository.GroupRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.PermissionManagerService;
+import com.softserve.rms.util.EmailSender;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,6 @@ import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -68,6 +68,8 @@ public class GroupServiceImplTest {
     private Principal principal;
     @Mock
     private Page<Group> page;
+    @Mock
+    private EmailSender emailSender;
 
     @InjectMocks
     private GroupServiceImpl groupService;
@@ -88,7 +90,7 @@ public class GroupServiceImplTest {
     @Before
     public void init() {
         groupService = PowerMockito.spy(new GroupServiceImpl(userRepository, groupRepository,
-                groupMemberRepository, permissionManagerService, modelMapper));
+                groupMemberRepository, permissionManagerService, modelMapper, emailSender));
         page = PowerMockito.mock(Page.class);
     }
 
@@ -202,6 +204,8 @@ public class GroupServiceImplTest {
     public void addWritePermission() throws Exception {
         doNothing().when(groupService, verifyGroupPermission, anyString());
         doNothing().when(permissionManagerService).addPermission(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.addWritePermission(groupPermissionDto, principal);
     }
 
@@ -222,6 +226,8 @@ public class GroupServiceImplTest {
     @Test
     public void changeGroupOwnerOk() {
         doNothing().when(permissionManagerService).changeOwner(any(ChangeOwnerDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.changeGroupOwner(changeOwnerDto, principal);
     }
 
@@ -343,6 +349,8 @@ public class GroupServiceImplTest {
     @Test
     public void closePermissionForCertainUserOk() {
         doNothing().when(permissionManagerService).closePermissionForCertainUser(any(PermissionDto.class), any(Principal.class), any(Class.class));
+        doReturn(groupDto).when(groupService).getById(anyLong());
+        doNothing().when(emailSender).sendEmail(anyString(), anyString(), anyString());
         groupService.closePermissionForCertainUser(groupPermissionDto, principal);
     }
 

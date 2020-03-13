@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -29,6 +27,8 @@ public class ResourceRecord {
     private User user;
 
     private String photosNames;
+
+    private String documentNames;
 
     private Map<String, Object> parameters;
 

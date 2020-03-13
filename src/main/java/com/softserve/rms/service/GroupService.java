@@ -7,8 +7,11 @@ import org.springframework.data.domain.Page;
 
 import java.security.Principal;
 
+
 public interface GroupService {
     Page<GroupDto> getAll(Integer page, Integer pageSize);
+
+    GroupDto getById(Long id);
 
     Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize);
 

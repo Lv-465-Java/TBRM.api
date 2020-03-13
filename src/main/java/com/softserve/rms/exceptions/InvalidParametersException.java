@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String msg) {
+public class InvalidParametersException extends RuntimeException {
+    public InvalidParametersException(String msg) {
         super(msg);
     }
 }

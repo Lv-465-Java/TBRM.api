@@ -2,7 +2,9 @@ package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.util.PermissionChecker;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,10 @@ public class ResourceTemplateRepository {
 
     public List<ResourceTemplate> findAll() {
         return repositoryHelper.findAll();
+    }
+
+    public List<ResourceTemplate> findAll(Specification<ResourceTemplate> specification) {
+        return repositoryHelper.findAll(specification);
     }
 
     public List<ResourceTemplate> findAllByUserId(Long id) {
@@ -78,7 +84,9 @@ public class ResourceTemplateRepository {
 }
 
 @Repository
-interface ResourceTemplateRepositoryHelper extends JpaRepository<ResourceTemplate, Long> {
+interface ResourceTemplateRepositoryHelper extends JpaRepository<ResourceTemplate, Long>,
+        JpaSpecificationExecutor<ResourceTemplate> {
+
     /**
      * Method finds {@link ResourceTemplate} by id
      *

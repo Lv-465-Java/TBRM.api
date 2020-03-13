@@ -20,6 +20,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -68,18 +69,18 @@ public class ResourceRecordServiceImplTest {
         put("first_parameter", 111111);
         put("second_parameter", 987123);
     }};
-    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", user,"imageUrl", firstDynamicParameters);
-    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user,null, firstDynamicParameters);
-    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), "imageUrl",firstDynamicParameters);
+    private ResourceRecord resourceRecord = new ResourceRecord(1L, "Test", "Some description", user,"", "",firstDynamicParameters);
+    private ResourceRecord secondResourceRecord = new ResourceRecord(null, "Test", "Some description",  user,null, null,firstDynamicParameters);
+    private ResourceRecordDTO resourceRecordDTO = new ResourceRecordDTO(1L, "Test", "Some description",  user.getId(), "","",firstDynamicParameters);
 
     private ResourceRecordSaveDTO resourceRecordSaveDTO = new ResourceRecordSaveDTO("Test", "Some description",  firstDynamicParameters);
     private ResourceRecordSaveDTO resourceRecordUpdateDTO = new ResourceRecordSaveDTO("TestUpdate", "Some description update", secondDynamicParameters);
     private List<ResourceRecord> resourceRecords = Arrays.asList(
-            new ResourceRecord(1L, "TestName1", "Some description", user,"imageUrl", firstDynamicParameters),
-            new ResourceRecord(2L, "TestName2", "Some description2",user, "imageUrl",secondDynamicParameters));
+            new ResourceRecord(1L, "TestName1", "Some description", user,"", "",firstDynamicParameters),
+            new ResourceRecord(2L, "TestName2", "Some description2",user, "","",secondDynamicParameters));
     private List<ResourceRecordDTO> resourceRecordDTOS = Arrays.asList(
-            new ResourceRecordDTO(1L, "TestName1", "Some description",  user.getId(), "imageUrl",firstDynamicParameters),
-            new ResourceRecordDTO(2L, "TestName2", "Some description2", user.getId(), "imageUrl",secondDynamicParameters));
+            new ResourceRecordDTO(1L, "TestName1", "Some description",  user.getId(), "","",firstDynamicParameters),
+            new ResourceRecordDTO(2L, "TestName2", "Some description2", user.getId(), "","",secondDynamicParameters));
 
     @Before
     public void initializeMock() {
@@ -90,8 +91,8 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void getListOfResourceDTOsSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        when(resourceRecordRepository.findAll(anyString(), anyInt(), anyInt())).thenReturn(new PageImpl<>(resourceRecords));
-        PowerMockito.doReturn("imageUrl").when(resourceRecordService, "generateUrlForPhoto", Mockito.anyString());
+        PowerMockito.doReturn("").when(resourceRecordService, "generateUrlForFiles", Mockito.anyString());
+        when(resourceRecordRepository.findAll(anyString(),anyInt(), anyInt())).thenReturn(new PageImpl<>(resourceRecords));
         assertEquals(resourceRecordDTOS, resourceRecordService.findAll("name", 1, 1).getContent());
     }
 
@@ -119,7 +120,7 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void getResourceRecordByIdDTOSuccess() throws Exception {
         doReturn(resourceRecord).when(resourceRecordService).findById(anyString(), anyLong());
-        PowerMockito.doReturn("imageUrl").when(resourceRecordService, "generateUrlForPhoto", Mockito.anyString());
+        PowerMockito.doReturn("").when(resourceRecordService, "generateUrlForFiles", Mockito.anyString());
         assertEquals(resourceRecordDTO, resourceRecordService.findByIdDTO(resourceTemplate.getTableName(), resourceRecord.getId()));
     }
 
@@ -133,7 +134,8 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void deleteSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
-        PowerMockito.doNothing().when(resourceRecordService, "deletePhotosFromS3", Mockito.anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "deleteFileFromS3", Mockito.anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkPermissionOnResource", Mockito.any(ResourceRecord.class));
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         resourceRecordService.delete(resourceTemplate.getTableName() ,resourceRecord.getId());
         verify(resourceRecordRepository, times(1)).delete(resourceTemplate.getTableName(), resourceRecord.getId());
@@ -168,6 +170,7 @@ public class ResourceRecordServiceImplTest {
     @Test
     public void updateResourceRecordSuccess() throws Exception {
         PowerMockito.doNothing().when(resourceRecordService, "checkIfResourceTemplateIsPublished", Mockito.anyString());
+        PowerMockito.doNothing().when(resourceRecordService, "checkPermissionOnResource", Mockito.any(ResourceRecord.class));
         when(resourceRecordRepository.findById(anyString(), anyLong())).thenReturn(Optional.of(resourceRecord));
         resourceRecordService.update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecordUpdateDTO);
         verify(resourceRecordRepository, times(1)).update(resourceTemplate.getTableName(), resourceRecord.getId(), resourceRecord);

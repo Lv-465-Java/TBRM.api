@@ -10,6 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @PreAuthorize("hasRole('MANAGER')")
@@ -20,6 +21,9 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
 
     @Query("select g.user from GroupsMember g where g.group.id = ?1")
     Page<User> findAllMembers(Long groupId, Pageable pageable);
+
+    @Query("select g.user from GroupsMember g where g.group.name = ?1")
+    List<User> findAllMembers(String name);
 
     Optional<Group> findByName(String name);
 
