@@ -29,9 +29,9 @@ public enum ErrorMessage {
     RESOURCE_PARAMETER_CAN_NOT_BE_DELETED("Resource parameter can not be deleted since resource template " +
             "has been published"),
 
-    USER_NOT_SAVED ("User was not saved "),
+    USER_NOT_SAVED("User was not saved "),
     USER_NOT_DELETE("User was not deleted"),
-    USER_NOT_FOUND_BY_EMAIL ("User was not found by email "),
+    USER_NOT_FOUND_BY_EMAIL("User was not found by email "),
 
     ACCESS_DENIED("You do not have permission on this operation"),
     PRINCIPAL_NOT_FOUND("Not found principal for this object"),
@@ -51,7 +51,12 @@ public enum ErrorMessage {
 
     WRONG_PASSWORD("Wrong password"),
     INVALID_LINK_OR_TOKEN("Link is invalid or broken"),
-    TOKEN_EXPIRED("Token is already expired");
+    TOKEN_EXPIRED("Token is already expired"),
+
+    WRONG_SEARCH_CRITERIA("Search criteria are not valid"),
+    INVALID_COLUMN_CRITERIA("Invalid search query"),
+    INVALID_SEARCH_CRITERIA("Your search criteria are not valid"),
+    INVALID_TABLE_CRITERIA("Table you are searching in doesn't exist");
 
     private String message;
 
