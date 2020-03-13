@@ -95,7 +95,8 @@ public class FilterServiceImpl implements FilterService {
                     conditionList.add(conditionWithNotEqualOperation);
                     break;
                 case GREATER_THAN:
-                    Condition conditionWithGreaterThanOperation = field(criteria.getKey()).greaterThan(criteria.getValue());
+                    Condition conditionWithGreaterThanOperation = field(criteria.getKey())
+                            .greaterThan(criteria.getValue());
                     conditionList.add(conditionWithGreaterThanOperation);
                     break;
                 case LESS_THAN:
@@ -103,7 +104,8 @@ public class FilterServiceImpl implements FilterService {
                     conditionList.add(conditionWithLessThanOperation);
                     break;
                 case CONTAINS:
-                    Condition conditionWithContainsOperation = field(criteria.getKey()).containsIgnoreCase(criteria.getValue());
+                    Condition conditionWithContainsOperation = field(criteria.getKey())
+                            .containsIgnoreCase(criteria.getValue());
                     conditionList.add(conditionWithContainsOperation);
                     break;
                 default:
