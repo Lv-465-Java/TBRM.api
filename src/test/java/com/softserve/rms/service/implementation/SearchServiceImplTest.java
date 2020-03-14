@@ -1,10 +1,11 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.entities.*;
+import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.entities.Role;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidParametersException;
 import com.softserve.rms.repository.ResourceTemplateRepository;
-import com.softserve.rms.repository.implementation.FilterRepositoryImpl;
 import com.softserve.rms.search.SearchAndFilterUtil;
 import com.softserve.rms.search.SpecificationsBuilder;
 import org.junit.Assert;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -20,16 +22,18 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.softserve.rms.constants.FieldConstants.RESOURCE_TEMPLATES_TABLE;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SearchServiceImpl.class)
@@ -40,8 +44,6 @@ public class SearchServiceImplTest {
     private ResourceTemplateRepository templateRepository;
     @Mock
     private ResourceTemplateServiceImpl templateService;
-    @Mock
-    private FilterRepositoryImpl filterRepository;
     @Mock
     private ModelMapper modelMapper;
     @Mock
@@ -56,8 +58,6 @@ public class SearchServiceImplTest {
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
             "any", false, role, "imageurl", "google", "12444",
             Collections.emptyList(), null, Collections.emptyList());
-    private ResourceRecord record = new ResourceRecord(15L, "record", "descr", user,
-            "", "", new HashMap<>());
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(5L, "testNameForSearchDTO",
             "dbTableName", "test test desc", true, 2L, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testNameForSearch", "dbTableName",
@@ -69,6 +69,26 @@ public class SearchServiceImplTest {
         searchService = PowerMockito.spy(new SearchServiceImpl(modelMapper,
                 templateRepository, templateService, searchAndFilterUtil));
         testResourceTemplates.add(resourceTemplate);
+    }
+
+    @Test
+    public void verifyIfSearchIsEmpty() throws Exception {
+        Page<ResourceTemplateDTO> page = new PageImpl<>(Collections.singletonList(resourceTemplateDTO));
+        when(templateService.getAll(any(Integer.class), any(Integer.class))).thenReturn(page);
+        Page<ResourceTemplateDTO> templates = searchService.verifyIfSearchIsEmpty("", 1, 1);
+        verify(templateService, times(1)).getAll(anyInt(), anyInt());
+        verifyPrivate(searchService, times(0)).
+                invoke("searchBySpecification", Mockito.any(String.class), Mockito.any(String.class));
+    }
+
+    @Test
+    public void verifyIfSearchIsNotEmpty() throws Exception {
+        Page<ResourceTemplateDTO> page = new PageImpl<>(Collections.singletonList(resourceTemplateDTO));
+        when(templateService.getAll(any(Integer.class), any(Integer.class))).thenReturn(page);
+        Page<ResourceTemplateDTO> templates = searchService.verifyIfSearchIsEmpty("search", 1, 1);
+        verifyPrivate(searchService, times(1)).
+                invoke("searchBySpecification", Mockito.any(String.class), Mockito.any(String.class));
+        verify(templateService, times(0)).getAll(anyInt(), anyInt());
     }
 
     @Test
@@ -90,27 +110,4 @@ public class SearchServiceImplTest {
         Whitebox.invokeMethod(searchService, "searchBySpecification",
                 searchByInvalidCriteria, tableNameForTesting);
     }
-
-    @Test
-    public void verifyIfSearchIsEmpty() {
-        when(templateService.getAll(any(Integer.class), any(Integer.class))).thenReturn((Page<ResourceTemplateDTO>) any());
-
-        when(templateService.getAll(any(Integer.class), any(Integer.class))).thenReturn(any());
-
-
-        Page<ResourceTemplateDTO> templates = searchService.verifyIfSearchIsEmpty("", 1, 1);
-        verify(templateService, times(1)).getAll(anyInt(), anyInt());
-
-    }
-
-
-//    public Page<ResourceTemplateDTO> verifyIfSearchIsEmpty(String search, Integer page, Integer pageSize) {
-//        if (search.isEmpty()) {
-//            return templateService.getAll(page, pageSize);
-//        } else {
-//            List<ResourceTemplateDTO> list =
-//                    searchBySpecification(search, FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue());
-//            return buildPage(list, page, pageSize);
-//        }
-//    }
 }

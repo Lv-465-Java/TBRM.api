@@ -50,12 +50,12 @@ public class SearchAndFilterUtil {
      * @author Halyna Yatseniuk
      */
     public List<SearchCriteria> matchSearchCriteriaToPattern(String search, String tableName) {
-        List<String> newStrings = splitSearchCriteriaByQuoteAndComma(search);
+        List<String> stringList = splitSearchCriteriaByQuoteAndComma(search);
 
         List<SearchCriteria> searchStringList = new ArrayList<>();
         Pattern pattern = Pattern.compile(ValidationPattern.SEARCH_PATTERN);
-        for (String newString : newStrings) {
-            Matcher matcher = pattern.matcher(newString);
+        for (String string : stringList) {
+            Matcher matcher = pattern.matcher(string);
             if (matcher.matches()) {
                 searchStringList.add(checkTableName(tableName,
                         matcher.group(1), matcher.group(2), matcher.group(3)));
@@ -73,7 +73,7 @@ public class SearchAndFilterUtil {
      * @return list of {@link String}
      * @author Halyna Yatseniuk
      */
-    public List<String> splitSearchCriteriaByQuoteAndComma(String search) {
+    private List<String> splitSearchCriteriaByQuoteAndComma(String search) {
         if (search != null) {
             return verifyIfCriteriaContainsExtraQuotes(Arrays.asList
                     (search.split(FieldConstants.QUOTE_AND_COMMA.getValue())));
@@ -88,7 +88,7 @@ public class SearchAndFilterUtil {
      * @return list of trimmed search criteria values {@link String}
      * @author Halyna Yatseniuk
      */
-    public List<String> verifyIfCriteriaContainsExtraQuotes(List<String> searchCriteria) {
+    private List<String> verifyIfCriteriaContainsExtraQuotes(List<String> searchCriteria) {
         for (int i = 0; i < searchCriteria.size(); i++) {
             while (searchCriteria.get(i).contains(FieldConstants.QUOTE.getValue())) {
                 searchCriteria.set(i, trimExtraQuotes(searchCriteria.get(i)));
@@ -117,10 +117,9 @@ public class SearchAndFilterUtil {
      * @return {@link SearchCriteria}
      * @author Halyna Yatseniuk
      */
-    public SearchCriteria checkTableName(String tableName, String... matcherGroup) {
+    private SearchCriteria checkTableName(String tableName, String... matcherGroup) {
         if (tableName.equals(FieldConstants.RESOURCE_TEMPLATES_TABLE.getValue())) {
-            return checkColumnParameterTypeForTemplate(tableName,
-                    matcherGroup[0], matcherGroup[1], matcherGroup[2]);
+            return checkColumnParameterTypeForTemplate(matcherGroup[0], matcherGroup[1], matcherGroup[2]);
         } else {
             return checkColumnParameterTypeForResource(tableName,
                     matcherGroup[0], matcherGroup[1], matcherGroup[2]);
@@ -135,10 +134,8 @@ public class SearchAndFilterUtil {
      * @return {@link SearchCriteria}
      * @author Halyna Yatseniuk
      */
-    public SearchCriteria checkColumnParameterTypeForResource(String tableName, String... matcherGroup) {
-        SearchCriteria searchCriteria = SearchCriteria.builder()
-                .key(matcherGroup[0])
-                .operation(matcherGroup[1]).build();
+    private SearchCriteria checkColumnParameterTypeForResource(String tableName, String... matcherGroup) {
+        SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
 
         List<Field<?>> columns = getColumns(tableName);
         for (Field<?> column : columns) {
@@ -158,12 +155,11 @@ public class SearchAndFilterUtil {
     /**
      * Method applies {@link SearchCriteria} value type due to {@link ResourceTemplate} table column type.
      *
-     * @param tableName    name of a table where entities are searched
      * @param matcherGroup array with search criteria divided by groups
      * @return {@link SearchCriteria}
      * @author Halyna Yatseniuk
      */
-    public SearchCriteria checkColumnParameterTypeForTemplate(String tableName, String... matcherGroup) {
+    private SearchCriteria checkColumnParameterTypeForTemplate(String... matcherGroup) {
         SearchCriteria searchCriteria = SearchCriteria.builder().key(matcherGroup[0]).operation(matcherGroup[1]).build();
 
         java.lang.reflect.Field[] fields = ResourceTemplate.class.getDeclaredFields();
@@ -191,7 +187,7 @@ public class SearchAndFilterUtil {
      * @author Halyna Yatseniuk
      */
 
-    public List<Field<?>> getColumns(String tableName) {
+    private List<Field<?>> getColumns(String tableName) {
         Table<?> foundTable;
         try {
             foundTable = dslContext.meta().getTables(tableName).get(0);

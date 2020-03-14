@@ -7,6 +7,7 @@ import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.SearchCriteria;
 import com.softserve.rms.exceptions.InvalidParametersException;
 import com.softserve.rms.exceptions.SqlGrammarException;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -15,7 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-
+@Data
 public class SearchSpecification implements Specification<ResourceTemplate> {
     private SearchCriteria criteria;
 
@@ -58,7 +59,7 @@ public class SearchSpecification implements Specification<ResourceTemplate> {
                             criteria.getKey()), FieldConstants.PERCENTAGE.getValue() +
                             criteria.getValue() + FieldConstants.PERCENTAGE.getValue());
                 default:
-                    throw new InvalidParametersException("jjjj");
+                    throw new InvalidParametersException(ErrorMessage.WRONG_SEARCH_CRITERIA.getMessage());
             }
         } catch (IllegalArgumentException ex) {
             throw new SqlGrammarException(ErrorMessage.INVALID_COLUMN_CRITERIA.getMessage());
