@@ -41,7 +41,6 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
-    @NotAudited
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;

@@ -77,7 +77,7 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/profile/update")
-    public ResponseEntity updateUser(@Valid @RequestBody UserEditDto userEditDto,
+    public ResponseEntity updateUser(@RequestBody UserEditDto userEditDto,
                                      @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
 
         userService.update(trimmer.trimEditData(userEditDto), principal.getUsername());

@@ -3,7 +3,6 @@ package com.softserve.rms.repository.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.entities.ResourceRecord;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
