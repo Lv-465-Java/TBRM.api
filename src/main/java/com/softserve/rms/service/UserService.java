@@ -29,6 +29,15 @@ public interface UserService {
     UserDto getUser(String email);
 
     /**
+     * Method finds list of {@link UserDto} by role id
+     *
+     * @param roleId of role
+     * @return list of {@link UserSearchDTO}
+     * @author Halyna Yatseniuk
+     */
+    Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize);
+
+    /**
      * Method saves {@link User}.
      *
      * @param person {@link RegistrationDto}
@@ -65,7 +74,7 @@ public interface UserService {
      * Method that allow you to change profile picture
      *
      * @param multipartFile photo for saving.
-     * @param email of current user
+     * @param email         of current user
      * @author Mariia Shchur
      */
     void changePhoto(MultipartFile multipartFile, String email);
@@ -123,7 +132,7 @@ public interface UserService {
     /**
      * Method for set password and phone of user
      *
-     * @param email {@link String}
+     * @param email                {@link String}
      * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
      * @author Kravets Maryana
      */
