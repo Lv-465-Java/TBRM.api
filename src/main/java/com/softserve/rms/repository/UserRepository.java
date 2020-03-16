@@ -55,4 +55,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @author Mariia Shchur
      */
     Optional<User> findUserByResetToken(String resetToken);
+
 }

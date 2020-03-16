@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.RoleDto;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.AdminService;
 import com.softserve.rms.service.UserHistoryService;
@@ -15,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -142,7 +141,7 @@ public class AdminController {
     })
     @GetMapping("/all_history")
     public ResponseEntity<List<Map<String, Object>>> getHistory(){
-        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllAccounts());
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllHistory());
     }
 
     /**

@@ -155,7 +155,6 @@ public class UserController {
     public ResponseEntity updateEmail(@Valid @RequestBody EmailEditDto emailEditDto,
                                       @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
         userService.editEmail(emailEditDto, principal.getUsername());
-        //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

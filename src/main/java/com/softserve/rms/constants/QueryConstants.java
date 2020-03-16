@@ -12,7 +12,8 @@ public enum QueryConstants {
             "u.rev=r.rev and roles.id=u.role_id and u.id = ?"),
     FILTER_BY_DATE("select u.id, u.image_url,roles.name as role, u.revtype,u.reset_token ,to_timestamp(r.revtstmp/ 1000)::date , u.first_name,u.last_name,u.email,u.enabled,u.phone\n" +
             "from users_aud u ,revinfo r, roles where  u.rev=r.rev and to_timestamp(r.revtstmp/ 1000)::date=(?::date) and roles.id=u.role_id"),
-    ;
+    IF_TOKEN_VALID("select (to_timestamp(r.revtstmp/ 1000)+ interval '6 hour')>=now() from users_aud u,revinfo r where u.rev=r.rev \n" +
+            "and u.reset_token=? ");
 
 
     private String value;

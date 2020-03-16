@@ -24,12 +24,12 @@ public interface UserHistoryService {
     List<Map<String, Object>> getDeletedAccounts();
 
     /**
-     * Method that returns all ever created accounts(inactive,active and deleted)
+     * Method that returns all users history flow
      *
      * @return list of all accounts
      * @author Mariia Shchur
      */
-    List<Map<String, Object>> getAllAccounts();
+    List<Map<String, Object>> getAllHistory();
 
     /**
      * Method that returns all users history by accurate data

@@ -78,8 +78,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
 
     /**
-     * Method that compare user's password from history
-     * flow and set user's friendly message
+     * Method that compare previous user's password to current
+     * and set message if it was changed
+     * or delete row if dont
      *
      * @param iterator
      * @param map      list of history flow
@@ -89,7 +90,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
                                  Map.Entry<String, Object> map) {
         if (map.getKey().equals("password")) {
             if (!(map.getValue().equals(password))) {
-                password = (String) map.getValue();
+                password =  map.getValue();
                 map.setValue("Password has been changed");
                 passwordChange = true;
             } else {
@@ -99,8 +100,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
 
     /**
-     * Method that compare user's reset token from history
-     * flow and set user's friendly message
+     * Method that compare previous user's reset token
+     * to current and set message if it was changed
+     * or delete row if dont
      *
      * @param iterator
      * @param map      list of history flow
@@ -122,7 +124,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
     /**
      * Method that compare user's data from history
-     * flow and set user's friendly message when it's changed and
+     * flow and set user's friendly message when it was changed and
      * delete row if data is unchanged
      *
      * @param iterator
@@ -181,6 +183,12 @@ public class UserHistoryServiceImpl implements UserHistoryService {
         return getPhotoUrl(userHistoryRepository.getDeletedAccounts());
     }
 
+    /**
+     * Method that add endpoint url to photos names
+     *
+     * @param data
+     * @author Mariia Shchur
+     */
     private List<Map<String, Object>> getPhotoUrl(List<Map<String, Object>> data) {
         for (int i = 0; i < data.size(); i++) {
             for (Map.Entry<String, Object> map : data.get(i).entrySet()) {
@@ -198,8 +206,8 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      * @author Mariia Shchur
      */
 
-    public List<Map<String, Object>> getAllAccounts() {
-        return sortData(getPhotoUrl(userHistoryRepository.getAllAccounts()));
+    public List<Map<String, Object>> getAllHistory() {
+        return sortData(getPhotoUrl(userHistoryRepository.getAllHistory()));
     }
 
     /**
