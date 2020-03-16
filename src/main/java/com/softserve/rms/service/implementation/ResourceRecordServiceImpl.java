@@ -5,7 +5,9 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
+import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
+import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
 import com.softserve.rms.repository.ResourceRecordRepository;
 import com.softserve.rms.service.ResourceRecordService;
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.softserve.rms.util.PaginationUtil.validatePage;
@@ -136,6 +141,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
             throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = findById(tableName, id);
+        checkPermissionOnResource(resourceRecord);
         if (resourceRecordSaveDTO.getName() != null) {
             resourceRecord.setName(resourceRecordSaveDTO.getName());
         }
@@ -157,6 +163,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     public void delete(String tableName, Long id) throws NotFoundException {
         checkIfResourceTemplateIsPublished(tableName);
         ResourceRecord resourceRecord = findById(tableName, id);
+        checkPermissionOnResource(resourceRecord);
         if (resourceRecord.getPhotosNames() != null) {
             deleteFileFromS3(resourceRecord.getPhotosNames());
         }
@@ -183,6 +190,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     public void changePhoto(MultipartFile files,
                             String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
+        checkPermissionOnResource(resourceRecord);
         String photoName = fileStorageService.uploadFile(files);
         if (resourceRecord.getPhotosNames() != null) {
             resourceRecord.setPhotosNames(resourceRecord.getPhotosNames() + photoName + ',');
@@ -218,6 +226,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     @Override
     public void deleteAllPhotos(String tableName, Long id) {
         ResourceRecord resourceRecord = findById(tableName, id);
+        checkPermissionOnResource(resourceRecord);
         deleteFileFromS3(resourceRecord.getPhotosNames());
         resourceRecord.setPhotosNames(null);
         resourceRecordRepository.update(tableName, id, resourceRecord);
@@ -231,6 +240,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
     @Override
     public void deletePhoto(String tableName, Long id, String photo) {
         ResourceRecord resourceRecord = findById(tableName, id);
+        checkPermissionOnResource(resourceRecord);
         Stream.of(resourceRecord.getPhotosNames().split(",")).
                 filter(p -> p.equals(photo)).
                 forEach(q -> fileStorageService.deleteFile(q));
@@ -291,4 +301,10 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
         return (result.toString());
     }
 
+    private void checkPermissionOnResource(ResourceRecord resourceRecord ) {
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        if(!resourceRecord.getUser().getEmail().equals(principal.getName())) {
+            throw new PermissionException(ErrorMessage.ACCESS_DENIED.getMessage());
+        }
+    }
 }

@@ -16,6 +16,7 @@ import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.PermissionGrantingStrategy;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 import javax.sql.DataSource;
 

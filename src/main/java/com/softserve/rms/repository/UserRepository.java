@@ -1,6 +1,8 @@
 package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -65,4 +67,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @author Mariia Shchur
      */
     Optional<User> findUserByResetToken(String resetToken);
+
+    Page<User> findUsersByRoleName(String role, Pageable page);
 }

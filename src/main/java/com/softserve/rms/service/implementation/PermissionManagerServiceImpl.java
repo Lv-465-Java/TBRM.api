@@ -4,7 +4,6 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotUniquePermissionException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.repository.GroupRepository;

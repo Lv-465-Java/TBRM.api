@@ -7,6 +7,11 @@ import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.user.EmailEditDto;
+import com.softserve.rms.dto.user.PasswordEditDto;
+import com.softserve.rms.dto.user.RegistrationDto;
+import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
@@ -42,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import java.util.Map;
@@ -363,5 +369,18 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userPasswordPhoneDto.getPassword()));
         user.setPhone(userPasswordPhoneDto.getPhone());
         userRepository.save(user);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Kravets Maryana
+     */
+    @Override
+     public Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize){
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User>users= userRepository.findUsersByRoleName("ROLE_"+role.toUpperCase(), pageable);
+        return users.map(user -> modelMapper.map(user, UserDto.class));
     }
 }

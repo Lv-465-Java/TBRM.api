@@ -1,6 +1,5 @@
 package com.softserve.rms.security;
 
-import com.amazonaws.services.kms.model.DisabledException;
 import com.softserve.rms.dto.JwtDto;
 import com.softserve.rms.dto.LoginUser;
 import com.softserve.rms.entities.User;
@@ -11,6 +10,8 @@ import com.softserve.rms.service.implementation.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -54,7 +55,9 @@ public class AuthenticationService implements Message {
 
         User user = userService.getUserByEmail(loginUser.getEmail());
 
-        if (webSecurityConfig.passwordEncoder().matches(loginUser.getPassword(), user.getPassword())) {
+       PasswordEncoder passwordEncoder=webSecurityConfig.passwordEncoder();
+
+        if (passwordEncoder.matches(loginUser.getPassword(), user.getPassword())) {
             if (!user.isEnabled()) {
                 throw new DisabledException(NON_ACTIVE_ACCOUNT_EXCEPTION);
             }

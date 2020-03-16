@@ -5,8 +5,6 @@ import com.softserve.rms.constants.FieldConstants;
 import com.softserve.rms.constants.Message;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
-import com.softserve.rms.dto.group.GroupDto;
-import com.softserve.rms.dto.group.MemberDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
@@ -38,13 +36,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -516,10 +512,10 @@ public class ResourceTemplateServiceImpl implements ResourceTemplateService {
      *
      * @param principal one user or group
      * @param recipient user or group
-     * @param message notification
+     * @param message   notification
      * @author Marian Dutchyn
      */
-    private void sendNotification(boolean principal, String recipient, String message){
+    private void sendNotification(boolean principal, String recipient, String message) {
         if (principal) {
             emailSender.sendEmail(Message.RESOURCE_PERMISSION_SUBJECT.toString(), message, recipient);
         } else {
