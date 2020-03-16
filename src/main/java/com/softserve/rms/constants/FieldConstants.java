@@ -20,8 +20,18 @@ public enum FieldConstants {
     LATITUDE("lat"),
     LONGITUDE("lng"),
     RESOURCE_TEMPLATES_TABLE("resource_templates"),
-    RESOURCE_RELATION_TABLE("resource_relations");
+    RESOURCE_RELATION_TABLE("resource_relations"),
 
+    DOUBLE("Double"),
+    INTEGER("Integer"),
+    LONG("Long"),
+    STRING("String"),
+    BOOLEAN("Boolean"),
+    USER_CLASS("User"),
+
+    QUOTE_AND_COMMA("',"),
+    QUOTE("'"),
+    PERCENTAGE("%");
 
     private String value;
 

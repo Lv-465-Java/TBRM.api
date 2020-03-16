@@ -12,6 +12,7 @@ import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PostFilter;
 
 import java.security.Principal;
 import java.util.List;
