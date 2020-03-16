@@ -52,7 +52,6 @@ public class JwtAuthorizationFilterTest {
             doNothing().when(chain).doFilter(request, response);
 
             jwtAuthorizationFilter.doFilterInternal(request, response, chain);
-           // verify(authenticationManager, times(1)).authenticate(any());
             verify(chain, times(1)).doFilter(any(), any());
         }
     }
