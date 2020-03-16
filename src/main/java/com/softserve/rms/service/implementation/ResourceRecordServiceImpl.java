@@ -5,7 +5,6 @@ import com.softserve.rms.dto.resourceRecord.ResourceRecordDTO;
 import com.softserve.rms.dto.resourceRecord.ResourceRecordSaveDTO;
 import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.entities.ResourceTemplate;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateIsNotPublishedException;
@@ -22,9 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.softserve.rms.util.PaginationUtil.validatePage;

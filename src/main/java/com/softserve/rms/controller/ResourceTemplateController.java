@@ -5,8 +5,8 @@ import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.slf4j.Logger;
@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

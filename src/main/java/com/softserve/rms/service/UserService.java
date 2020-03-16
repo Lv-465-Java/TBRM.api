@@ -1,17 +1,8 @@
 package com.softserve.rms.service;
 
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDtoRole;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
 import org.springframework.data.domain.Page;
@@ -19,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -38,7 +27,7 @@ public interface UserService {
      * Method finds list of {@link UserDto} by role id
      *
      * @param roleId of role
-     * @return list of {@link UserSearchDTO}
+     * @return list of {@link Page} of {@link UserSearchDTO}
      * @author Halyna Yatseniuk
      */
     Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize);
@@ -151,12 +140,11 @@ public interface UserService {
     /**
      * Get users by role
      *
-     * @param role {@link String}
-     * @param page {@link Integer}
+     * @param role     {@link String}
+     * @param page     {@link Integer}
      * @param pageSize {@link Integer}
      * @return page of users {@link Page<UserDto>}
      * @author Kravets Maryana
-     *
      */
     Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize);
 

@@ -1,18 +1,11 @@
 package com.softserve.rms.controller;
 
-
-import com.softserve.rms.dto.template.ResourceTemplateDTO;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.PermissionUserDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.UserPrincipal;
@@ -32,7 +25,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -229,23 +221,22 @@ public class UserController {
     /**
      * Get users by role
      *
-     * @param role {@link String}
-     * @param page {@link Optional<Integer>}
+     * @param role     {@link String}
+     * @param page     {@link Optional<Integer>}
      * @param pageSize {@link Optional<Integer>}
      * @return page of users {@link Page<UserDto>}
      * @author Kravets Maryana
-     *
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/users/role")
     public ResponseEntity<Page<UserDto>> getByRole(@RequestParam String role,
-                                                @RequestParam Optional<Integer> page,
-                                                @RequestParam Optional<Integer> pageSize){
-        Page<UserDto> users =userService.getUsersByRole(role, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
+                                                   @RequestParam Optional<Integer> page,
+                                                   @RequestParam Optional<Integer> pageSize) {
+        Page<UserDto> users = userService.getUsersByRole(role, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
