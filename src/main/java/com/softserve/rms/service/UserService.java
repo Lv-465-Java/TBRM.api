@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -137,6 +138,18 @@ public interface UserService {
     UserDtoRole getUserRole(Principal principal);
 
     Page<PermissionUserDto> getUsers(Integer page, Integer pageSize);
+
+    /**
+     * Get users by role
+     *
+     * @param role {@link String}
+     * @param page {@link Integer}
+     * @param pageSize {@link Integer}
+     * @return page of users {@link Page<UserDto>}
+     * @author Kravets Maryana
+     *
+     */
+    Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize);
 
 
 }

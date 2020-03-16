@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import java.util.Map;
@@ -352,5 +353,18 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userPasswordPhoneDto.getPassword()));
         user.setPhone(userPasswordPhoneDto.getPhone());
         userRepository.save(user);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Kravets Maryana
+     */
+    @Override
+     public Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize){
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User>users= userRepository.findUsersByRoleName("ROLE_"+role.toUpperCase(), pageable);
+        return users.map(user -> modelMapper.map(user, UserDto.class));
     }
 }

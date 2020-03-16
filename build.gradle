@@ -72,6 +72,7 @@ dependencies {
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
     compile 'io.springfox:springfox-bean-validators:2.9.2'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
 }
 
 test {

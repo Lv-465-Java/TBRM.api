@@ -160,6 +160,4 @@ public class AdminController {
     public ResponseEntity<List<Map<String, Object>>> getAllByDate(@RequestParam String date){
         return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
     }
-
-
-}
+    }

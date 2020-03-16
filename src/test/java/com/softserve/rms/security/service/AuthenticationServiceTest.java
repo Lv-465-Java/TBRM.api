@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 
@@ -33,13 +32,10 @@ public class AuthenticationServiceTest {
     TokenManagementService tokenManagementService;
 
     @Mock
-    PasswordEncoder passwordEncoder;
-
-    @Mock
     WebSecurityConfig webSecurityConfig;
 
     @InjectMocks
-    AuthenticationService authenticationService;//= PowerMockito.spy(new AuthenticationService(tokenManagementService,userService,webSecurityConfig));
+    AuthenticationService authenticationService;
 
     User testUser = new User(1L, "first1", "last1", "email1","phone1","$2a$10$AZ.bCtbIMyESrOd/08jZjeC0ffwrm2ThW6BGfs8hZY43d8xn6yz2m",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
     User testUser1 = new User(1L, "first1", "last1", "email1","phone1","$2a$10$AZ.bCtbIMyESrOd/08jZjeC0ffwrm2ThW6BGfs8hZY43d8xn6yz2m",true, new Role(1L,"USER"),"imageUrl","google","324253674", Collections.emptyList(),"token",Collections.emptyList());
@@ -53,7 +49,6 @@ public class AuthenticationServiceTest {
     public void loadUserTest(){
         when(userService.getUserByEmail(loginUser.getEmail())).thenReturn(testUser);
         when(webSecurityConfig.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
-        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(Boolean.TRUE);
         when(tokenManagementService.generateTokenPair(loginUser.getEmail())).thenReturn(jwtDto);
         jwtDto=authenticationService.loginUser(loginUser);
         assertEquals("accessToken", jwtDto.getAccessToken());
@@ -67,7 +62,6 @@ public class AuthenticationServiceTest {
     public void loadUserFailedTest(){
         when(userService.getUserByEmail(loginUser1.getEmail())).thenReturn(testUser1);
         when(webSecurityConfig.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
-        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(Boolean.FALSE);
         authenticationService.loginUser(loginUser1);
     }
 
@@ -75,7 +69,6 @@ public class AuthenticationServiceTest {
     public void loadNonActiveUserTest(){
         when(userService.getUserByEmail(loginUser2.getEmail())).thenReturn(testUser2);
         when(webSecurityConfig.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
-        when(passwordEncoder.matches(anyString(),anyString())).thenReturn(Boolean.TRUE);
         authenticationService.loginUser(loginUser2);
     }
 }
