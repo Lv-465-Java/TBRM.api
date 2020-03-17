@@ -4,6 +4,9 @@ import com.softserve.rms.dto.user.RegistrationDto;
 import com.softserve.rms.dto.user.UserEditDto;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 @Service
 public class Trimmer {
 
@@ -30,8 +33,8 @@ public class Trimmer {
      * @author Mariia Shchur
      */
     public UserEditDto trimEditData(UserEditDto userEditDto) {
-        return new UserEditDto(userEditDto.getFirstName().trim(),
-                userEditDto.getLastName().trim(),
-                userEditDto.getPhone().trim());
+        Optional.of(userEditDto).ifPresent(stream -> Stream.of(stream)
+                .forEach(x->x.toString().trim()));
+        return userEditDto;
     }
 }

@@ -1,10 +1,12 @@
 package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.constants.ValidationErrorConstants;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserSearchDTO;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
@@ -12,10 +14,14 @@ import com.softserve.rms.exceptions.InvalidTokenException;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.PhoneExistException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
+import com.softserve.rms.repository.UserHistoryRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
+import com.softserve.rms.validator.PhoneExist;
+import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +35,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
+import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
@@ -46,11 +59,11 @@ import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private AdminRepository adminRepository;
+    private UserHistoryRepository userHistoryRepository;
     private PasswordEncoder passwordEncoder;
     private FileStorageServiceImpl fileStorageService;
     private ModelMapper modelMapper = new ModelMapper();
     public final JavaMailSender javaMailSender;
-    private final JdbcTemplate jdbcTemplate;
     private String endpointUrl;
 
     /**
@@ -61,17 +74,17 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            AdminRepository adminRepository,
+                           UserHistoryRepository userHistoryRepository,
                            PasswordEncoder passwordEncoder,
                            FileStorageServiceImpl fileStorageService,
                            JavaMailSender javaMailSender,
-                           DataSource dataSource,
                            @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
+        this.userHistoryRepository=userHistoryRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService = fileStorageService;
         this.javaMailSender = javaMailSender;
-        jdbcTemplate = new JdbcTemplate(dataSource);
         this.endpointUrl = endpointUrl;
     }
 
@@ -151,9 +164,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void update(UserEditDto userEditDto, String currentUserEmail) {
         User user = getUserByEmail(currentUserEmail);
-        user.setFirstName(userEditDto.getFirstName());
-        user.setLastName(userEditDto.getLastName());
-        user.setPhone(userEditDto.getPhone());
+        if (userEditDto.getFirstName().isPresent()) {
+            user.setFirstName(userEditDto.getFirstName().get());
+        }
+        if (userEditDto.getLastName().isPresent()) {
+            user.setLastName(userEditDto.getLastName().get());
+        }
+        if (userEditDto.getPhone().isPresent()) {
+            if (!userRepository.existsUserByPhone(userEditDto.getPhone().get())) {
+                user.setPhone(userEditDto.getPhone().get());
+            } else {
+                throw new PhoneExistException(ValidationErrorConstants.PHONE_NUMBER_NOT_UNIQUE);
+            }
+        }
         userRepository.save(user);
     }
 
@@ -195,7 +218,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUser(String email) {
         User user = getUserByEmail(email);
         UserDto userDto = modelMapper.map(user, UserDto.class);
-        userDto.setImageUrl(getPhotoUrl(user.getImageUrl()));
+        userDto.setImageUrl(endpointUrl+user.getImageUrl());
         return userDto;
     }
 
@@ -274,6 +297,7 @@ public class UserServiceImpl implements UserService {
      * Method that send massage to mail
      *
      * @param mailMessage massage to send
+     * @author Mariia Shchur
      */
     private void sendMail(SimpleMailMessage mailMessage) {
         javaMailSender.send(mailMessage);
@@ -285,13 +309,11 @@ public class UserServiceImpl implements UserService {
      *
      * @param token a value of {@link Long}
      * @return boolean
+     * @author Mariia Shchur
      */
-    private static final String IF_TOKEN_VALID = "select (to_timestamp(r.revtstmp/ 1000)+ interval '6 hour')>=now() from users_aud u,revinfo r where u.rev=r.rev \n" +
-            "and u.reset_token=?  ";
-
     private Boolean checkTokenDate(String token) {
         boolean q = false;
-        Map<String, Object> map = jdbcTemplate.queryForMap(IF_TOKEN_VALID, token);
+        Map<String, Object> map = userHistoryRepository.checkTokenDate(token);
         for (Map.Entry<String, Object> w : map.entrySet()) {
             if (w.getValue().equals(true)) {
                 q = true;
