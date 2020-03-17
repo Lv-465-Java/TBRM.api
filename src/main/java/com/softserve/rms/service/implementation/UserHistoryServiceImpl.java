@@ -185,7 +185,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String ALL_ACCOUNTS = "select u.revtype,u.first_name,u.last_name,u.email,u.enabled,u.phone, to_timestamp(r.revtstmp/ 1000)  from users_aud u ,revinfo r where  u.rev=r.rev ";
+    final static String ALL_ACCOUNTS = "select u.id,u.revtype,u.first_name,u.last_name,u.email,u.enabled,u.phone, to_timestamp(r.revtstmp/ 1000)  from users_aud u ,revinfo r where  u.rev=r.rev ";
 
     public List<Map<String, Object>> getAllAccounts() {
         List<Map<String, Object>> q = jdbcTemplate.queryForList(ALL_ACCOUNTS);
