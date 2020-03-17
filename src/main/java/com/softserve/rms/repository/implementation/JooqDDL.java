@@ -137,7 +137,7 @@ public class JooqDDL {
         dslContext.alterTable(resourceTemplate.getTableName())
                 .add(constraint(parameter.getColumnName().concat(FieldConstants.FOREIGN_KEY.getValue()))
                         .foreignKey(parameter.getColumnName().concat(FieldConstants.REFERENCE.getValue()))
-                        .references(resourceRelation.getRelatedResourceTemplate().getTableName()))
+                        .references(resourceRelation.getRelatedResourceTemplate().getTableName()).onDeleteCascade())
                 .execute();
     }
 
