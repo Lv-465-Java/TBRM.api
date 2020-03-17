@@ -6,9 +6,11 @@ import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
-import com.softserve.rms.service.ResourceTemplateService;
 import com.softserve.rms.service.UserService;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.InsertQuery;
+import org.jooq.Record;
+import org.jooq.UpdateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,7 +30,6 @@ import static org.jooq.impl.DSL.*;
 @Repository
 public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private DSLContext dslContext;
-    private ResourceTemplateService resourceTemplateService;
     private UserService userService;
 
     /**
@@ -37,9 +38,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordRepositoryImpl(DSLContext dslContext, ResourceTemplateService resourceTemplateService, UserService userService) {
+    public ResourceRecordRepositoryImpl(DSLContext dslContext, UserService userService) {
         this.dslContext = dslContext;
-        this.resourceTemplateService = resourceTemplateService;
         this.userService = userService;
     }
 
@@ -55,8 +55,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
         query.addValue(field(FieldConstants.USER_ID.getValue()), resourceRecord.getUser().getId());
-        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
-        query.addValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
+        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()), resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()), resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             query.addValue(field(entry.getKey()), entry.getValue());
@@ -75,8 +75,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         UpdateQuery<Record> query = dslContext.updateQuery(table(tableName));
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
-        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()),resourceRecord.getPhotosNames());
-        query.addValue(field(FieldConstants. DOCUMENTS_NAMES.getValue()),resourceRecord.getDocumentNames());
+        query.addValue(field(FieldConstants.PHOTOS_NAMES.getValue()), resourceRecord.getPhotosNames());
+        query.addValue(field(FieldConstants.DOCUMENTS_NAMES.getValue()), resourceRecord.getDocumentNames());
         Map<String, Object> parameters = resourceRecord.getParameters();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             if (entry.getValue() != null) {
@@ -97,10 +97,12 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize) {
         Long totalItems = Long.valueOf(dslContext.selectCount()
-                        .from(tableName)
-                        .fetchOne(0, int.class));
+                .from(tableName)
+                .fetchOne(0, int.class));
         List<Record> records = dslContext
                 .selectFrom(tableName)
+                .limit(inline(pageSize))
+                .offset(inline(page * pageSize))
                 .fetch();
         List<ResourceRecord> resourceRecords = convertRecordsToResourceList(records);
         return new PageImpl<>(resourceRecords, PageRequest.of(page, pageSize), totalItems);
@@ -142,7 +144,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @return list of {@link ResourceRecord}
      * @author Andrii Bren
      */
-    private List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
+    public List<ResourceRecord> convertRecordsToResourceList(List<Record> records) {
         List<ResourceRecord> resourceRecords = new ArrayList<>();
         for (Record record : records) {
             ResourceRecord resourceRecord = convertRecordToResource(record);
@@ -181,8 +183,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
-            if (record.field(i).getName().endsWith("_coordinate")) {
-                parameters.put("coordinates", getAllCoordinates((String) record.getValue(i)));
+            if (record.field(i).getName().endsWith(FieldConstants.COORDINATE.getValue())) {
+                parameters.put(record.field(i).getName(), getAllCoordinates((String) record.getValue(i)));
             } else {
                 parameters.put(record.field(i).getName(), record.getValue(i));
             }
@@ -197,14 +199,35 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         return parameters;
     }
 
-    private List<String> getLatitudeAndLongitude(String name) {
-        return Arrays.asList(name.split(","));
+    /**
+     * Method gets formatted latitude and longitude from DB.
+     *
+     * @param coordinate specified coordinate of point
+     * @return list of formatted latitudes and longitudes
+     * @author Andrii Bren
+     */
+    private List<String> getLatitudeAndLongitude(String coordinate) {
+        return Arrays.asList(coordinate.split(","));
     }
 
-    private List<String> getCoordinate(String name) {
-        return Arrays.asList(name.split(";"));
+    /**
+     * Method gets formatted coordinate from DB.
+     *
+     * @param coordinateRecord specified coordinate record
+     * @return list of formatted coordinates
+     * @author Andrii Bren
+     */
+    private List<String> getCoordinate(String coordinateRecord) {
+        return Arrays.asList(coordinateRecord.split(";"));
     }
 
+    /**
+     * Method gets all coordinates from DB.
+     *
+     * @param coordinateRecord specified coordinate record
+     * @return list of coordinates
+     * @author Andrii Bren
+     */
     private List<Map<String, Double>> getAllCoordinates(String coordinateRecord) {
         List<Map<String, Double>> coordinates = new ArrayList<>();
         getCoordinate(coordinateRecord).forEach(element -> {

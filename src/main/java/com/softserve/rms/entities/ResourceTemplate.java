@@ -1,6 +1,9 @@
 package com.softserve.rms.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -23,10 +26,10 @@ public class ResourceTemplate {
 
     private String description;
 
+    @Column(name = "is_Published")
     private Boolean isPublished;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id")
     @ToString.Exclude
     private User user;
 

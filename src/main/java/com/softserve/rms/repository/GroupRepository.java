@@ -2,21 +2,18 @@ package com.softserve.rms.repository;
 
 import com.softserve.rms.entities.Group;
 import com.softserve.rms.entities.User;
-import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@PreAuthorize("hasRole('MANAGER')")
 @Repository
 public interface GroupRepository extends PagingAndSortingRepository<Group, Long> {
 
@@ -25,9 +22,11 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
     @Query("select g.user from GroupsMember g where g.group.id = ?1")
     Page<User> findAllMembers(Long groupId, Pageable pageable);
 
+    @Query("select g.user from GroupsMember g where g.group.name = ?1")
+    List<User> findAllMembers(String name);
+
     Optional<Group> findByName(String name);
 
-    @PreAuthorize("hasRole('MANAGER')")
     Group save(Group group);
 
     @Modifying

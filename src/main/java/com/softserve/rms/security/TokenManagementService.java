@@ -1,11 +1,9 @@
 package com.softserve.rms.security;
 
 import com.softserve.rms.dto.JwtDto;
-import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.JwtAuthenticationException;
 import com.softserve.rms.exceptions.Message;
 import com.softserve.rms.exceptions.RefreshTokenException;
-import com.softserve.rms.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.TextCodec;
 
@@ -146,9 +144,9 @@ public class TokenManagementService implements Message {
                 isValid = true;
             }
         } catch (JwtException ex) {
-            LOGGER.error("Token is not valid!");
+            LOGGER.info("Token is not valid!");
     } catch (IllegalArgumentException ex) {
-          LOGGER.error("an error occurred during getting username from token");
+          LOGGER.info("an error occurred during getting username from token");
       }
         return isValid;
     }
