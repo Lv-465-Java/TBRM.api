@@ -6,6 +6,8 @@ import com.softserve.rms.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,11 +29,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * @return ResponseEntity which contains an error message
      * @author Halyna Yatseniuk
      */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntimeException
-    (RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<Object> handleRuntimeException
+//    (RuntimeException exception) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+//    }
 
     /**
      * Method with handles {@link NotUniqueMemberException} exception.
@@ -69,7 +71,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(generateErrorMessage(exception));
     }
 
-
     /**
      * Method which handles {@link NotFoundException} exception.
      *
@@ -80,6 +81,19 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFoundException
     (NotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
+    }
+
+    /**
+     * Method which handles {@link org.springframework.security.authentication.DisabledException} exception.
+     *
+     * @param exception  {@link org.springframework.security.authentication.DisabledException}
+     * @return ResponseEntity which contains an error message
+     * @author Kravets Maryana
+     */
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Object> handleDisabledException
+    (DisabledException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(generateErrorMessage(exception));
     }
 

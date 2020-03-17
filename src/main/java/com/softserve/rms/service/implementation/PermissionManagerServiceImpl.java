@@ -4,7 +4,6 @@ import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.exceptions.NotUniquePermissionException;
 import com.softserve.rms.exceptions.PermissionException;
 import com.softserve.rms.repository.GroupRepository;
@@ -148,7 +147,13 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             closePermissionForCertainUser(permissionDto, principal, clazz);
             acl.setOwner(sid);
             acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid, true);
-            mutableAclService.updateAcl(acl);
+            try {
+                mutableAclService.updateAcl(acl);
+            } catch (DuplicateKeyException e) {
+                acl.deleteAce(acl.getEntries().size() - 1);
+                aclCache.evictFromCache(oid);
+                throw new NotUniquePermissionException(ErrorMessage.NOT_UNIQUE_PERMISSION.getMessage());
+            }
         } catch (NotFoundException e) {
             throw new PermissionException(ErrorMessage.PERMISSION_NOT_FOUND.getMessage());
         }

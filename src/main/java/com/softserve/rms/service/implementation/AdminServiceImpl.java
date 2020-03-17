@@ -10,6 +10,10 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditQuery;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.softserve.rms.util.PaginationUtil.validatePage;
+import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 
 @PreAuthorize("hasRole('ADMIN')")
 @Service
@@ -35,11 +42,10 @@ public class AdminServiceImpl implements AdminService {
      * @author Ivan Syniuk
      */
     @Override
-    public List<UserDto> findAll() {
-        List<User> users = adminRepository.findAll();
-        return users.stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
+    public Page<UserDto> findAll(Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User> users = adminRepository.findAll(pageable);
+        return users.map(user -> modelMapper.map(user, UserDto.class));
     }
 
     /**
@@ -49,11 +55,10 @@ public class AdminServiceImpl implements AdminService {
      * @author Ivan Syniuk
      */
     @Override
-    public List<UserDto> findUsersByStatus(boolean status) {
-        List<User> users = adminRepository.getAllByEnabled(status);
-        return users.stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
+    public Page<UserDto> findUsersByStatus(boolean status, Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
+        Page<User> users = adminRepository.getAllByEnabled(status, pageable);
+        return users.map(user -> modelMapper.map(user, UserDto.class));
     }
 
     /**
@@ -112,5 +117,4 @@ public class AdminServiceImpl implements AdminService {
     public void deleteUser(Long id) {
         adminRepository.deleteRoleById(id);
     }
-
 }

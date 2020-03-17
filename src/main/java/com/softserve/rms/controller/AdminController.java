@@ -10,12 +10,14 @@ import com.softserve.rms.service.UserHistoryService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @RestController
@@ -36,8 +38,9 @@ public class AdminController {
             @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping(value = "/admin/user")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = adminService.findAll();
+    public ResponseEntity<Page<UserDto>> getAllUsers(@RequestParam Optional<Integer> page,
+                                                     @RequestParam Optional<Integer> pageSize) {
+        Page<UserDto> users = adminService.findAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -47,8 +50,10 @@ public class AdminController {
             @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping(value = "/admin/users")
-    public ResponseEntity<List<UserDto>> getUsersByStatus(@RequestParam boolean status) {
-        List<UserDto> users = adminService.findUsersByStatus(status);
+    public ResponseEntity<Page<UserDto>> getUsersByStatus(@RequestParam boolean status,
+                                                          @RequestParam Optional<Integer> page,
+                                                          @RequestParam Optional<Integer> pageSize) {
+        Page<UserDto> users = adminService.findUsersByStatus(status, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -155,6 +160,4 @@ public class AdminController {
     public ResponseEntity<List<Map<String, Object>>> getAllByDate(@RequestParam String date){
         return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
     }
-
-
-}
+    }
