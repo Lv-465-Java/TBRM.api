@@ -16,7 +16,6 @@ import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
-import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,7 +40,6 @@ import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTIO
 import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
 import static com.softserve.rms.util.PaginationUtil.validatePage;
 import static com.softserve.rms.util.PaginationUtil.validatePageSize;
-
 
 @Service
 @EnableAutoConfiguration

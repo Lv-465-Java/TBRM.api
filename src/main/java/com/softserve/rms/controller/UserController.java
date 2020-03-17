@@ -1,13 +1,10 @@
 package com.softserve.rms.controller;
 
-import com.softserve.rms.dto.UserSearchDTO;
-import com.softserve.rms.dto.user.*;
-import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserDtoRole;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserSearchDTO;
 import com.softserve.rms.dto.user.EmailEditDto;
 import com.softserve.rms.dto.user.PasswordEditDto;
 import com.softserve.rms.dto.user.PermissionUserDto;
@@ -16,6 +13,7 @@ import com.softserve.rms.entities.User;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.UserPrincipal;
 import com.softserve.rms.service.UserService;
+import com.softserve.rms.validator.Trimmer;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -223,7 +220,6 @@ public class UserController {
         userService.setPasswordAndPhone(email, userPasswordPhoneDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
     /**
      * Get users by role
