@@ -7,10 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@PreAuthorize("hasAnyRole({'ADMIN', 'MANAGER'})")
 @Repository
 public interface AdminRepository extends JpaRepository<User, Long> {
 

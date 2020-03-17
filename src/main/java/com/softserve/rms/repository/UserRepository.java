@@ -4,11 +4,13 @@ import com.softserve.rms.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@PreAuthorize("hasAnyRole({'ADMIN', 'MANAGER', 'REGISTER', 'USER'})")
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
