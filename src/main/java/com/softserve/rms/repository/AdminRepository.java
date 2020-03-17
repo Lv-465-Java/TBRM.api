@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@PreAuthorize("hasAnyRole({'ADMIN', 'MANAGER'})")
 @Repository
 public interface AdminRepository extends JpaRepository<User, Long> {
 
