@@ -72,7 +72,7 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/profile/update")
-    public ResponseEntity updateUser(@Valid @RequestBody UserEditDto userEditDto,
+    public ResponseEntity updateUser(@RequestBody UserEditDto userEditDto,
                                      @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
 
         userService.update(trimmer.trimEditData(userEditDto), principal.getUsername());
@@ -149,7 +149,6 @@ public class UserController {
     public ResponseEntity updateEmail(@Valid @RequestBody EmailEditDto emailEditDto,
                                       @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
         userService.editEmail(emailEditDto, principal.getUsername());
-        //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -1,25 +1,33 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.constants.ErrorMessage;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.PermissionUserDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
+import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
+import com.softserve.rms.exceptions.InvalidTokenException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
+import com.softserve.rms.exceptions.user.PhoneExistException;
 import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
+import com.softserve.rms.repository.UserHistoryRepository;
 import com.softserve.rms.repository.UserRepository;
+import com.softserve.rms.service.implementation.UserServiceImpl;
 import com.sun.security.auth.UserPrincipal;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,23 +37,26 @@ import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.security.Principal;
 import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTION;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.support.membermodification.MemberMatcher.everythingDeclaredIn;
 
-
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(UserServiceImpl.class)
 public class UserServiceImplTest {
 
     @Mock
@@ -53,17 +64,25 @@ public class UserServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private DataSource dataSource;
-    @Mock
     private Principal principal;
     @Mock
     private UserServiceImpl userService2;
     @Mock
-    private AdminRepository adminRepository;
+    private JavaMailSender javaMailSender;
     @Mock
-    private JdbcTemplate jdbcTemplate=new JdbcTemplate(new DriverManagerDataSource());
+    private UserHistoryRepository userHistoryRepository;
+    @Mock
+    private FileStorageServiceImpl fileStorageService;
+    @Mock
+    private AdminRepository adminRepository;
     @InjectMocks
     private UserServiceImpl userService;
+
+    @Before
+    public void initializeMock() {
+        userService = PowerMockito.spy(new UserServiceImpl(userRepository,
+                adminRepository,userHistoryRepository,passwordEncoder, fileStorageService,javaMailSender,null));
+    }
 
     private Principal principal2 = new UserPrincipal("test3@gmail.com");
 
@@ -74,19 +93,21 @@ public class UserServiceImplTest {
                     .id(1L)
                     .firstName("test")
                     .lastName("test")
+                    .imageUrl("image")
                     .email("test@gmail.com")
                     .phone("+380111111111")
                     .password("qwertQWE!@1")
                     .build();
 
-    private User secondUser =
-            User.builder()
+    private UserDto userDtoFirst =
+            UserDto.builder()
                     .id(1L)
-                    .firstName("test2")
-                    .lastName("test2")
-                    .email("test2@gmail.com")
-                    .phone("+380222222222")
-                    .password("qwertQWE!@2")
+                    .firstName("test")
+                    .lastName("test")
+                    .imageUrl("nullimage")
+                    .email("test@gmail.com")
+                    .phone("+380111111111")
+                    .password("qwertQWE!@1")
                     .build();
 
     private User thirdUser =
@@ -109,8 +130,8 @@ public class UserServiceImplTest {
                     .password("qwertQWE!@1")
                     .build();
     private UserEditDto userEditDto =
-            new UserEditDto("test","test",
-                    "+380111111111");
+            new UserEditDto(Optional.of("test"),Optional.of("test"),
+                    Optional.of("+380111111111"));
 
     private PasswordEditDto passwordEditDto =
             new PasswordEditDto("qwertQWE!@1","qwertyQQ1!!");
@@ -119,7 +140,7 @@ public class UserServiceImplTest {
             new PermissionUserDto("test3@gmail.com", "test3", "test3", new Role(1L, "ROLE_MANAGER"));
 
     @Test
-    public void saveTest() {
+    public void saveSuccess() {
         when(userRepository.save(any(User.class))).thenReturn(user);
         userService.save(registrationDto);
         verify(userRepository,times(1)).save(any());
@@ -127,28 +148,22 @@ public class UserServiceImplTest {
     }
 
     @Test(expected = NotSavedException.class)
-    public void saveWithErrorTest() {
+    public void saveFail() {
         when(userRepository.save(any())).thenReturn(null);
         userService.save(registrationDto);
     }
 
     @Test
-    public void updateTest(){
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
-        when(userRepository.save(any())).thenReturn(user);
+    public void updateSuccess(){
+        when(userRepository.findUserByEmail(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.existsUserByPhone(user.getPhone())).thenReturn(false);
+        when(userRepository.save(user)).thenReturn(user);
         userService.update(userEditDto,user.getEmail());
-        verify(userRepository,times(1)).save(any());
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void updateWrongEmailTest(){
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
-        userService.update(userEditDto,any());
-        verify(userRepository,times(1)).save(any());
+        verify(userRepository,times(1)).save(user);
     }
 
     @Test
-    public void editPasswordTest() {
+    public void editPasswordSuccess() {
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(),any())).thenReturn(true);
         userService.editPassword(passwordEditDto,
@@ -156,13 +171,79 @@ public class UserServiceImplTest {
         verify(userRepository,times(1)).save(any());
     }
 
-
-    @Test(expected = NotFoundException.class)
-    public void editPasswordWrongEmailTest(){
-        userService.editPassword(passwordEditDto,any());
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.empty());
+    @Test(expected = WrongPasswordException.class)
+    public void editPasswordWrongPasswordFail() {
+        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(any(),any())).thenReturn(false);
+        userService.editPassword(passwordEditDto,
+                user.getEmail());
         verify(userRepository,times(1)).save(any());
     }
+
+    @Test
+    public void getUserSuccess(){
+        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
+        UserDto userDto = userService.getUser("test@gmail.com");
+        assertEquals(userDto,userDtoFirst);
+
+    }
+
+    @Test
+    public void sendLinkForPasswordResettingSuccess() throws Exception{
+        PowerMockito.doNothing().when(userService,"sendMail",Mockito.any(SimpleMailMessage.class));
+        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(user));
+        userService.sendLinkForPasswordResetting(user.getEmail());
+        verify(userRepository,times (1)).save(user);
+    }
+
+
+    @Test
+    public void resetPasswordSuccess() throws Exception {
+        when(userRepository.findUserByResetToken(anyString())).thenReturn(Optional.of(user));
+        PowerMockito.doReturn(true).when(userService,"checkTokenDate",anyString());
+        userService.resetPassword(anyString(),anyString());
+        verify(userRepository,times(1)).save(user);
+    }
+
+    @Test(expected = InvalidTokenException.class)
+    public void resetPasswordFail() throws Exception {
+        when(userRepository.findUserByResetToken(anyString())).thenReturn(Optional.of(user));
+        PowerMockito.doReturn(false).when(userService,"checkTokenDate",anyString());
+        userService.resetPassword(anyString(),anyString());
+    }
+
+    @Test
+    public void sendMailSuccess() throws Exception {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
+        verifyPrivate(userService, times(0)).
+                invoke("sendMail", Mockito.any(SimpleMailMessage.class));
+    }
+
+    @Test
+    public void checkTokenDateSuccess() throws Exception {
+        when(userHistoryRepository.checkTokenDate(anyString())).thenReturn(new HashMap<String, Object>());
+        verifyPrivate(userService, times(0)).
+                invoke("checkTokenDate", anyString());
+    }
+
+    @Test
+    public void deletePhotoSuccess(){
+        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(anyString());
+        doNothing().when(fileStorageService).deleteFile("" );
+        when(userRepository.save(user)).thenReturn(user);
+        userService.deletePhoto("");
+        verify(userRepository,times(1)).save(user);
+    }
+
+    @Test
+    public void deleteAccountSuccess(){
+        doReturn(Optional.of(user)).when(userRepository).findUserByEmail(user.getEmail());
+        doNothing().when(fileStorageService).deleteFile("");
+        doNothing().when(userRepository).deleteByEmail(anyString());
+        userService.deleteAccount(user.getEmail());
+        verify(userRepository,times(1)).deleteByEmail(user.getEmail());
+    }
+
 
     @Test
     public void getUserByEmailTest(){
