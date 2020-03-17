@@ -1,9 +1,12 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.dto.RoleDto;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
+import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.repository.AdminRepository;
+import com.softserve.rms.repository.RoleRepository;
 import com.softserve.rms.service.AdminService;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -30,10 +33,12 @@ import static com.softserve.rms.util.PaginationUtil.validatePageSize;
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private ModelMapper modelMapper;
+    private RoleRepository roleRepository;
    @Autowired
-    public AdminServiceImpl(AdminRepository adminRepository) {
+    public AdminServiceImpl(AdminRepository adminRepository, RoleRepository roleRepository) {
         modelMapper = new ModelMapper();
         this.adminRepository = adminRepository;
+        this.roleRepository = roleRepository;
     }
     /**
      * Method returns list of all users
@@ -103,9 +108,12 @@ public class AdminServiceImpl implements AdminService {
      */
     @Transactional
     @Override
-    public void editUserRole(UserDtoRole userDto, Long id) {
-        adminRepository.updateUserRoleById(userDto.getRole(), id);
+    public void editUserRole(RoleDto userDto, Long id) {
+        Role role = roleRepository.findByName(userDto.getName());
+        adminRepository.updateUserRoleById(role, id);
     }
+
+
     /**
      * Method set role on guest and set status on false {@link User}
      *

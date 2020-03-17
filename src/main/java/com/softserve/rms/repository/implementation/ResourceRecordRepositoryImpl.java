@@ -194,8 +194,8 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private Map<String, Object> getParameters(Record record) {
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < record.size(); i++) {
-            if (record.field(i).getName().endsWith("_coordinate")) {
-                parameters.put("coordinates", getAllCoordinates((String) record.getValue(i)));
+            if (record.field(i).getName().endsWith(FieldConstants.COORDINATE.getValue())) {
+                parameters.put(record.field(i).getName(), getAllCoordinates((String) record.getValue(i)));
             } else {
                 parameters.put(record.field(i).getName(), record.getValue(i));
             }
@@ -210,14 +210,35 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
         return parameters;
     }
 
-    private List<String> getLatitudeAndLongitude(String name) {
-        return Arrays.asList(name.split(","));
+    /**
+     * Method gets formatted latitude and longitude from DB.
+     *
+     * @param coordinate specified coordinate of point
+     * @return list of formatted latitudes and longitudes
+     * @author Andrii Bren
+     */
+    private List<String> getLatitudeAndLongitude(String coordinate) {
+        return Arrays.asList(coordinate.split(","));
     }
 
-    private List<String> getCoordinate(String name) {
-        return Arrays.asList(name.split(";"));
+    /**
+     * Method gets formatted coordinate from DB.
+     *
+     * @param coordinateRecord specified coordinate record
+     * @return list of formatted coordinates
+     * @author Andrii Bren
+     */
+    private List<String> getCoordinate(String coordinateRecord) {
+        return Arrays.asList(coordinateRecord.split(";"));
     }
 
+    /**
+     * Method gets all coordinates from DB.
+     *
+     * @param coordinateRecord specified coordinate record
+     * @return list of coordinates
+     * @author Andrii Bren
+     */
     private List<Map<String, Double>> getAllCoordinates(String coordinateRecord) {
         List<Map<String, Double>> coordinates = new ArrayList<>();
         getCoordinate(coordinateRecord).forEach(element -> {

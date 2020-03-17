@@ -1,5 +1,6 @@
 package com.softserve.rms.service;
 
+import com.softserve.rms.dto.RoleDto;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
@@ -12,7 +13,7 @@ public interface AdminService extends BaseService<User, UserDto> {
 
     Page<UserDto> findUsersByStatus(boolean status, Integer page, Integer pageSize);
 
-    void editUserRole(UserDtoRole userDto, Long id);
+    void editUserRole(RoleDto userDto, Long id);
 
     void deleteUser(Long id);
 }
