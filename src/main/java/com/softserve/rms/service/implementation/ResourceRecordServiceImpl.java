@@ -285,7 +285,7 @@ public class ResourceRecordServiceImpl implements ResourceRecordService {
 
 
     /**
-     * Method that generate full url for all photos
+     * Method that generate full url for all files
      *
      * @param allFiles
      * @author Mariia Shchur
