@@ -25,7 +25,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import javax.servlet.http.HttpServletResponse;
 
 import java.util.Locale;
 
