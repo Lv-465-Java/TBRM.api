@@ -9,10 +9,17 @@ import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * HTTPS Configuration
+ *
+ * @author Marian Dutchyn
+ */
 @Configuration
 public class HttpsConfig {
+
     @Bean
     public ServletWebServerFactory servletContainer() {
+
         TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
             @Override
             protected void postProcessContext(Context context) {

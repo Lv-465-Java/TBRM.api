@@ -2,8 +2,8 @@ package com.softserve.rms.controller;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softserve.rms.constants.HttpStatuses;
+import com.softserve.rms.dto.RoleDto;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.service.AdminService;
 import com.softserve.rms.service.UserHistoryService;
@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,9 +76,9 @@ public class AdminController {
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
     @PatchMapping(value = "/admin/user/{id}")
-    public ResponseEntity<UserDtoRole> setRole(@RequestBody UserDtoRole updateUser, @PathVariable("id") String id) {
+    public ResponseEntity setRole(@RequestBody RoleDto updateUser, @PathVariable("id") String id) {
         adminService.editUserRole(updateUser, Long.valueOf(id));
-        return new ResponseEntity<>(updateUser,HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = HttpStatuses.OK),
@@ -105,7 +105,7 @@ public class AdminController {
             @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("user/{id}/history")
+    @GetMapping("user/{id}")
     public ResponseEntity<List<Map<String,Object>>> getUserHistory(@PathVariable long id){
         return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getUserHistory(id));
     }
@@ -128,7 +128,7 @@ public class AdminController {
     }
 
     /**
-     * Method that returns all ever created accounts(inactive,active and deleted)
+     * Method that returns all history flow
      *
      * @return list of all accounts
      * @author Mariia Shchur
@@ -139,9 +139,9 @@ public class AdminController {
             @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/all_accounts")
-    public ResponseEntity<List<Map<String, Object>>> getAllAccounts(){
-        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllAccounts());
+    @GetMapping("/all_history")
+    public ResponseEntity<List<Map<String, Object>>> getHistory(){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllHistory());
     }
 
     /**
@@ -156,10 +156,8 @@ public class AdminController {
             @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
     })
-    @GetMapping("/by_date")
-    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@RequestParam String date){
+    @GetMapping("/{date}")
+    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@PathVariable String date){
         return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
     }
-
-
-}
+    }

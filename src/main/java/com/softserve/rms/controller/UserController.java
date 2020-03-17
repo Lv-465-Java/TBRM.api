@@ -1,15 +1,11 @@
 package com.softserve.rms.controller;
 
-
+import com.softserve.rms.dto.user.*;
 import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
-import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.PermissionUserDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.security.TokenManagementService;
 import com.softserve.rms.security.UserPrincipal;
@@ -29,7 +25,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -49,7 +44,7 @@ public class UserController {
     public UserController(UserService userService, Trimmer trimmer, TokenManagementService tokenManagementService) {
         this.userService = userService;
         this.trimmer = trimmer;
-        this.tokenManagementService=tokenManagementService;
+        this.tokenManagementService = tokenManagementService;
     }
 
     /**
@@ -60,7 +55,7 @@ public class UserController {
      */
     @GetMapping("/profile")
     public ResponseEntity<UserDto> getProfileData(
-            @ApiIgnore @AuthenticationPrincipal UserPrincipal principal){
+            @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(principal.getUsername()));
     }
 
@@ -77,7 +72,7 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/profile/update")
-    public ResponseEntity updateUser(@Valid @RequestBody UserEditDto userEditDto,
+    public ResponseEntity updateUser(@RequestBody UserEditDto userEditDto,
                                      @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
 
         userService.update(trimmer.trimEditData(userEditDto), principal.getUsername());
@@ -91,26 +86,26 @@ public class UserController {
      * @return url of the updated file.
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PutMapping("/profile/updatePhoto")
     public ResponseEntity changePhoto(@RequestPart(value = "file") MultipartFile file,
-                                             @ApiIgnore @AuthenticationPrincipal UserPrincipal principal ) {
-       userService.changePhoto(file,principal.getUsername());
-        return  ResponseEntity.status(HttpStatus.OK).build();
+                                      @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
+        userService.changePhoto(file, principal.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
+
     /**
      * Method for deleting profile picture
-     *
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 403,message = HttpStatuses.FORBIDDEN),
-            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/profile/deletePhoto")
     public ResponseEntity deletePhoto(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
@@ -138,7 +133,6 @@ public class UserController {
     }
 
 
-
     /**
      * Update user's email.
      *
@@ -155,7 +149,6 @@ public class UserController {
     public ResponseEntity updateEmail(@Valid @RequestBody EmailEditDto emailEditDto,
                                       @ApiIgnore @AuthenticationPrincipal UserPrincipal principal) {
         userService.editEmail(emailEditDto, principal.getUsername());
-        //TODO redirect to login page
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -173,7 +166,7 @@ public class UserController {
     })
     @DeleteMapping("/delete")
     public ResponseEntity deleteAccount(@ApiIgnore
-                                            @AuthenticationPrincipal UserPrincipal principal){
+                                        @AuthenticationPrincipal UserPrincipal principal) {
         userService.deleteAccount(principal.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -186,7 +179,7 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/user/role")
-    public ResponseEntity<UserDtoRole> getUserRole(Principal principal){
+    public ResponseEntity<UserDtoRole> getUserRole(Principal principal) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserRole(principal));
     }
 
@@ -198,30 +191,72 @@ public class UserController {
     })
     @GetMapping("/user")
     public ResponseEntity<Page<PermissionUserDto>> getUsers(@RequestParam Optional<Integer> page,
-                                                            @RequestParam Optional<Integer> pageSize){
+                                                            @RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
      * Set password and phone of user for full oauth authentication
      *
-     * @param accessToken {@link String}
+     * @param accessToken          {@link String}
      * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
-     * @param response {@link HttpServletResponse}
+     * @param response             {@link HttpServletResponse}
      * @return httpStatus {@link HttpStatus}
      * @author Kravets Maryana
-     *
      */
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = HttpStatuses.OK),
-            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping("/oauth2/fullRegister")
-    public ResponseEntity<Object> getFullAuthenticate(@RequestHeader(name = "authorization")  String accessToken, @RequestBody UserPasswordPhoneDto userPasswordPhoneDto, HttpServletResponse response) {
+    public ResponseEntity<Object> getFullAuthenticate(@RequestHeader(name = "authorization") String accessToken, @RequestBody UserPasswordPhoneDto userPasswordPhoneDto, HttpServletResponse response) {
 
-        String email=tokenManagementService.getUserEmail(accessToken.substring(7));
+        String email = tokenManagementService.getUserEmail(accessToken.substring(7));
         userService.setPasswordAndPhone(email, userPasswordPhoneDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    /**
+     * Get users by role
+     *
+     * @param role     {@link String}
+     * @param page     {@link Optional<Integer>}
+     * @param pageSize {@link Optional<Integer>}
+     * @return page of users {@link Page<UserDto>}
+     * @author Kravets Maryana
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/users/role")
+    public ResponseEntity<Page<UserDto>> getByRole(@RequestParam String role,
+                                                   @RequestParam Optional<Integer> page,
+                                                   @RequestParam Optional<Integer> pageSize) {
+        Page<UserDto> users = userService.getUsersByRole(role, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    /**
+     * The controller which gets {@link UserSearchDTO} by role id.
+     *
+     * @param roleId of {@link UserSearchDTO}
+     * @return {@link UserSearchDTO}
+     * @author Halyna Yatseniuk
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+
+    })
+    @GetMapping("/user/role/{roleId}")
+    public ResponseEntity<Page<UserSearchDTO>> getAllByRoleId(@PathVariable Long roleId, @RequestParam Optional<Integer> page,
+                                                              @RequestParam Optional<Integer> pageSize) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.findAllByRoleId(roleId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+    }
 }

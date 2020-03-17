@@ -1,11 +1,12 @@
 package com.softserve.rms.service.implementation;
 
+import com.softserve.rms.repository.UserHistoryRepository;
+import com.softserve.rms.repository.implementation.UserHistoryRepositoryImpl;
 import com.softserve.rms.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,8 @@ import java.util.Map;
 @Service
 public class UserHistoryServiceImpl implements UserHistoryService {
 
-    private final JdbcTemplate jdbcTemplate;
+    private UserHistoryRepository userHistoryRepository;
+    private String endpointUrl;
 
     /**
      * Constructor with parameters
@@ -21,17 +23,18 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      * @author Mariia Shchur
      */
     @Autowired
-    public UserHistoryServiceImpl(DataSource dataSource) {
+    public UserHistoryServiceImpl(UserHistoryRepository userHistoryRepository, @Value("${ENDPOINT_URL}") String endpointUrl) {
 
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.userHistoryRepository=userHistoryRepository;
+        this.endpointUrl = endpointUrl;
     }
 
-    private Object password = new Object();
-    private Object first_name = new Object();
-    private Object last_name = new Object();
-    private Object phone = new Object();
-    private Object email = new Object();
-    private Object reset_token = new Object();
+    private Object password;
+    private Object first_name;
+    private Object last_name ;
+    private Object phone;
+    private Object email;
+    private Object reset_token ;
     private Boolean passwordChange = false;
 
     /**
@@ -39,19 +42,16 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String USER_BY_ID = "select u.revtype,to_timestamp(r.revtstmp/ 1000)::timestamp,u.first_name, u.last_name, u.email, u.phone,u.password,\n" +
-            "u.reset_token from users_aud u ,revinfo r where  \n" +
-            "u.rev=r.rev and u.id = ?";
 
     public List<Map<String, Object>> getUserHistory(Long id) {
-        List<Map<String, Object>> data = jdbcTemplate.queryForList(USER_BY_ID, id);
+        List<Map<String, Object>> data =getPhotoUrl(userHistoryRepository.getUserHistory(id));
         for (int i = 0; i < data.size(); i++) {
             Iterator<Map.Entry<String, Object>> iterator = data.get(i).entrySet().iterator();
             if (i == 0) {
                 while (iterator.hasNext()) {
                     Map.Entry<String, Object> map = iterator.next();
                     rememberDataWhenCreate(map);
-                    if(map.getKey().equals("password")|| map.getKey().equals("reset_token")){
+                    if (map.getKey().equals("password") || map.getKey().equals("reset_token")) {
                         iterator.remove();
                     }
                 }
@@ -68,6 +68,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
                 this.phone = setMessage(iterator, map, "phone", this.phone);
                 this.email = setMessage(iterator, map, "email", this.email);
                 resetTokenMessage(iterator, map);
+                if (map.getKey().equals("revtype") && (map.getValue().equals(2))) {
+                    map.setValue("Account has been deleted");
+                }
             }
             passwordChange = false;
         }
@@ -75,8 +78,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
 
     /**
-     * Method that compare user's password from history
-     * flow and set user's friendly message
+     * Method that compare previous user's password to current
+     * and set message if it was changed
+     * or delete row if dont
      *
      * @param iterator
      * @param map      list of history flow
@@ -86,7 +90,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
                                  Map.Entry<String, Object> map) {
         if (map.getKey().equals("password")) {
             if (!(map.getValue().equals(password))) {
-                password = (String) map.getValue();
+                password =  map.getValue();
                 map.setValue("Password has been changed");
                 passwordChange = true;
             } else {
@@ -96,8 +100,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
 
     /**
-     * Method that compare user's reset token from history
-     * flow and set user's friendly message
+     * Method that compare previous user's reset token
+     * to current and set message if it was changed
+     * or delete row if dont
      *
      * @param iterator
      * @param map      list of history flow
@@ -119,7 +124,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
     /**
      * Method that compare user's data from history
-     * flow and set user's friendly message when it's changed and
+     * flow and set user's friendly message when it was changed and
      * delete row if data is unchanged
      *
      * @param iterator
@@ -149,7 +154,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      */
     private void rememberDataWhenCreate(Map.Entry<String, Object> map) {
         if (map.getKey().equals("revtype") && (map.getValue().equals(0))) {
-            map.setValue("Create account");
+            map.setValue("Account has been created");
         }
         if (map.getKey().equals("password")) {
             this.password = (String) map.getValue();
@@ -173,11 +178,26 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String DELETED_ACCOUNTS = "select to_timestamp(r.revtstmp/ 1000)::timestamp ,u.first_name,u.last_name, u.email, u.phone from users_aud u,\n" +
-            "revinfo r where u.revtype=2 and u.rev=r.rev";
 
     public List<Map<String, Object>> getDeletedAccounts() {
-        return jdbcTemplate.queryForList(DELETED_ACCOUNTS);
+        return getPhotoUrl(userHistoryRepository.getDeletedAccounts());
+    }
+
+    /**
+     * Method that add endpoint url to photos names
+     *
+     * @param data
+     * @author Mariia Shchur
+     */
+    private List<Map<String, Object>> getPhotoUrl(List<Map<String, Object>> data) {
+        for (int i = 0; i < data.size(); i++) {
+            for (Map.Entry<String, Object> map : data.get(i).entrySet()) {
+                if (map.getKey().equals("image_url")) {
+                    map.setValue(endpointUrl + map.getValue());
+                }
+            }
+        }
+        return data;
     }
 
     /**
@@ -185,11 +205,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String ALL_ACCOUNTS = "select u.id,u.revtype,u.first_name,u.last_name,u.email,u.enabled,u.phone, to_timestamp(r.revtstmp/ 1000)  from users_aud u ,revinfo r where  u.rev=r.rev ";
 
-    public List<Map<String, Object>> getAllAccounts() {
-        List<Map<String, Object>> q = jdbcTemplate.queryForList(ALL_ACCOUNTS);
-        return sortData(q);
+    public List<Map<String, Object>> getAllHistory() {
+        return sortData(getPhotoUrl(userHistoryRepository.getAllHistory()));
     }
 
     /**
@@ -203,13 +221,13 @@ public class UserHistoryServiceImpl implements UserHistoryService {
         for (int i = 0; i < data.size(); i++) {
             for (Map.Entry<String, Object> w : data.get(i).entrySet()) {
                 if (w.getKey().equals("revtype") && (w.getValue().equals(0))) {
-                    w.setValue("Create account");
+                    w.setValue("Account has been created");
                 }
                 if (w.getKey().equals("revtype") && (w.getValue().equals(1))) {
-                    w.setValue("Edit account");
+                    w.setValue("Account has been edited");
                 }
                 if (w.getKey().equals("revtype") && (w.getValue().equals(2))) {
-                    w.setValue("Delete account");
+                    w.setValue("Account has been deleted");
                 }
             }
         }
@@ -221,10 +239,9 @@ public class UserHistoryServiceImpl implements UserHistoryService {
      *
      * @author Mariia Shchur
      */
-    final static String FILTER_BY_DATE = "select u.revtype,u.reset_token ,to_timestamp(r.revtstmp/ 1000)::date , u.first_name,u.last_name,u.email,u.enabled,u.phone\n" +
-            "from users_aud u ,revinfo r where  u.rev=r.rev and to_timestamp(r.revtstmp/ 1000)::date=(?::date)";
+
     public List<Map<String, Object>> getAllByData(String date) {
-        List<Map<String, Object>> q = jdbcTemplate.queryForList(FILTER_BY_DATE, date);
+        List<Map<String, Object>> q = getPhotoUrl(userHistoryRepository.getAllByData(date));
         return sortData(q);
     }
 

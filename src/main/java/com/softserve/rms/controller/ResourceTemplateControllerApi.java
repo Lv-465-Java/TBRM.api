@@ -153,23 +153,6 @@ public interface ResourceTemplateControllerApi {
     ResponseEntity<Object> deleteTemplateById(@PathVariable Long templateId);
 
     /**
-     * The controller which searches all {@link ResourceTemplateDTO} by name or description.
-     *
-     * @param searchedWord request parameter to search resource templates
-     * @return list of {@link ResourceTemplateDTO}
-     * @author Halyna Yatseniuk
-     */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
-    })
-    @GetMapping("/search")
-    ResponseEntity<Page<ResourceTemplateDTO>> searchTemplateByNameOrDescription(@RequestParam String searchedWord,
-                                                                                @RequestParam Optional<Integer> page,
-                                                                                @RequestParam Optional<Integer> pageSize);
-
-    /**
      * The controller which publishes {@link ResourceTemplateDTO} by id.
      *
      * @param templateId of {@link ResourceTemplateDTO}

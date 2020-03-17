@@ -10,23 +10,16 @@ import com.softserve.rms.security.oauth.user.OAuth2UserInfoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,9 +32,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomOAuth2UserService.class);
     private UserRepository userRepository;
-
-    @Value("${fullRegistrationRedirectUri}")
-    private String fullRegistrationRedirectUri;
 
     public Boolean isNewUser=false;
 
@@ -93,7 +83,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user;
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            if (!user.getProvider().equals(oAuth2UserRequest.getClientRegistration().getRegistrationId())) {
+            ClientRegistration clientRegistration=oAuth2UserRequest.getClientRegistration();
+            if (!user.getProvider().equals(clientRegistration.getRegistrationId())) {
                 throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
                         user.getProvider() + " account.");
             }
@@ -117,7 +108,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
         User user = new User();
 
-        user.setProvider(oAuth2UserRequest.getClientRegistration().getRegistrationId());
+        ClientRegistration clientRegistration=oAuth2UserRequest.getClientRegistration();
+        user.setProvider(clientRegistration.getRegistrationId());
         user.setProviderId(oAuth2UserInfo.getId());
         user.setFirstName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());

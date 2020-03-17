@@ -5,8 +5,5 @@ public interface ValidationPattern {
     String EMAIL_PATTERN = "^\\s*[a-zA-Z0-9]+((\\.|_|-)?[a-zA-Z0-9])+@[a-zA-Z0-9]+\\.[a-zA-Z]{2,4}\\s*$";
     String PHONE_PATTERN = "^\\s*\\+[0-9]{12}\\s*$";
     String NAME_PATTERN = "^\\s*([A-Za-z]+((-|')[A-Za-z]+)*){2,}\\s*$";
-    //    String FILTER = "(\\w+?)(:|<|>|=|!=)([']{1})([A-Za-z0-9~`!@#*$%^&(-_)/><?\"|+=:]+)([']{1})";
     String SEARCH_PATTERN = "(\\w+?)(:|<|>|=|!=)([A-Za-z0-9~`!@#*$%^&(-_)/><?\"|+=: ]+)";
-//    String SEARCH_ =
-//            "([a-zA-Z0-9_]+?)(:|<|>|=|!=)([a-zA-Z0-9]+((\\.|_|-)?[a-zA-Z0-9])+@[a-zA-Z0-9]+\\.[a-zA-Z]{2,4}|[0-9]+\\.[0-9]+|[a-zA-Z0-9_ ]+)";
 }

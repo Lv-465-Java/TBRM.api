@@ -3,18 +3,16 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.User;
-import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotUniqueNameException;
 import com.softserve.rms.exceptions.resourseTemplate.ResourceTemplateCanNotBeModified;
 import org.springframework.data.domain.Page;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
 public interface ResourceTemplateService {
