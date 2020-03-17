@@ -28,15 +28,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByEmail(String email);
 
     /**
-     * Method finds list of {@link User} by role id.
-     *
-     * @param id of role.
-     * @return list of {@link User}
-     * @author Halyna Yatseniuk
-     */
-    List<User> findAllByRoleId(Long id);
-
-    /**
      * Method that check if user with this email already exist
      *
      * @param email

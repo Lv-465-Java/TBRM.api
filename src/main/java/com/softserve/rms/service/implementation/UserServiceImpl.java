@@ -2,29 +2,16 @@ package com.softserve.rms.service.implementation;
 
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDtoRole;
-import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserSearchDTO;
 import com.softserve.rms.dto.user.*;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidTokenException;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.exceptions.NotSavedException;
-import com.softserve.rms.exceptions.PermissionException;
-import com.softserve.rms.exceptions.user.WrongEmailException;
 import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
@@ -45,11 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.DataSource;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import java.util.Map;
 import java.util.UUID;
 
@@ -218,18 +203,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @author Halyna Yatseniuk
-     */
-    @Override
-    public Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize) {
-        List<User> users = userRepository.findAllByRoleId(roleId);
-        return PaginationUtil.buildPage(users, page, pageSize)
-                .map(user -> modelMapper.map(user, UserSearchDTO.class));
-    }
-
-    /**
      * Method that return full url of file from s3
      *
      * @param photoName a value of {@link String}
@@ -378,9 +351,9 @@ public class UserServiceImpl implements UserService {
      * @author Kravets Maryana
      */
     @Override
-     public Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize){
+    public Page<UserSearchDTO> getUsersByRole(String role, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
-        Page<User>users= userRepository.findUsersByRoleName("ROLE_"+role.toUpperCase(), pageable);
-        return users.map(user -> modelMapper.map(user, UserDto.class));
+        Page<User> users = userRepository.findUsersByRoleName("ROLE_" + role.toUpperCase(), pageable);
+        return users.map(user -> modelMapper.map(user, UserSearchDTO.class));
     }
 }

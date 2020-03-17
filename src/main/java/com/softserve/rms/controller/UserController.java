@@ -1,5 +1,6 @@
 package com.softserve.rms.controller;
 
+import com.softserve.rms.dto.UserSearchDTO;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.validator.Trimmer;
 import com.softserve.rms.constants.HttpStatuses;
@@ -233,31 +234,10 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/users/role")
-    public ResponseEntity<Page<UserDto>> getByRole(@RequestParam String role,
-                                                   @RequestParam Optional<Integer> page,
-                                                   @RequestParam Optional<Integer> pageSize) {
-        Page<UserDto> users = userService.getUsersByRole(role, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
+    public ResponseEntity<Page<UserSearchDTO>> getByRole(@RequestParam String role,
+                                                         @RequestParam Optional<Integer> page,
+                                                         @RequestParam Optional<Integer> pageSize) {
+        Page<UserSearchDTO> users = userService.getUsersByRole(role, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5));
         return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    /**
-     * The controller which gets {@link UserSearchDTO} by role id.
-     *
-     * @param roleId of {@link UserSearchDTO}
-     * @return {@link UserSearchDTO}
-     * @author Halyna Yatseniuk
-     */
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
-
-    })
-    @GetMapping("/user/role/{roleId}")
-    public ResponseEntity<Page<UserSearchDTO>> getAllByRoleId(@PathVariable Long roleId, @RequestParam Optional<Integer> page,
-                                                              @RequestParam Optional<Integer> pageSize) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.findAllByRoleId(roleId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 }
