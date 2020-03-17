@@ -6,7 +6,6 @@ import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.UserSearchDTO;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
@@ -20,8 +19,6 @@ import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserHistoryRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
-import com.softserve.rms.validator.PhoneExist;
-import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,22 +26,13 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.DataSource;
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
-import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
@@ -81,7 +69,7 @@ public class UserServiceImpl implements UserService {
                            @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
-        this.userHistoryRepository=userHistoryRepository;
+        this.userHistoryRepository = userHistoryRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService = fileStorageService;
         this.javaMailSender = javaMailSender;
@@ -218,7 +206,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUser(String email) {
         User user = getUserByEmail(email);
         UserDto userDto = modelMapper.map(user, UserDto.class);
-        userDto.setImageUrl(endpointUrl+user.getImageUrl());
+        userDto.setImageUrl(endpointUrl + user.getImageUrl());
         return userDto;
     }
 
@@ -362,7 +350,6 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userPasswordPhoneDto.getPhone());
         userRepository.save(user);
     }
-
 
     /**
      * {@inheritDoc}
