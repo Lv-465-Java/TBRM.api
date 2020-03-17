@@ -5,8 +5,8 @@ import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.resourceParameter.ResourceParameterDTO;
 import com.softserve.rms.dto.resourceParameter.ResourceParameterSaveDTO;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
-import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.dto.template.ResourceTemplateDTO;
+import com.softserve.rms.dto.template.ResourceTemplateSaveDTO;
 import com.softserve.rms.service.ResourceParameterService;
 import com.softserve.rms.service.ResourceTemplateService;
 import org.slf4j.Logger;
@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,9 +35,10 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Autowired
-    public ResourceTemplateController(ResourceTemplateService resourceTemplateService, ResourceParameterService resourceParameterService1) {
+    public ResourceTemplateController(ResourceTemplateService resourceTemplateService,
+                                      ResourceParameterService resourceParameterService) {
         this.resourceTemplateService = resourceTemplateService;
-        this.resourceParameterService = resourceParameterService1;
+        this.resourceParameterService = resourceParameterService;
     }
 
     /**
@@ -71,7 +72,8 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     public ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplates(Optional<Integer> page,
                                                                       Optional<Integer> pageSize) {
         LOG.info("Getting all Resource Templates");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.getAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -83,7 +85,8 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     public ResponseEntity<Page<ResourceTemplateDTO>> findAllPublishedTemplates(Optional<Integer> page,
                                                                                Optional<Integer> pageSize) {
         LOG.info("Getting all published Resource Templates");
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.findAllPublishedTemplates(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.findAllPublishedTemplates(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -103,10 +106,11 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplatesByUserId(Long userId,Optional<Integer> page,
+    public ResponseEntity<Page<ResourceTemplateDTO>> findAllTemplatesByUserId(Long userId, Optional<Integer> page,
                                                                               Optional<Integer> pageSize) {
         LOG.info("Getting all Resource Templates by user ID: " + userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.getAllByUserId(userId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.getAllByUserId(userId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
@@ -117,7 +121,8 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     @Override
     public ResponseEntity<ResourceTemplateDTO> updateTemplateById(Long templateId, Map<String, Object> body) {
         LOG.info("Updating Resource Template by ID: " + templateId);
-        return ResponseEntity.status(HttpStatus.OK).body(resourceTemplateService.checkIfTemplateCanBeUpdated(templateId, body));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(resourceTemplateService.checkIfTemplateCanBeUpdated(templateId, body));
     }
 
     /**
@@ -138,19 +143,6 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
      * @author Halyna Yatseniuk
      */
     @Override
-    public ResponseEntity<Page<ResourceTemplateDTO>> searchTemplateByNameOrDescription(String searchedWord, Optional<Integer> page,
-                                                                                       Optional<Integer> pageSize) {
-        LOG.info("Search a Resource Template by name or description contains: " + searchedWord);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceTemplateService.searchByNameOrDescriptionContaining(searchedWord, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @author Halyna Yatseniuk
-     */
-    @Override
     public ResponseEntity<Boolean> publishResourceTemplate(Long templateId, Map<String, Object> body) {
         LOG.info("Publish a Resource Template by ID: " + templateId);
         resourceTemplateService.selectPublishOrCancelPublishAction(templateId, body);
@@ -161,7 +153,8 @@ public class ResourceTemplateController implements ResourceTemplateControllerApi
     public ResponseEntity<Page<PrincipalPermissionDto>> getUsersWithAccess(String id, Optional<Integer> page,
                                                                            Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id), page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+                .body(resourceTemplateService.findPrincipalWithAccessToResourceTemplate(Long.parseLong(id),
+                        page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     @Override

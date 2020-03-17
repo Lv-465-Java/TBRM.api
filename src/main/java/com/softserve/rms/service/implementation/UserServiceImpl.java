@@ -29,6 +29,7 @@ import com.softserve.rms.exceptions.user.WrongPasswordException;
 import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
+import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +87,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
-        this.fileStorageService=fileStorageService;
+        this.fileStorageService = fileStorageService;
         this.javaMailSender = javaMailSender;
         jdbcTemplate = new JdbcTemplate(dataSource);
         this.endpointUrl = endpointUrl;
@@ -97,12 +99,12 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Override
-    public void changePhoto(MultipartFile multipartFile, String email){
+    public void changePhoto(MultipartFile multipartFile, String email) {
         User user = getUserByEmail(email);
-        if(user.getImageUrl()!=null) {
+        if (user.getImageUrl() != null) {
             fileStorageService.deleteFile(user.getImageUrl());
         }
-        String photoName=fileStorageService.uploadFile(multipartFile);
+        String photoName = fileStorageService.uploadFile(multipartFile);
         user.setImageUrl(photoName);
         userRepository.save(user);
     }
@@ -113,7 +115,7 @@ public class UserServiceImpl implements UserService {
      * @author Mariia Shchur
      */
     @Override
-    public void deletePhoto(String email){
+    public void deletePhoto(String email) {
         User user = getUserByEmail(email);
         fileStorageService.deleteFile(user.getImageUrl());
         user.setImageUrl(null);
@@ -149,12 +151,11 @@ public class UserServiceImpl implements UserService {
     public void deleteAccount(String email) {
         User user = getUserByEmail(email);
         try {
-            if((user.getImageUrl()!=null)&&(user.getProvider()==null)){
+            if ((user.getImageUrl() != null) && (user.getProvider() == null)) {
                 fileStorageService.deleteFile(user.getImageUrl());
             }
             userRepository.deleteByEmail(email);
-        }
-        catch (NotDeletedException e){
+        } catch (NotDeletedException e) {
             throw new NotDeletedException(ErrorMessage.USER_NOT_DELETE.getMessage());
         }
     }
@@ -209,11 +210,23 @@ public class UserServiceImpl implements UserService {
      *
      * @author Mariia Shchur
      */
-    public UserDto getUser(String email){
+    public UserDto getUser(String email) {
         User user = getUserByEmail(email);
-        UserDto userDto=modelMapper.map(user,UserDto.class);
+        UserDto userDto = modelMapper.map(user, UserDto.class);
         userDto.setImageUrl(getPhotoUrl(user.getImageUrl()));
         return userDto;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @author Halyna Yatseniuk
+     */
+    @Override
+    public Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize) {
+        List<User> users = userRepository.findAllByRoleId(roleId);
+        return PaginationUtil.buildPage(users, page, pageSize)
+                .map(user -> modelMapper.map(user, UserSearchDTO.class));
     }
 
     /**
@@ -223,8 +236,8 @@ public class UserServiceImpl implements UserService {
      * @return {@link String}
      * @author Mariia Shchur
      */
-    private String getPhotoUrl(String photoName){
-        return endpointUrl+photoName;
+    private String getPhotoUrl(String photoName) {
+        return endpointUrl + photoName;
     }
 
 
@@ -305,6 +318,7 @@ public class UserServiceImpl implements UserService {
      */
     private static final String IF_TOKEN_VALID = "select (to_timestamp(r.revtstmp/ 1000)+ interval '6 hour')>=now() from users_aud u,revinfo r where u.rev=r.rev \n" +
             "and u.reset_token=?  ";
+
     private Boolean checkTokenDate(String token) {
         boolean q = false;
         Map<String, Object> map = jdbcTemplate.queryForMap(IF_TOKEN_VALID, token);
@@ -315,6 +329,7 @@ public class UserServiceImpl implements UserService {
         }
         return q;
     }
+
     /**
      * Method returns user's role
      *
@@ -322,12 +337,13 @@ public class UserServiceImpl implements UserService {
      * @author Marian Dutchyn
      */
     @Override
-    public UserDtoRole getUserRole(Principal principal){
+    public UserDtoRole getUserRole(Principal principal) {
         User user = getUserByEmail(principal.getName());
         UserDtoRole userRoleDto = new UserDtoRole();
         userRoleDto.setRole(user.getRole());
         return userRoleDto;
     }
+
     /**
      * Method returns active users
      *
@@ -343,7 +359,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Method for set password and phone of user
      *
-     * @param email {@link String}
+     * @param email                {@link String}
      * @param userPasswordPhoneDto {@link UserPasswordPhoneDto}
      * @author Kravets Maryana
      */
