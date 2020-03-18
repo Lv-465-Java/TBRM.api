@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/resource-template/resource/{tableName}")
+@RequestMapping("/resource/{resourceName}")
 public class ResourceRecordController {
     private ResourceRecordService resourceRecordService;
     private static final Logger LOG = LoggerFactory.getLogger(ResourceRecordController.class);
@@ -42,7 +42,7 @@ public class ResourceRecordController {
      * The controller which saves a dynamic {@link ResourceRecord} in a table specified
      * by the reсorder.
      *
-     * @param tableName   {@link ResourceTemplate} table name
+     * @param resourceName   {@link ResourceTemplate} table name
      * @param resourceDTO instance of {@link ResourceRecordSaveDTO}
      * @return {@link ResponseEntity} with generic type {@link ResourceRecordDTO}
      * @author Andrii Bren
@@ -54,9 +54,9 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PostMapping
-    public HttpStatus save(@PathVariable String tableName, @Valid @RequestBody ResourceRecordSaveDTO resourceDTO) {
+    public HttpStatus save(@PathVariable String resourceName, @Valid @RequestBody ResourceRecordSaveDTO resourceDTO) {
         LOG.info("Create a new Resource");
-        resourceRecordService.save(tableName, resourceDTO);
+        resourceRecordService.save(resourceName, resourceDTO);
         return HttpStatus.OK;
     }
 
@@ -64,7 +64,7 @@ public class ResourceRecordController {
      * Controller finds all dynamic {@link ResourceRecord} in a table specified
      * by the reсorder.
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @return {@link ResponseEntity} with generic type {@link ResourceRecordDTO}
      * @author Andrii Bren
      */
@@ -74,18 +74,18 @@ public class ResourceRecordController {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping
-    public ResponseEntity<Page<ResourceRecordDTO>> findAll(@PathVariable String tableName,
+    public ResponseEntity<Page<ResourceRecordDTO>> findAll(@PathVariable String resourceName,
                                                            @RequestParam Optional<Integer> page,
                                                            @RequestParam Optional<Integer> pageSize) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(resourceRecordService.findAll(tableName, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
+                .body(resourceRecordService.findAll(resourceName, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
     /**
      * Controller finds a dynamic {@link ResourceRecord} in a table specified
      * by the reсorder.
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        of {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity} with generic type {@link ResourceRecordDTO}
      * @author Andrii Bren
@@ -97,14 +97,14 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ResourceRecordDTO> findById(@PathVariable String tableName, @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(resourceRecordService.findByIdDTO(tableName, id));
+    public ResponseEntity<ResourceRecordDTO> findById(@PathVariable String resourceName, @PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(resourceRecordService.findByIdDTO(resourceName, id));
     }
 
     /**
      * Controller which updates a dynamic {@link ResourceRecord}.
      *
-     * @param tableName             {@link ResourceTemplate} table name
+     * @param resourceName             {@link ResourceTemplate} table name
      * @param id                    of {@link ResourceRecordDTO} id
      * @param resourceRecordSaveDTO instance of {@link ResourceRecordSaveDTO}
      * @return {@link ResponseEntity} with generic type {@link ResourceRecordDTO}
@@ -117,16 +117,16 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @PatchMapping("/{id}")
-    public HttpStatus update(@PathVariable String tableName, @PathVariable Long id,
+    public HttpStatus update(@PathVariable String resourceName, @PathVariable Long id,
                              @Valid @RequestBody ResourceRecordSaveDTO resourceRecordSaveDTO) {
-        resourceRecordService.update(tableName, id, resourceRecordSaveDTO);
+        resourceRecordService.update(resourceName, id, resourceRecordSaveDTO);
         return HttpStatus.OK;
     }
 
     /**
      * Controller which deletes a dynamic {@link ResourceRecord} by id.
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity} with generic type {@link Object}
      * @author Andrii Bren
@@ -138,8 +138,8 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable String tableName, @PathVariable Long id) {
-        resourceRecordService.delete(tableName, id);
+    public ResponseEntity<Object> delete(@PathVariable String resourceName, @PathVariable Long id) {
+        resourceRecordService.delete(resourceName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -147,7 +147,7 @@ public class ResourceRecordController {
      * Method for saving multiple photos
      *
      * @param files     to save.
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity}.
      * @author Mariia Shchur
@@ -160,16 +160,16 @@ public class ResourceRecordController {
     })
     @PutMapping("/{id}/updatePhoto")
     public ResponseEntity changePhoto(@RequestPart List<MultipartFile> files,
-                                      @PathVariable String tableName,
+                                      @PathVariable String resourceName,
                                       @PathVariable Long id) {
-        files.stream().forEach(photo -> resourceRecordService.changePhoto(photo, tableName, id));
+        files.stream().forEach(photo -> resourceRecordService.changePhoto(photo, resourceName, id));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * Method for deleting all {@link ResourceRecord} photos
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity}.
      * @author Mariia Shchur
@@ -181,15 +181,15 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/{id}/deletePhoto")
-    public ResponseEntity deleteAllPhoto(@PathVariable String tableName, @PathVariable Long id) {
-        resourceRecordService.deleteAllPhotos(tableName, id);
+    public ResponseEntity deleteAllPhoto(@PathVariable String resourceName, @PathVariable Long id) {
+        resourceRecordService.deleteAllPhotos(resourceName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * Method for deleting specific photo of {@link ResourceRecord}
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @param photo      particular photo
      * @return {@link ResponseEntity}.
@@ -202,15 +202,15 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/{id}/photo/{photo}")
-    public ResponseEntity deletePhoto(@PathVariable String tableName, @PathVariable Long id, @PathVariable String photo) {
-        resourceRecordService.deletePhoto(tableName, id, photo);
+    public ResponseEntity deletePhoto(@PathVariable String resourceName, @PathVariable Long id, @PathVariable String photo) {
+        resourceRecordService.deletePhoto(resourceName, id, photo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * Method for deleting specific document of {@link ResourceRecord}
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @param document
      * @return {@link ResponseEntity}.
@@ -223,22 +223,22 @@ public class ResourceRecordController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
     @DeleteMapping("/{id}/document/{document}")
-    public ResponseEntity deleteDocument(@PathVariable String tableName, @PathVariable Long id, @PathVariable String document) {
-        resourceRecordService.deleteDocument(tableName, id, document);
+    public ResponseEntity deleteDocument(@PathVariable String resourceName, @PathVariable Long id, @PathVariable String document) {
+        resourceRecordService.deleteDocument(resourceName, id, document);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * Method for deleting all {@link ResourceRecord} documents
      *
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity}.
      * @author Mariia Shchur
      */
     @DeleteMapping("/{id}/deleteDocument")
-    public ResponseEntity deleteAllDocuments(@PathVariable String tableName, @PathVariable Long id) {
-        resourceRecordService.deleteAllDocuments(tableName, id);
+    public ResponseEntity deleteAllDocuments(@PathVariable String resourceName, @PathVariable Long id) {
+        resourceRecordService.deleteAllDocuments(resourceName, id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -246,7 +246,7 @@ public class ResourceRecordController {
      * Method for saving multiple documents
      *
      * @param files     to save.
-     * @param tableName {@link ResourceTemplate} table name
+     * @param resourceName {@link ResourceTemplate} table name
      * @param id        {@link ResourceRecordDTO} id
      * @return {@link ResponseEntity}.
      * @author Mariia Shchur
@@ -259,9 +259,9 @@ public class ResourceRecordController {
     })
     @PutMapping("/{id}/document")
     public ResponseEntity uploadDocuments(@RequestPart List<MultipartFile> files,
-                                      @PathVariable String tableName,
+                                      @PathVariable String resourceName,
                                       @PathVariable Long id) {
-        files.stream().forEach(doc -> resourceRecordService.uploadDocument(doc, tableName, id));
+        files.stream().forEach(doc -> resourceRecordService.uploadDocument(doc, resourceName, id));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

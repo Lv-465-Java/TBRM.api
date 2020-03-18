@@ -1,4 +1,4 @@
-package com.softserve.rms.security.config;
+package com.softserve.rms.config;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;

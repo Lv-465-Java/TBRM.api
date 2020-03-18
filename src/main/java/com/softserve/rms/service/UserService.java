@@ -3,6 +3,7 @@ package com.softserve.rms.service;
 import com.softserve.rms.dto.UserDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserSearchDTO;
 import com.softserve.rms.dto.user.*;
 import com.softserve.rms.entities.User;
 import org.springframework.data.domain.Page;
@@ -22,15 +23,6 @@ public interface UserService {
      * @author Mariia Shchur
      */
     UserDto getUser(String email);
-
-    /**
-     * Method finds list of {@link UserDto} by role id
-     *
-     * @param roleId of role
-     * @return list of {@link Page} of {@link UserSearchDTO}
-     * @author Halyna Yatseniuk
-     */
-    Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize);
 
     /**
      * Method saves {@link User}.
@@ -146,7 +138,5 @@ public interface UserService {
      * @return page of users {@link Page<UserDto>}
      * @author Kravets Maryana
      */
-    Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize);
-
-
+    Page<UserSearchDTO> getUsersByRole(String role, Integer page, Integer pageSize);
 }
