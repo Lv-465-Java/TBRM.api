@@ -201,7 +201,7 @@ public class ResourceRecordController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @DeleteMapping("/{id}/{photo}")
+    @DeleteMapping("/{id}/photo/{photo}")
     public ResponseEntity deletePhoto(@PathVariable String resourceName, @PathVariable Long id, @PathVariable String photo) {
         resourceRecordService.deletePhoto(resourceName, id, photo);
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -222,7 +222,7 @@ public class ResourceRecordController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
     })
-    @DeleteMapping("/{id}/{document}")
+    @DeleteMapping("/{id}/document/{document}")
     public ResponseEntity deleteDocument(@PathVariable String resourceName, @PathVariable Long id, @PathVariable String document) {
         resourceRecordService.deleteDocument(resourceName, id, document);
         return ResponseEntity.status(HttpStatus.OK).build();
