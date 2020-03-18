@@ -144,20 +144,20 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllHistory());
     }
 
-//    /**
-//     * Method that returns all users history by accurate data
-//     *
-//     * @return list of all accounts
-//     * @author Mariia Shchur
-//     */
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 200,message = HttpStatuses.OK),
-//            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
-//            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
-//            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
-//    })
-//    @GetMapping("/{date}")
-//    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@PathVariable String date){
-//        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
-//    }
+    /**
+     * Method that returns all users history by accurate data
+     *
+     * @return list of all accounts
+     * @author Mariia Shchur
+     */
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = HttpStatuses.OK),
+            @ApiResponse(code = 401 ,message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403 ,message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 400 ,message = HttpStatuses.BAD_REQUEST)
+    })
+    @GetMapping("/bydate/{date}")
+    public ResponseEntity<List<Map<String, Object>>> getAllByDate(@PathVariable String date){
+        return ResponseEntity.status(HttpStatus.OK).body(userHistoryService.getAllByData(date));
+    }
     }
