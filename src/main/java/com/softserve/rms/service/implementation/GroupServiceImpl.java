@@ -59,6 +59,9 @@ public class GroupServiceImpl  implements GroupService {
         this.emailSender = emailSender;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Page<GroupDto> getAll(Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize), Sort.Direction.DESC, "id");
@@ -66,6 +69,9 @@ public class GroupServiceImpl  implements GroupService {
                 .map(group -> modelMapper.map(group, GroupDto.class));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Page<MemberDto> getAllMembers(Long groupId, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
@@ -73,18 +79,27 @@ public class GroupServiceImpl  implements GroupService {
         return users.map(user -> modelMapper.map(user, MemberDto.class));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GroupDto getById(Long id) {
         return modelMapper.map(groupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())), GroupDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GroupDto getByName(String name) throws NotFoundException {
         return modelMapper.map(groupRepository.findByName(name)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.GROUP_DO_NOT_EXISTS.getMessage())), GroupDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Transactional
     @Override
     public GroupDto createGroup(GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
@@ -103,6 +118,9 @@ public class GroupServiceImpl  implements GroupService {
         return modelMapper.map(newGroup, GroupDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public MemberDto addMember(MemberOperationDto memberSaveDto) throws NotFoundException, NotUniqueMemberException {
         Group group = groupRepository.findByName(memberSaveDto.getGroupName()).orElseThrow(
@@ -118,6 +136,9 @@ public class GroupServiceImpl  implements GroupService {
         return new MemberDto(user.getEmail(), user.getFirstName(), user.getLastName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addWritePermission(GroupPermissionDto groupPermissionDto, Principal principal) {
         verifyGroupPermission(groupPermissionDto.getId().toString());
@@ -128,6 +149,9 @@ public class GroupServiceImpl  implements GroupService {
         emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, groupPermissionDto.getRecipient());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void changeGroupOwner(ChangeOwnerDto changeOwnerDto, Principal principal) {
         permissionManagerService.changeOwner(changeOwnerDto, principal, Group.class);
@@ -136,6 +160,9 @@ public class GroupServiceImpl  implements GroupService {
         emailSender.sendEmail(Message.GROUP_PERMISSION_SUBJECT.toString(), message, changeOwnerDto.getRecipient());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Transactional
     @Override
     public GroupDto update(String name, GroupSaveDto groupSaveDto) throws NotFoundException, NotUniqueNameException {
@@ -155,6 +182,9 @@ public class GroupServiceImpl  implements GroupService {
         return modelMapper.map(group, GroupDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Transactional
     @Override
     public void deleteCroup(String groupName) throws NotFoundException {
@@ -167,6 +197,9 @@ public class GroupServiceImpl  implements GroupService {
         groupRepository.deleteByName(groupName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteMember(MemberOperationDto memberDeleteDto) throws NotFoundException {
         Group group = groupRepository.findByName(memberDeleteDto.getGroupName()).orElseThrow(
@@ -179,12 +212,18 @@ public class GroupServiceImpl  implements GroupService {
         groupMemberRepository.deleteMember(user.getId(), group.getId());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Page<PrincipalPermissionDto> findPrincipalWithAccessToGroup(Long id, Integer page, Integer pageSize) {
         List<PrincipalPermissionDto> usersWithPermission = permissionManagerService.findPrincipalWithAccess(id, Group.class);
         return PaginationUtil.buildPage(usersWithPermission, page, pageSize);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closePermissionForCertainUser(GroupPermissionDto groupPermissionDto, Principal principal) {
         PermissionDto permissionDto = new PermissionDto(groupPermissionDto.getId(), groupPermissionDto.getRecipient(), writePermission, true);
@@ -222,6 +261,14 @@ public class GroupServiceImpl  implements GroupService {
         }
     }
 
+    /**
+     * Methods verifies if {@link User} has
+     * write permission on {@link Group}
+     *
+     * @param groupId group id
+     * @throws PermissionException if user has no access to group
+     * @author Artur Sydor
+     */
     private void verifyGroupPermission(String groupId) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         Integer mask = groupRepository.getPermission(principal.getName(), groupId);

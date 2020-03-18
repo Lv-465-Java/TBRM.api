@@ -5,6 +5,7 @@ import com.softserve.rms.dto.PermissionDto;
 import com.softserve.rms.dto.PrincipalPermissionDto;
 import com.softserve.rms.dto.group.*;
 import com.softserve.rms.dto.security.ChangeOwnerDto;
+import com.softserve.rms.entities.Group;
 import com.softserve.rms.service.GroupService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -27,11 +28,24 @@ import java.util.OptionalInt;
 public class GroupController {
     private GroupService groupService;
 
+    /**
+     * Constructor
+     *
+     * @param groupService {@link GroupService}
+     */
     @Autowired
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
     }
 
+    /**
+     * Method finds all {@link Group}.
+     *
+     * @param page current page
+     * @param pageSize elements per page
+     * @return {@link Page}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
@@ -45,6 +59,15 @@ public class GroupController {
                 .body(groupService.getAll(page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
+    /**
+     * Method finds all group members by group id.
+     *
+     * @param groupId group id
+     * @param page current page
+     * @param pageSize elements per page
+     * @return {@link Page}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
@@ -58,6 +81,13 @@ public class GroupController {
                 .body(groupService.getAllMembers(groupId, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
+    /**
+     * Method finds group by name.
+     *
+     * @param name of group
+     * @return {@link GroupDto}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -70,6 +100,15 @@ public class GroupController {
                 .body(groupService.getByName(name));
     }
 
+    /**
+     * Method finds all users with access to group.
+     *
+     * @param id group id
+     * @param page current page
+     * @param pageSize elements per page
+     * @return {@link Page}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -83,6 +122,13 @@ public class GroupController {
                 .body(groupService.findPrincipalWithAccessToGroup(id, page.orElseGet(() -> 1), pageSize.orElseGet(() -> 5)));
     }
 
+    /**
+     * Method for saving new group.
+     *
+     * @param groupSaveDto group parameters
+     * @return {@link GroupDto}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = HttpStatuses.CREATED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -95,6 +141,13 @@ public class GroupController {
                 .body(groupService.createGroup(groupSaveDto));
     }
 
+    /**
+     * Methods save new user in group.
+     *
+     * @param member user parameters
+     * @return {@link MemberDto}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = HttpStatuses.CREATED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -107,7 +160,13 @@ public class GroupController {
                 .body(groupService.addMember(member));
     }
 
-
+    /**
+     * Methods for adding write permissions on editing certain group.
+     *
+     * @param groupPermissionDto parameters needed to add permission
+     * @param principal authenticated user
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = HttpStatuses.CREATED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -120,6 +179,14 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * Methods for editing group.
+     *
+     * @param name group name
+     * @param groupSaveDto parameters for update
+     * @return {@link GroupDto}
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -132,6 +199,13 @@ public class GroupController {
                 .body(groupService.update(name, groupSaveDto));
     }
 
+    /**
+     * Method for changing group owner.
+     *
+     * @param changeOwnerDto parameters needed to change owner
+     * @param principal authenticated user
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -144,6 +218,12 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * Method deletes group by name.
+     *
+     * @param name of group
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = HttpStatuses.NO_CONTENT),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -156,6 +236,12 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Methods deletes user from group.
+     *
+     * @param memberDeleteDto user parameters
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = HttpStatuses.NO_CONTENT),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -168,6 +254,13 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Method for deleting permissions on group.
+     *
+     * @param groupPermissionDto parameters needed to add permission
+     * @param principal authenticated user
+     * @author Artur Sydor
+     */
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = HttpStatuses.CREATED),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
