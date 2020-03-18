@@ -3,20 +3,10 @@ package com.softserve.rms.service.implementation;
 import com.softserve.rms.constants.ErrorMessage;
 import com.softserve.rms.constants.ValidationErrorConstants;
 import com.softserve.rms.dto.UserDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
-import com.softserve.rms.dto.UserPasswordPhoneDto;
-import com.softserve.rms.dto.user.EmailEditDto;
-import com.softserve.rms.dto.user.PasswordEditDto;
-import com.softserve.rms.dto.user.RegistrationDto;
-import com.softserve.rms.dto.user.UserEditDto;
 import com.softserve.rms.dto.UserDtoRole;
 import com.softserve.rms.dto.UserPasswordPhoneDto;
+import com.softserve.rms.dto.UserSearchDTO;
 import com.softserve.rms.dto.user.*;
-import com.softserve.rms.entities.ResourceTemplate;
 import com.softserve.rms.entities.Role;
 import com.softserve.rms.entities.User;
 import com.softserve.rms.exceptions.InvalidTokenException;
@@ -29,8 +19,6 @@ import com.softserve.rms.repository.AdminRepository;
 import com.softserve.rms.repository.UserHistoryRepository;
 import com.softserve.rms.repository.UserRepository;
 import com.softserve.rms.service.UserService;
-import com.softserve.rms.validator.PhoneExist;
-import com.softserve.rms.util.PaginationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,21 +26,13 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
-import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
@@ -61,7 +41,6 @@ import static com.softserve.rms.exceptions.Message.USER_EMAIL_NOT_FOUND_EXCEPTIO
 import static com.softserve.rms.exceptions.Message.USER_NOT_FOUND_EXCEPTION;
 import static com.softserve.rms.util.PaginationUtil.validatePage;
 import static com.softserve.rms.util.PaginationUtil.validatePageSize;
-
 
 @Service
 @EnableAutoConfiguration
@@ -90,7 +69,7 @@ public class UserServiceImpl implements UserService {
                            @Value("${ENDPOINT_URL}") String endpointUrl) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
-        this.userHistoryRepository=userHistoryRepository;
+        this.userHistoryRepository = userHistoryRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService = fileStorageService;
         this.javaMailSender = javaMailSender;
@@ -227,20 +206,8 @@ public class UserServiceImpl implements UserService {
     public UserDto getUser(String email) {
         User user = getUserByEmail(email);
         UserDto userDto = modelMapper.map(user, UserDto.class);
-        userDto.setImageUrl(endpointUrl+user.getImageUrl());
+        userDto.setImageUrl(endpointUrl + user.getImageUrl());
         return userDto;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @author Halyna Yatseniuk
-     */
-    @Override
-    public Page<UserSearchDTO> findAllByRoleId(Long roleId, Integer page, Integer pageSize) {
-        List<User> users = userRepository.findAllByRoleId(roleId);
-        return PaginationUtil.buildPage(users, page, pageSize)
-                .map(user -> modelMapper.map(user, UserSearchDTO.class));
     }
 
     /**
@@ -342,6 +309,7 @@ public class UserServiceImpl implements UserService {
         }
         return q;
     }
+
     /**
      * Method returns user's role
      *
@@ -383,16 +351,15 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-
     /**
      * {@inheritDoc}
      *
      * @author Kravets Maryana
      */
     @Override
-     public Page<UserDto> getUsersByRole(String role, Integer page, Integer pageSize){
+    public Page<UserSearchDTO> getUsersByRole(String role, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(validatePage(page), validatePageSize(pageSize));
-        Page<User>users= userRepository.findUsersByRoleName("ROLE_"+role.toUpperCase(), pageable);
-        return users.map(user -> modelMapper.map(user, UserDto.class));
+        Page<User> users = userRepository.findUsersByRoleName("ROLE_" + role.toUpperCase(), pageable);
+        return users.map(user -> modelMapper.map(user, UserSearchDTO.class));
     }
 }
