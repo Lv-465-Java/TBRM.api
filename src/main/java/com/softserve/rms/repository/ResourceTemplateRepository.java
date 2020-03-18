@@ -18,7 +18,7 @@ import java.util.Optional;
  * which checks permissions for ResourceTemplate.
  */
 @Component
-public class ResourceTemplateRepository {
+public class ResourceTemplateRepository  {
     private ResourceTemplateRepositoryHelper repositoryHelper;
     private PermissionChecker permissionChecker;
 
