@@ -6,6 +6,7 @@ import com.softserve.rms.entities.ResourceRecord;
 import com.softserve.rms.exceptions.NotDeletedException;
 import com.softserve.rms.exceptions.NotFoundException;
 import com.softserve.rms.repository.ResourceRecordRepository;
+import com.softserve.rms.repository.ResourceTemplateRepository;
 import com.softserve.rms.service.UserService;
 import org.jooq.DSLContext;
 import org.jooq.InsertQuery;
@@ -31,6 +32,7 @@ import static org.jooq.impl.DSL.*;
 public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     private DSLContext dslContext;
     private UserService userService;
+    private ResourceTemplateRepository resourceTemplateRepository;
 
     /**
      * Constructor with parameters
@@ -38,9 +40,11 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
      * @author Andrii Bren
      */
     @Autowired
-    public ResourceRecordRepositoryImpl(DSLContext dslContext, UserService userService) {
+    public ResourceRecordRepositoryImpl(DSLContext dslContext, UserService userService,
+                                        ResourceTemplateRepository resourceTemplateRepository) {
         this.dslContext = dslContext;
         this.userService = userService;
+        this.resourceTemplateRepository = resourceTemplateRepository;
     }
 
     /**
@@ -51,6 +55,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void save(String tableName, ResourceRecord resourceRecord) {
+        resourceTemplateRepository.findByTableName(tableName);
         InsertQuery<Record> query = dslContext.insertQuery(table(tableName));
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
@@ -72,6 +77,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void update(String tableName, Long id, ResourceRecord resourceRecord) {
+        resourceTemplateRepository.findByTableName(tableName);
         UpdateQuery<Record> query = dslContext.updateQuery(table(tableName));
         query.addValue(field(FieldConstants.NAME.getValue()), resourceRecord.getName());
         query.addValue(field(FieldConstants.DESCRIPTION.getValue()), resourceRecord.getDescription());
@@ -96,6 +102,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional(readOnly = true)
     @Override
     public Page<ResourceRecord> findAll(String tableName, Integer page, Integer pageSize) {
+        resourceTemplateRepository.findByTableName(tableName);
         Long totalItems = Long.valueOf(dslContext.selectCount()
                 .from(tableName)
                 .fetchOne(0, int.class));
@@ -117,6 +124,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Override
     public Optional<ResourceRecord> findById(String tableName, Long id)
             throws NotFoundException {
+        resourceTemplateRepository.findByTableName(tableName);
         Record record = dslContext.selectFrom(tableName).where(field(FieldConstants.ID.getValue()).eq(id)).fetchOne();
         if (record == null) {
             throw new NotFoundException(ErrorMessage.CAN_NOT_FIND_A_RESOURCE_BY_ID.getMessage() + id);
@@ -132,6 +140,7 @@ public class ResourceRecordRepositoryImpl implements ResourceRecordRepository {
     @Transactional
     @Override
     public void delete(String tableName, Long id) throws NotFoundException, NotDeletedException {
+        resourceTemplateRepository.findByTableName(tableName);
         dslContext.delete(table(tableName))
                 .where(field(FieldConstants.ID.getValue()).eq(id))
                 .execute();
