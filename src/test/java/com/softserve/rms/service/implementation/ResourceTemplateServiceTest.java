@@ -79,14 +79,14 @@ public class ResourceTemplateServiceTest {
 
     private Role role = new Role(2L, "MANAGER");
     private User user = new User(1L, "testName", "testSurname", "testEmail", "any",
-            "any", false, role,"imageurl","google","12444", Collections.emptyList(), null, Collections.emptyList());
+            "any", false, role, "imageurl", "google", "12444", Collections.emptyList(), null, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "name", "name",
             "description", false, user, Collections.emptyList(), Collections.emptyList());
     private ResourceTemplateSaveDTO resourceTemplateSaveDTO = new ResourceTemplateSaveDTO("name", "description");
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(null, "name", "name",
-            "description", false, user.getId(), null);
+            "description", false, user.getFirstName(), user.getLastName(), user.getId(), null);
     private ResourceTemplateDTO resourceTempDTO = new ResourceTemplateDTO(1L, "name", "name",
-            "description", false, user.getId(), Collections.emptyList());
+            "description", false, user.getFirstName(), user.getLastName(), user.getId(), Collections.emptyList());
     private Map<String, Object> map;
 
     @Before
@@ -151,7 +151,7 @@ public class ResourceTemplateServiceTest {
     public void testUpdateResourceTemplateWithPublishTrue() {
         when(resourceTemplateRepository.findById(anyLong())).thenReturn(Optional.of(resourceTemplate));
         ResourceTemplateDTO updatedDTO = new ResourceTemplateDTO(1L, "updated name", "updated_name",
-                "updated description", false, user.getId(), Collections.emptyList());
+                "updated description", false, user.getFirstName(), user.getLastName(), user.getId(), Collections.emptyList());
         map = new HashMap<>();
         map.put("name", "updated name");
         map.put("description", "updated description");
@@ -162,7 +162,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUpdateResourceTemplateWithDescription() throws Exception {
         ResourceTemplateDTO updatedDTO = new ResourceTemplateDTO(1L, "name", "name",
-                "updated description", false, user.getId(), Collections.emptyList());
+                "updated description", false, user.getFirstName(), user.getLastName(), user.getId(), Collections.emptyList());
         map = new HashMap<>();
         map.put("description", "updated description");
         ResourceTemplateDTO resultResourceTemplate = Whitebox.invokeMethod(
@@ -173,7 +173,7 @@ public class ResourceTemplateServiceTest {
     @Test
     public void testUpdateResourceTemplateWithName() throws Exception {
         ResourceTemplateDTO updatedDTO = new ResourceTemplateDTO(1L, "updated name", "updated_name",
-                "description", false, user.getId(), Collections.emptyList());
+                "description", false, user.getFirstName(), user.getLastName(), user.getId(), Collections.emptyList());
         map = new HashMap<>();
         map.put("name", "updated name");
         ResourceTemplateDTO resultResourceTemplate = Whitebox.invokeMethod(

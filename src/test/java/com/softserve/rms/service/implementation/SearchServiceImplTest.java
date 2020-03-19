@@ -59,7 +59,7 @@ public class SearchServiceImplTest {
             "any", false, role, "imageurl", "google", "12444",
             Collections.emptyList(), null, Collections.emptyList());
     private ResourceTemplateDTO resourceTemplateDTO = new ResourceTemplateDTO(5L, "testNameForSearchDTO",
-            "dbTableName", "test test desc", true, 2L, Collections.emptyList());
+            "dbTableName", "test test desc", true, user.getFirstName(), user.getLastName(), 2L, Collections.emptyList());
     private ResourceTemplate resourceTemplate = new ResourceTemplate(1L, "testNameForSearch", "dbTableName",
             "test test desc", true, user, Collections.emptyList(), Collections.emptyList());
     private List<ResourceTemplate> testResourceTemplates = new ArrayList<>();

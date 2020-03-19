@@ -46,14 +46,14 @@ public class SearchSpecification implements Specification<ResourceTemplate> {
             switch (criteria.getOperation()) {
                 case SearchOperation.EQUAL:
                     return builder.equal(root.get(criteria.getKey()), criteria.getValue());
-                case SearchOperation.NOT_EQUAL:
-                    return builder.notEqual(root.get(criteria.getKey()), criteria.getValue());
-                case SearchOperation.GREATER_THAN:
-                    return builder.greaterThan(root.get(
-                            criteria.getKey()), criteria.getValue().toString());
-                case SearchOperation.LESS_THAN:
-                    return builder.lessThan(root.get(
-                            criteria.getKey()), criteria.getValue().toString());
+//                case SearchOperation.NOT_EQUAL:
+//                    return builder.notEqual(root.get(criteria.getKey()), criteria.getValue());
+//                case SearchOperation.GREATER_THAN:
+//                    return builder.greaterThan(root.get(
+//                            criteria.getKey()), criteria.getValue().toString());
+//                case SearchOperation.LESS_THAN:
+//                    return builder.lessThan(root.get(
+//                            criteria.getKey()), criteria.getValue().toString());
                 case SearchOperation.CONTAINS:
                     return builder.like(root.get(
                             criteria.getKey()), FieldConstants.PERCENTAGE.getValue() +
